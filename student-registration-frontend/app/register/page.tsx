@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { FaUserPlus, FaUser, FaLock, FaBirthdayCake } from 'react-icons/fa';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -23,6 +23,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const { register: registerUser, isAuthenticated } = useAuth();
   const router = useRouter();
+  const [popupMsg, setPopupMsg] = useState<string | null>(null);
 
   const {
     register,
@@ -51,13 +52,18 @@ export default function RegisterPage() {
       );
       toast.success('Registration successful');
       router.push('/');
-    } catch (error) {
-      if ((error as Error).message === 'Email already in use') {
-        toast.error('This email is already registered. Please use a different email.');
-      } else {
-        const errorMessage = (error instanceof Error && error.message) ? error.message : 'Registration failed. Please try again.';
-        toast.error(errorMessage);
+    } catch (error: any) {
+      let errorMsg = 'Registration failed. Please try again.';
+      if (error?.response?.data) {
+        if (error.response.data.message) {
+          errorMsg = error.response.data.message;
+        } else if (error.response.data.error) {
+          errorMsg = error.response.data.error;
+        }
+      } else if (error instanceof Error && error.message) {
+        errorMsg = error.message;
       }
+      setPopupMsg(errorMsg);
     }
   };
 
@@ -77,6 +83,23 @@ export default function RegisterPage() {
 
   return (
     <div className="flex items-center flex-col justify-center py-12 sm:px-6 lg:px-8 relative bg-opacity-100 backdrop-filter backdrop-blur-md">
+      {/* Popup warning */}
+      {popupMsg && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded shadow-lg max-w-sm w-full relative animate-fade-in">
+            <strong className="block text-lg mb-2">Warning</strong>
+            <span>{popupMsg}</span>
+            <button
+              className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-xl font-bold"
+              onClick={() => setPopupMsg(null)}
+              aria-label="Close warning"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Illustration */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
       <h2 className="mt-6 text-center text-3xl font-extrabold text-indigo-800 flex items-center justify-center gap-2">

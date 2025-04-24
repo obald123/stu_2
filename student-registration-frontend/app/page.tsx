@@ -2,6 +2,8 @@
 import { useAuth } from './context/AuthContext';
 import Link from 'next/link';
 import LoadingSpinner from './components/LoadingSpinner';
+import { FaUserCircle, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaTachometerAlt, FaUniversity, FaQuoteLeft } from 'react-icons/fa';
+import Logo from './components/Logo';
 
 export default function Home() {
   const { isAuthenticated, isAdmin, logout, user, loading } = useAuth();
@@ -15,31 +17,41 @@ export default function Home() {
   }
 
   return (
-    <div className="container" style={{minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-      <div style={{marginTop: '3rem', marginBottom: '2rem', textAlign: 'center'}}>
-        <h2 style={{fontSize: '2.5rem', fontWeight: 800, color: '#0070f3', marginBottom: '0.5rem'}}>Welcome to Student Registration System</h2>
-        <p style={{fontSize: '1.2rem', color: '#444', marginBottom: '2rem'}}>Easily manage your student profile, registration, and more!</p>
+    <div className="container flex flex-col items-center justify-center min-h-[80vh]">
+      <div className="w-full flex flex-col items-center mt-8 mb-6">
+        <Logo size={64} />
+        <FaUniversity className="text-indigo-500 text-4xl mt-2 mb-2" />
+        <h2 className="text-4xl font-extrabold text-indigo-700 mb-2">Welcome to Student Registration System</h2>
+        <p className="text-lg text-gray-600 mb-4">Easily manage your student profile, registration, and more!</p>
         {isAuthenticated ? (
-          <div style={{marginBottom: '2rem'}}>
-            <span style={{fontWeight: 600, color: '#222'}}>Hello, {user?.firstName} {user?.lastName}</span>
-            {isAdmin && (
-              <Link href="/admin/dashboard" className="btn-secondary" style={{marginLeft: '1rem'}}>Admin Dashboard</Link>
-            )}
-            <Link href="/profile" className="btn-secondary" style={{marginLeft: '1rem'}}>Profile</Link>
-            <button onClick={logout} className="btn-secondary" style={{marginLeft: '1rem'}}>Logout</button>
+          <div className="flex flex-col items-center bg-white/80 rounded-lg shadow-lg p-6 mb-4 w-full max-w-xl">
+            <span className="font-semibold text-lg text-gray-800 flex items-center gap-2 mb-2"><FaUserCircle className="text-indigo-500" />Hello, {user?.firstName} {user?.lastName}</span>
+            <div className="flex flex-wrap gap-3 justify-center mt-2">
+              {isAdmin && (
+                <Link href="/admin/dashboard" className="btn-secondary flex items-center gap-2"><FaTachometerAlt /> Admin Dashboard</Link>
+              )}
+              <Link href="/profile" className="btn-secondary flex items-center gap-2"><FaUserCircle /> Profile</Link>
+              <button onClick={logout} className="btn-secondary flex items-center gap-2"><FaSignOutAlt /> Logout</button>
+            </div>
           </div>
         ) : (
-          <div style={{display: 'flex', gap: '2rem', justifyContent: 'center', marginBottom: '2rem'}}>
-            <Link href="/login" className="btn-primary" style={{fontSize: '1.1rem', minWidth: 120}}>Login</Link>
-            <Link href="/register" className="btn-secondary" style={{fontSize: '1.1rem', minWidth: 120}}>Register</Link>
+          <div className="flex flex-col items-center bg-white/80 rounded-lg shadow-lg p-6 mb-4 w-full max-w-xl">
+            <div className="flex gap-4 mb-4">
+              <Link href="/login" className="btn-primary flex items-center gap-2 text-lg min-w-[120px]"><FaSignInAlt /> Login</Link>
+              <Link href="/register" className="btn-secondary flex items-center gap-2 text-lg min-w-[120px]"><FaUserPlus /> Register</Link>
+            </div>
           </div>
         )}
       </div>
-      <div style={{marginTop: '2rem', textAlign: 'center'}}>
-        
-        <h3 style={{marginTop: '1rem', fontSize: '1.5rem', fontWeight: 600, color: '#0070f3'}}>INES-Ruhengeri</h3>
-        <div style={{marginTop: '1.5rem', color: '#0070f3', fontWeight: 600, fontSize: '1.1rem'}}>
-          Empowering students and lectures for a better campus experience in INES-Ruhengeri    </div>
+      <div className="w-full flex flex-col items-center mt-4 text-center">
+        <h3 className="mt-2 text-2xl font-semibold text-indigo-600 flex items-center gap-2"><FaUniversity /> INES-Ruhengeri</h3>
+        <div className="mt-2 text-indigo-700 font-medium text-lg">
+          Empowering students and lecturers for a better campus experience in INES-Ruhengeri
+        </div>
+        <div className="mt-6 max-w-xl mx-auto bg-indigo-50 rounded-lg p-4 flex items-center gap-3 shadow">
+          <FaQuoteLeft className="text-indigo-400 text-2xl" />
+          <span className="italic text-gray-700">“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.”</span>
+        </div>
       </div>
     </div>
   );
