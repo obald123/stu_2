@@ -36,10 +36,10 @@ export default function Home() {
         )}
       </div>
       <div style={{marginTop: '2rem', textAlign: 'center'}}>
-        <img src="/globe.svg" alt="Student Registration" style={{width: 120, margin: '0 auto', opacity: 0.9, filter: 'drop-shadow(0 2px 8px #0070f355)'}} />
+        
+        <h3 style={{marginTop: '1rem', fontSize: '1.5rem', fontWeight: 600, color: '#0070f3'}}>INES-Ruhengeri</h3>
         <div style={{marginTop: '1.5rem', color: '#0070f3', fontWeight: 600, fontSize: '1.1rem'}}>
-          Empowering students and admins for a better campus experience.
-        </div>
+          Empowering students and lectures for a better campus experience in INES-Ruhengeri    </div>
       </div>
     </div>
   );

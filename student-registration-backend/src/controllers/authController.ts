@@ -70,13 +70,13 @@ export const loginUser = async (req: Request, res: Response, next: Function): Pr
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials' });
-      return;
+      return; // Ensure no further code is executed
     }
 
-    const isPasswordValid = user && await bcrypt.compare(password, user.password);
-    if (!user || !isPasswordValid) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       res.status(401).json({ message: 'Invalid credentials' });
-      return;
+      return; // Ensure no further code is executed
     }
 
     // Generate JWT token
@@ -98,7 +98,7 @@ export const loginUser = async (req: Request, res: Response, next: Function): Pr
       },
       token,
     });
-    return;
+    return; // Ensure no further code is executed
   } catch (error) {
     next(error);
   }

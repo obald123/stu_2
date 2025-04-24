@@ -11,11 +11,11 @@ export default function Footer() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <FaEnvelope className="text-yellow-300" />
-            <span>simuoba123@gmail.com</span>
+            <a href="mailto:simuoba123@gmail.com" className="hover:underline">simuoba123@gmail.com</a>
           </div>
           <div className="flex items-center gap-2">
             <FaPhoneAlt className="text-yellow-300" />
-            <span>+250 789 934 421</span>
+            <a href="tel:+250789934421" className="hover:underline">+250 789 934 421</a>
           </div>
         </div>
       </div>
