@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { FaUserPlus, FaUser, FaLock, FaBirthdayCake } from 'react-icons/fa';
+import { useEffect } from 'react';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -27,8 +28,16 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      dateOfBirth: '',
+    },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -55,7 +64,6 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-white flex items-center flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       {/* Illustration */}
-      <img src="/file.svg" alt="register illustration" className="absolute right-0 top-0 w-40 opacity-10 pointer-events-none select-none" />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-indigo-800 flex items-center justify-center gap-2">
           <FaUserPlus className="inline text-indigo-500" /> Create a new account
