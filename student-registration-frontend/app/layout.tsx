@@ -1,10 +1,10 @@
-import ReactQueryProvider from './providers/ReactQueryProvider';
+import ClientLayout from './components/ClientLayout';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
+import NotificationDisplay from './components/NotificationDisplay';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '../styles/globals.css';
-import NavBar from './components/NavBar';
-import Footer from './components/Footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,6 +18,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // SSR-safe admin route check
+  const isAdminRoute = typeof window !== 'undefined'
+    ? window.location.pathname.startsWith('/admin')
+    : false;
   return (
     <html lang="en">
       <body className={inter.className + ' min-h-screen flex flex-col relative bg-gray-50'}>
@@ -26,15 +30,7 @@ export default function RootLayout({
           <img src="/bgpic.png" alt="Watermark" className="w-8/9 max-w-9xl" />
         </div>
         <div className="relative z-10 flex flex-col min-h-screen">
-          <ReactQueryProvider>
-            <AuthProvider>
-              <NavBar />
-              <main className="flex-1 flex flex-col justify-center items-center w-full">
-                {children}
-              </main>
-              <Footer />
-            </AuthProvider>
-          </ReactQueryProvider>
+          <ClientLayout isAdminRoute={isAdminRoute}>{children}</ClientLayout>
         </div>
       </body>
     </html>

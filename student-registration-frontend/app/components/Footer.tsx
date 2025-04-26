@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="flex flex-col items-center gap-2 mb-4">
         <div className="flex items-center gap-2">
           <FaMapMarkerAlt className="text-yellow-300" />
-          <span>Kigali, Rwanda</span>
+          <a href="https://maps.google.com/?q=Kigali,Rwanda" target="_blank" rel="noopener noreferrer" className="hover:underline text-white">Kigali, Rwanda</a>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { Request, RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';

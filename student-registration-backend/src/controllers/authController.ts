@@ -7,15 +7,16 @@ import { generateRegistrationNumber } from '../utils/registrationNumber';
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 
-export const registerStudent = async (req: Request, res: Response, next: Function): Promise<void> => {
+export const registerStudent = async (req: Request, res: Response, next: Function): Promise<any> => {
   try {
     const { firstName, lastName, email, password, dateOfBirth } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      res.status(400).json({ message: 'Email already in use' });
-      return;
+      return res.status(400).json({ message: 'Email already in use' });
+      
+    
     }
 
     // Hash password
@@ -44,7 +45,7 @@ export const registerStudent = async (req: Request, res: Response, next: Functio
       { expiresIn: '1h' }
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Student registered successfully',
       user: {
         id: newUser.id,
@@ -56,7 +57,7 @@ export const registerStudent = async (req: Request, res: Response, next: Functio
       },
       token,
     });
-    return;
+    
   } catch (error) {
     next(error);
   }

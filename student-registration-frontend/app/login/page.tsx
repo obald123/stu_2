@@ -59,84 +59,62 @@ export default function LoginPage() {
   }
 
   return (
-    <div className=" bg-opacity-10 py-8 px-6 shadow-lg sm:rounded-lg sm:px-20 border border-indigo-100">
-      
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg">
-      <h2 className="mt-6 text-center text-3xl font-extrabold text-indigo-800 flex items-center justify-center gap-2">
-      <FaUser className="inline text-indigo-500" /> Sign in
-      </h2>
-      </div>
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-      <div className="bg-white bg-opacity-80 py-8 px-6 shadow-lg sm:rounded-lg sm:px-20 border border-indigo-100">
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-        Email address
-        </label>
-        <div className="mt-1 relative">
-        <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-        <input
-        id="email"
-        type="email"
-        autoComplete="email"
-        {...register('email')}
-        className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-        />
-        {errors.email && (
-        <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
-        )}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
+      <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+        <h2 className="text-3xl font-extrabold text-indigo-800 text-center flex items-center justify-center gap-2 mb-8">
+          <FaUser className="inline text-indigo-500" /> Sign in
+        </h2>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email address
+            </label>
+            <div className="mt-1 relative">
+              <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register('email')}
+                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 bg-white dark:bg-gray-800 dark:text-white sm:text-base transition-all duration-200"
+              />
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <div className="mt-1 relative">
+              <span className="absolute left-3 top-2.5 text-gray-400"><FaLock /></span>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                {...register('password')}
+                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 bg-white dark:bg-gray-800 dark:text-white sm:text-base transition-all duration-200"
+              />
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-2"
+          >
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+        <div className="mt-8 text-center">
+          <span className="text-gray-500">Don't have an account? </span>
+          <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200">
+            Register here
+          </Link>
         </div>
-      </div>
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-        Password
-        </label>
-        <div className="mt-1 relative">
-        <span className="absolute left-3 top-2.5 text-gray-400"><FaLock /></span>
-        <input
-        id="password"
-        type="password"
-        autoComplete="current-password"
-        {...register('password')}
-        className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-        />
-        {errors.password && (
-        <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-        )}
-        </div>
-      </div>
-      <div>
-        <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-        >
-        {isSubmitting ? 'Signing in...' : 'Sign in'}
-        </button>
-      </div>
-      </form>
-      <div className="mt-6">
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-        <div className="w-full border-t border-gray-300" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-        <span className="px-2 bg-white text-gray-500">Or</span>
-        </div>
-      </div>
-      <div className="mt-6">
-        <p className="text-center text-sm text-gray-600">
-        Don't have an account?{' '}
-        <Link
-        href="/register"
-        className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
-        >
-        Register here
-        </Link>
-        </p>
-      </div>
-      </div>
-      </div>
       </div>
     </div>
   );

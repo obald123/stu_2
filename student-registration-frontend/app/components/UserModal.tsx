@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '../lib/api';
 import { toast } from 'react-hot-toast';
+import { useEffect } from 'react';
 
 const updateUserSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -43,6 +44,18 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
       dateOfBirth: user?.dateOfBirth.split('T')[0] || '',
     },
   });
+
+  // Reset form values when user changes
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        dateOfBirth: user.dateOfBirth.split('T')[0] || '',
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = async (data: UpdateUserFormData) => {
     try {
@@ -88,6 +101,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                     <input
                       id="firstName"
                       type="text"
+                      autoComplete="given-name"
                       {...register('firstName')}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
@@ -108,6 +122,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                     <input
                       id="lastName"
                       type="text"
+                      autoComplete="family-name"
                       {...register('lastName')}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
@@ -128,6 +143,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                     <input
                       id="email"
                       type="email"
+                      autoComplete="email"
                       {...register('email')}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
@@ -146,6 +162,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
                     <input
                       id="dateOfBirth"
                       type="date"
+                      autoComplete="bday"
                       {...register('dateOfBirth')}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />

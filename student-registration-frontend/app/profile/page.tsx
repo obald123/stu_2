@@ -3,13 +3,15 @@
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
-import { FaUserCircle, FaIdBadge, FaEnvelope, FaUserTag } from 'react-icons/fa';
+import { FaUserCircle, FaIdBadge, FaEnvelope } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import UserModal from '../components/UserModal';
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -22,46 +24,39 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-indigo-100 to-white flex items-center justify-center py-12">
-      <div className="max-w-2xl w-full mx-auto py-6 sm:px-6 lg:px-8">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="bg-white shadow-lg overflow-hidden sm:rounded-lg border border-indigo-100">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200 flex items-center gap-2">
-          <FaUserCircle className="text-indigo-500 text-2xl" />
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-          Profile Information
-          </h3>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
+      <div className="max-w-lg w-full mx-auto">
+        <div className="bg-white shadow-xl rounded-2xl border border-gray-200 p-8 flex flex-col items-center gap-6">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-2">
+              <FaUserCircle className="text-indigo-500 text-6xl" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h2>
+            <span className="text-sm text-gray-500">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
+          </div>
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
+              <span className="text-xs text-gray-500 flex items-center gap-1"><FaEnvelope /> Email</span>
+              <span className="text-base font-medium text-gray-900">{user.email}</span>
+            </div>
+            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
+              <span className="text-xs text-gray-500 flex items-center gap-1"><FaIdBadge /> Registration #</span>
+              <span className="text-base font-medium text-gray-900">{user.registrationNumber}</span>
+            </div>
+            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
+              <span className="text-xs text-gray-500 flex items-center gap-1">Date of Birth</span>
+              <span className="text-base font-medium text-gray-900">
+                {(user as any).dateOfBirth ? format(new Date((user as any).dateOfBirth), 'yyyy-MM-dd') : '-'}
+              </span>
+            </div>
+            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
+              <span className="text-xs text-gray-500 flex items-center gap-1">Joined</span>
+              <span className="text-base font-medium text-gray-900">
+                {(user as any).createdAt ? format(new Date((user as any).createdAt), 'yyyy-MM-dd') : '-'}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="px-4 py-5 sm:p-0">
-          <dl className="sm:divide-y sm:divide-gray-200">
-          <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 items-center">
-            <dt className="text-sm font-medium text-gray-500 flex items-center gap-1"><FaUserCircle />Full name</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {user.firstName} {user.lastName}
-            </dd>
-          </div>
-          <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 items-center">
-            <dt className="text-sm font-medium text-gray-500 flex items-center gap-1"><FaEnvelope />Email address</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {user.email}
-            </dd>
-          </div>
-          <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 items-center">
-            <dt className="text-sm font-medium text-gray-500 flex items-center gap-1"><FaIdBadge />Registration Number</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {user.registrationNumber}
-            </dd>
-          </div>
-          <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 items-center">
-            <dt className="text-sm font-medium text-gray-500 flex items-center gap-1"><FaUserTag />Role</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-            </dd>
-          </div>
-          </dl>
-        </div>
-        </div>
-      </div>
       </div>
     </div>
   );
