@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { registerStudent, loginUser } from '../controllers/authController';
-import validate from '../middleware/validate';
-import { registerSchema, loginSchema } from '../validations/authValidation';
+import { Router } from "express";
+import { registerStudent, loginUser } from "../controllers/authController";
+import validate from "../middleware/validate";
+import { registerSchema, loginSchema } from "../validations/authValidation";
 
 const router = Router();
 
@@ -23,7 +23,7 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-router.post('/register', validate(registerSchema), registerStudent);
+router.post("/register", validate(registerSchema), registerStudent);
 
 /**
  * @swagger
@@ -45,6 +45,6 @@ router.post('/register', validate(registerSchema), registerStudent);
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', validate(loginSchema), loginUser);
+router.post("/login", validate(loginSchema), loginUser);
 
 export default router;

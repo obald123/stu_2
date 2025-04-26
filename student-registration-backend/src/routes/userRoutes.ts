@@ -1,6 +1,6 @@
-import { Router } from 'express';
-import { getProfile } from '../controllers/userController';
-import authenticate from '../middleware/authenticate';
+import { Router } from "express";
+import { getProfile } from "../controllers/userController";
+import authenticate from "../middleware/authenticate";
 
 const router = Router();
 
@@ -18,6 +18,6 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.get('/profile', authenticate, getProfile);
+router.get("/profile", authenticate, getProfile);
 
 export default router;

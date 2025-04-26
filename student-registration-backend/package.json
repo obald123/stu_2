@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 10000 -r ts-node/register 'test/**/*.test.ts'",
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "obald": "nodemon src/server.ts"
+    "test": "mocha --timeout 10000 -r ts-node/register 'test/**/*.test.ts'"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +27,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.25.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/chai": "^5.2.1",
     "@types/cors": "^2.8.17",
@@ -42,6 +43,7 @@
     "nodemon": "^3.1.10",
     "supertest": "^7.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.0"
   }
 }

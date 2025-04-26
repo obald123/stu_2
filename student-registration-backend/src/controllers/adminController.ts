@@ -1,5 +1,5 @@
-import { Request, Response, RequestHandler, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Request, Response, RequestHandler, NextFunction } from "express";
+import { PrismaClient } from "@prisma/client";
 
 // Extend Express Request interface to include 'user'
 declare global {
@@ -26,7 +26,12 @@ const auditLog: Array<{
   details?: any;
 }> = [];
 
-export function logAudit(action: string, performedBy: string, userId?: string, details?: any) {
+export function logAudit(
+  action: string,
+  performedBy: string,
+  userId?: string,
+  details?: any,
+) {
   auditLog.unshift({
     id: Date.now() + Math.random(),
     action,
@@ -62,7 +67,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
           role: true,
           createdAt: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
       prisma.user.count(),
     ]);
@@ -77,29 +82,30 @@ export const getAllUsers = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Get all users error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Get all users error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 export const getAnalytics = async (req: Request, res: Response) => {
   try {
-    const [totalUsers, totalAdmins, totalStudents, recentUsers] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { role: 'admin' } }),
-      prisma.user.count({ where: { role: 'student' } }),
-      prisma.user.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          createdAt: true,
-        },
-      }),
-    ]);
+    const [totalUsers, totalAdmins, totalStudents, recentUsers] =
+      await Promise.all([
+        prisma.user.count(),
+        prisma.user.count({ where: { role: "admin" } }),
+        prisma.user.count({ where: { role: "student" } }),
+        prisma.user.findMany({
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            createdAt: true,
+          },
+        }),
+      ]);
     res.status(200).json({
       totalUsers,
       totalAdmins,
@@ -107,17 +113,21 @@ export const getAnalytics = async (req: Request, res: Response) => {
       recentUsers,
     });
   } catch (error) {
-    console.error('Get analytics error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Get analytics error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const updateUser = async (req: Request, res: Response, next: any): Promise<void> => {
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: any,
+): Promise<void> => {
   try {
     const userId = req.params.id;
     const userData = req.body;
     if (!userId) {
-      res.status(400).json({ error: 'User ID is required' });
+      res.status(400).json({ error: "User ID is required" });
       return;
     }
     // Update user in the database
@@ -125,33 +135,37 @@ export const updateUser = async (req: Request, res: Response, next: any): Promis
       where: { id: userId },
       data: userData,
     });
-    logAudit('updateUser', req.user?.id || 'unknown', userId, userData);
-    res.status(200).json({ message: 'User updated successfully' });
+    logAudit("updateUser", req.user?.id || "unknown", userId, userData);
+    res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteUser: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const deleteUser: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({ where: { id } });
     if (!existingUser) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
     // Don't allow deleting admin users
-    if (existingUser.role === 'admin') {
-      res.status(403).json({ message: 'Cannot delete admin users' });
+    if (existingUser.role === "admin") {
+      res.status(403).json({ message: "Cannot delete admin users" });
       return;
     }
 
     await prisma.user.delete({ where: { id } });
-    logAudit('deleteUser', req.user?.id || 'unknown', id);
-    res.status(200).json({ message: 'User deleted successfully' });
+    logAudit("deleteUser", req.user?.id || "unknown", id);
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }

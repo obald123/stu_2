@@ -1,14 +1,14 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   getAllUsers,
   updateUser,
   deleteUser,
   getAnalytics,
-} from '../controllers/adminController';
-import authenticate from '../middleware/authenticate';
-import authorizeAdmin from '../middleware/authorizeAdmin';
-import validate from '../middleware/validate';
-import { updateUserSchema } from '../validations/userValidation';
+} from "../controllers/adminController";
+import authenticate from "../middleware/authenticate";
+import authorizeAdmin from "../middleware/authorizeAdmin";
+import validate from "../middleware/validate";
+import { updateUserSchema } from "../validations/userValidation";
 
 const router = Router();
 
@@ -41,7 +41,7 @@ router.use(authenticate, authorizeAdmin);
  *       403:
  *         description: Admin access required
  */
-router.get('/users', getAllUsers);
+router.get("/users", getAllUsers);
 
 /**
  * @swagger
@@ -74,7 +74,7 @@ router.get('/users', getAllUsers);
  *       403:
  *         description: Admin access required
  */
-router.put('/users/:id', validate(updateUserSchema), updateUser);
+router.put("/users/:id", validate(updateUserSchema), updateUser);
 
 /**
  * @swagger
@@ -99,7 +99,7 @@ router.put('/users/:id', validate(updateUserSchema), updateUser);
  *       403:
  *         description: Admin access required
  */
-router.delete('/users/:id', deleteUser);
+router.delete("/users/:id", deleteUser);
 
 /**
  * @swagger
@@ -117,6 +117,6 @@ router.delete('/users/:id', deleteUser);
  *       403:
  *         description: Admin access required
  */
-router.get('/analytics', getAnalytics);
+router.get("/analytics", getAnalytics);
 
 export default router;

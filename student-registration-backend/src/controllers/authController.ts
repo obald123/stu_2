@@ -1,22 +1,24 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-import { generateRegistrationNumber } from '../utils/registrationNumber';
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
+import { generateRegistrationNumber } from "../utils/registrationNumber";
 
 const prisma = new PrismaClient();
-const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
+const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
 
-export const registerStudent = async (req: Request, res: Response, next: Function): Promise<any> => {
+export const registerStudent = async (
+  req: Request,
+  res: Response,
+  next: Function,
+): Promise<any> => {
   try {
     const { firstName, lastName, email, password, dateOfBirth } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' });
-      
-    
+      return res.status(400).json({ message: "Email already in use" });
     }
 
     // Hash password
@@ -34,7 +36,7 @@ export const registerStudent = async (req: Request, res: Response, next: Functio
         password: hashedPassword,
         registrationNumber,
         dateOfBirth: new Date(dateOfBirth),
-        role: 'student',
+        role: "student",
       },
     });
 
@@ -42,11 +44,11 @@ export const registerStudent = async (req: Request, res: Response, next: Functio
     const token = jwt.sign(
       { userId: newUser.id, role: newUser.role },
       jwtSecret,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" },
     );
 
     return res.status(201).json({
-      message: 'Student registered successfully',
+      message: "Student registered successfully",
       user: {
         id: newUser.id,
         firstName: newUser.firstName,
@@ -57,38 +59,39 @@ export const registerStudent = async (req: Request, res: Response, next: Functio
       },
       token,
     });
-    
   } catch (error) {
     next(error);
   }
 };
 
-export const loginUser = async (req: Request, res: Response, next: Function): Promise<void> => {
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: Function,
+): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     // Find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: "Invalid credentials" });
       return; // Ensure no further code is executed
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: "Invalid credentials" });
       return; // Ensure no further code is executed
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: user.id, role: user.role },
-      jwtSecret,
-      { expiresIn: '1h' }
-    );
+    const token = jwt.sign({ userId: user.id, role: user.role }, jwtSecret, {
+      expiresIn: "1h",
+    });
 
     res.status(200).json({
-      message: 'Login successful',
+      message: "Login successful",
       user: {
         id: user.id,
         firstName: user.firstName,

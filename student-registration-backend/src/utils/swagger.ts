@@ -1,21 +1,21 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
-import { Express } from 'express';
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { Express } from "express";
 
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Student Registration API',
-      version: '1.0.0',
-      description: 'API for student registration system',
+      title: "Student Registration API",
+      version: "1.0.0",
+      description: "API for student registration system",
     },
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
       },
     },
@@ -25,18 +25,18 @@ const options = {
       },
     ],
   },
-  apis: ['src/routes/*.ts', 'src/validations/*.ts'],
+  apis: ["src/routes/*.ts", "src/validations/*.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 export default function swaggerDocs(app: Express, port: number) {
   // Swagger page
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   // Docs in JSON format
-  app.get('/api-docs.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
+  app.get("/api-docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);
   });
 

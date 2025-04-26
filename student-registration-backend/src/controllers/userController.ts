@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,13 +8,16 @@ interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
-export const getProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getProfile = async (
+  req: AuthenticatedRequest,
+  res: Response,
+): Promise<void> => {
   try {
     // User ID is set by the authenticate middleware
     const userId = req.userId;
 
     if (!userId) {
-      res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -33,13 +36,13 @@ export const getProfile = async (req: AuthenticatedRequest, res: Response): Prom
     });
 
     if (!user) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
     res.status(200).json(user);
   } catch (error) {
-    console.error('Profile error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Profile error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
