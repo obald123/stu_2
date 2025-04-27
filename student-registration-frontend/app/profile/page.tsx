@@ -7,6 +7,7 @@ import { FaUserCircle, FaIdBadge, FaEnvelope } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useEffect, useState } from 'react';
 import UserModal from '../components/UserModal';
+import { Box, Paper, Typography, Button, Grid } from '@mui/material';
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -20,44 +21,48 @@ export default function ProfilePage() {
   }, [loading, isAuthenticated, router]);
 
   if (loading || !user) {
-    return <div className="flex justify-center items-center min-h-screen"><LoadingSpinner size={56} /></div>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <div className="max-w-lg w-full mx-auto">
-        <div className="bg-white shadow-xl rounded-2xl border border-gray-200 p-8 flex flex-col items-center gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-2">
-              <FaUserCircle className="text-indigo-500 text-6xl" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h2>
-            <span className="text-sm text-gray-500">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
-          </div>
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
-              <span className="text-xs text-gray-500 flex items-center gap-1"><FaEnvelope /> Email</span>
-              <span className="text-base font-medium text-gray-900">{user.email}</span>
-            </div>
-            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
-              <span className="text-xs text-gray-500 flex items-center gap-1"><FaIdBadge /> Registration #</span>
-              <span className="text-base font-medium text-gray-900">{user.registrationNumber}</span>
-            </div>
-            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
-              <span className="text-xs text-gray-500 flex items-center gap-1">Date of Birth</span>
-              <span className="text-base font-medium text-gray-900">
-                {(user as any).dateOfBirth ? format(new Date((user as any).dateOfBirth), 'yyyy-MM-dd') : '-'}
-              </span>
-            </div>
-            <div className="bg-indigo-50 rounded-lg p-4 flex flex-col gap-1">
-              <span className="text-xs text-gray-500 flex items-center gap-1">Joined</span>
-              <span className="text-base font-medium text-gray-900">
-                {(user as any).createdAt ? format(new Date((user as any).createdAt), 'yyyy-MM-dd') : '-'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
+      <Box sx={{ maxWidth: 480, width: '100%', mx: 'auto' }}>
+        <Paper elevation={3} sx={{ borderRadius: 4, p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ width: 96, height: 96, borderRadius: '50%', bgcolor: 'indigo.50', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+              <FaUserCircle style={{ color: '#6366f1', fontSize: 64 }} />
+            </Box>
+            <Typography variant="h5" fontWeight={700}>{user.firstName} {user.lastName}</Typography>
+            <Typography variant="body2" color="text.secondary">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Typography>
+          </Box>
+          <Grid container spacing={2} mt={1}>
+            <Grid item xs={12} sm={6}>
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaEnvelope /> Email</Typography>
+                <Typography fontWeight={500}>{user.email}</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaIdBadge /> Registration #</Typography>
+                <Typography fontWeight={500}>{user.registrationNumber}</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50' }}>
+                <Typography variant="caption" color="text.secondary">Date of Birth</Typography>
+                <Typography fontWeight={500}>{(user as any).dateOfBirth ? format(new Date((user as any).dateOfBirth), 'yyyy-MM-dd') : '-'}</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50' }}>
+                <Typography variant="caption" color="text.secondary">Joined</Typography>
+                <Typography fontWeight={500}>{(user as any).createdAt ? format(new Date((user as any).createdAt), 'yyyy-MM-dd') : '-'}</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

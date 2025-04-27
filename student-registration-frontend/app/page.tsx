@@ -4,6 +4,7 @@ import Link from 'next/link';
 import LoadingSpinner from './components/LoadingSpinner';
 import { FaUserCircle, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaTachometerAlt, FaUniversity, FaQuoteLeft } from 'react-icons/fa';
 import Logo from './components/Logo';
+import { Box, Typography } from '@mui/material';
 
 export default function Home() {
   const { isAuthenticated, isAdmin, logout, user, loading } = useAuth();
@@ -17,12 +18,16 @@ export default function Home() {
   }
 
   return (
-    <div className="container flex flex-col items-center justify-center min-h-[80vh]">
-      <div className="w-full flex flex-col items-center mt-8 mb-6">
+    <Box sx={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50' }}>
+      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 8, mb: 6 }}>
         <Logo size={64} />
-        <FaUniversity className="text-indigo-500 text-4xl mt-2 mb-2" />
-        <h2 className="text-4xl font-extrabold text-indigo-700 mb-2">Welcome to Student Registration System</h2>
-        <p className="text-lg text-gray-600 mb-4">Easily manage your student profile, registration, and more!</p>
+        <FaUniversity style={{ color: '#6366f1', fontSize: 40, margin: '16px 0' }} />
+        <Typography variant="h3" fontWeight={800} color="primary" align="center" gutterBottom>
+          Welcome to Student Registration System
+        </Typography>
+        <Typography variant="h6" color="text.secondary" align="center" gutterBottom>
+          Easily manage your student profile, registration, and more!
+        </Typography>
         {isAuthenticated ? (
           <div className="flex flex-col items-center bg-white/80 rounded-lg shadow-lg p-6 mb-4 w-full max-w-xl">
             <span className="font-semibold text-lg text-gray-800 flex items-center gap-2 mb-2"><FaUserCircle className="text-indigo-500" />Hello, {user?.firstName} {user?.lastName}</span>
@@ -42,17 +47,21 @@ export default function Home() {
             </div>
           </div>
         )}
-      </div>
+      </Box>
       <div className="w-full flex flex-col items-center mt-4 text-center">
-        <h3 className="mt-2 text-2xl font-semibold text-indigo-600 flex items-center gap-2"><FaUniversity /> INES-Ruhengeri</h3>
-        <div className="mt-2 text-indigo-700 font-medium text-lg">
+        <Typography variant="h5" color="primary" sx={{ mt: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+          <FaUniversity style={{ color: '#6366f1' }} /> INES-Ruhengeri
+        </Typography>
+        <Typography variant="body1" color="primary" fontWeight={500} sx={{ mt: 2 }}>
           Empowering students and lecturers for a better campus experience in INES-Ruhengeri
-        </div>
-        <div className="mt-6 max-w-xl mx-auto bg-indigo-50 rounded-lg p-4 flex items-center gap-3 shadow">
-          <FaQuoteLeft className="text-indigo-400 text-2xl" />
-          <span className="italic text-gray-700">“Education is the passport to the future, for tomorrow belongs to those who prepare for it today.”</span>
-        </div>
+        </Typography>
+        <Box sx={{ mt: 6, maxWidth: 600, mx: 'auto', bgcolor: 'indigo.50', borderRadius: 2, p: 3, display: 'flex', alignItems: 'center', gap: 2, boxShadow: 1 }}>
+          <FaQuoteLeft style={{ color: '#6366f1', fontSize: 24 }} />
+          <Typography variant="body2" color="text.secondary" fontStyle="italic">
+            “Education is the passport to the future, for tomorrow belongs to those who prepare for it today.”
+          </Typography>
+        </Box>
       </div>
-    </div>
+    </Box>
   );
 }

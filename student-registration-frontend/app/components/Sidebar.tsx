@@ -1,9 +1,9 @@
 'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, Button, Box, Divider, ListItemButton } from '@mui/material';
 import { FaUsers, FaTachometerAlt, FaSignOutAlt, FaClipboardList } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function Sidebar() {
   const { isAdmin, logout } = useAuth();
@@ -25,20 +25,35 @@ export default function Sidebar() {
   if (!isAdmin) return null;
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 shadow-lg flex flex-col">
-      <div className="flex items-center gap-2 px-6 py-6 border-b border-gray-200">
-        <FaTachometerAlt className="text-indigo-500 text-2xl" />
-        <span className="font-bold text-xl">Admin Panel</span>
-      </div>
-      <nav className="flex-1 px-6 py-4 flex flex-col gap-2">
-        <Link href="/admin/dashboard" className={`flex items-center gap-2 py-2 px-3 rounded hover:bg-indigo-50 transition ${pathname === '/admin/dashboard' ? 'bg-indigo-100 font-bold' : ''}`}> <FaUsers /> Dashboard </Link>
-        <Link href="/admin/audit-log" className={`flex items-center gap-2 py-2 px-3 rounded hover:bg-indigo-50 transition ${pathname === '/admin/audit-log' ? 'bg-indigo-100 font-bold' : ''}`}> <FaClipboardList /> Audit Log </Link>
-      </nav>
-      <div className="px-6 py-4 border-t border-gray-200 flex flex-col gap-2">
-        <button onClick={logout} className="flex items-center gap-2 py-2 px-3 rounded hover:bg-red-50 text-red-600 transition w-full">
-          <FaSignOutAlt /> Logout
-        </button>
-      </div>
-    </aside>
+    <Drawer
+      variant="permanent"
+      anchor="left"
+      PaperProps={{ sx: { width: 260, bgcolor: 'background.paper', borderRight: 1, borderColor: 'grey.200', boxShadow: 3 } }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 3, py: 3, borderBottom: 1, borderColor: 'grey.200' }}>
+        <FaTachometerAlt style={{ color: '#6366f1', fontSize: 24 }} />
+        <span style={{ fontWeight: 'bold', fontSize: 20 }}>Admin Panel</span>
+      </Box>
+      <List sx={{ flex: 1, px: 1, py: 2 }}>
+        <ListItem disablePadding>
+          <ListItemButton component="a" href="/admin/dashboard" selected={pathname === '/admin/dashboard'}>
+            <ListItemIcon><FaUsers /></ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton component="a" href="/admin/audit-log" selected={pathname === '/admin/audit-log'}>
+            <ListItemIcon><FaClipboardList /></ListItemIcon>
+            <ListItemText primary="Audit Log" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      <Divider />
+      <Box sx={{ px: 3, py: 2 }}>
+        <Button onClick={logout} color="error" variant="outlined" startIcon={<FaSignOutAlt />} fullWidth>
+          Logout
+        </Button>
+      </Box>
+    </Drawer>
   );
 }

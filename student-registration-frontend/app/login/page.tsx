@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { useEffect } from 'react';
+import { Box, Paper, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -59,63 +60,65 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-        <h2 className="text-3xl font-extrabold text-indigo-800 text-center flex items-center justify-center gap-2 mb-8">
-          <FaUser className="inline text-indigo-500" /> Sign in
-        </h2>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                {...register('email')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 bg-white dark:bg-gray-800 dark:text-white sm:text-base transition-all duration-200"
-              />
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaLock /></span>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                {...register('password')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 bg-white dark:bg-gray-800 dark:text-white sm:text-base transition-all duration-200"
-              />
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-              )}
-            </div>
-          </div>
-          <button
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
+      <Paper elevation={3} sx={{ width: '100%', maxWidth: 400, mx: 'auto', p: 4, borderRadius: 4 }}>
+        <Typography variant="h4" fontWeight={700} color="primary" align="center" gutterBottom>
+          <FaUser style={{ verticalAlign: 'middle', color: '#6366f1', marginRight: 8 }} /> Sign in
+        </Typography>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            label="Email address"
+            type="email"
+            fullWidth
+            margin="normal"
+            {...register('email')}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaUser style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            {...register('password')}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaLock style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
             type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 2, mb: 1 }}
             disabled={isSubmitting}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-2"
           >
             {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </button>
+          </Button>
         </form>
-        <div className="mt-8 text-center">
-          <span className="text-gray-500">Don't have an account? </span>
-          <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200">
-            Register here
-          </Link>
-        </div>
-      </div>
-    </div>
+        <Box mt={3} textAlign="center">
+          <Typography variant="body2" color="text.secondary">
+            Don't have an account?{' '}
+            <MuiLink component={Link} href="/register" color="primary" underline="hover">
+              Register here
+            </MuiLink>
+          </Typography>
+        </Box>
+      </Paper>
+    </Box>
   );
 }

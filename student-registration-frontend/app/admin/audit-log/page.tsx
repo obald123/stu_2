@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
 import { useQuery } from '@tanstack/react-query';
+import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { FaClipboardList } from 'react-icons/fa';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -24,43 +25,45 @@ export default function AuditLogPage() {
   }, [loading, isAuthenticated, isAdmin]);
 
   if (loading || isLoading) {
-    return <div className="flex justify-center items-center min-h-screen"><LoadingSpinner size={56} /></div>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-        <div className="flex items-center gap-2 mb-6">
-          <FaClipboardList className="text-indigo-500 text-2xl" />
-          <h2 className="text-2xl font-bold">Audit Log</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
+      <Paper elevation={3} sx={{ width: '100%', maxWidth: 900, mx: 'auto', p: 4, borderRadius: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+          <FaClipboardList style={{ color: '#6366f1', fontSize: 28 }} />
+          <Typography variant="h5" fontWeight={700}>Audit Log</Typography>
+        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Action</TableCell>
+                <TableCell>User ID</TableCell>
+                <TableCell>Performed By</TableCell>
+                <TableCell>Timestamp</TableCell>
+                <TableCell>Details</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {data && data.length > 0 ? data.map((log: any) => (
-                <tr key={log.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{log.action}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{log.userId || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{log.performedBy}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{new Date(log.timestamp).toLocaleString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 max-w-xs truncate">{log.details ? JSON.stringify(log.details) : '-'}</td>
-                </tr>
+                <TableRow key={log.id}>
+                  <TableCell>{log.action}</TableCell>
+                  <TableCell>{log.userId || '-'}</TableCell>
+                  <TableCell>{log.performedBy}</TableCell>
+                  <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
+                  <TableCell sx={{ maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{log.details ? JSON.stringify(log.details) : '-'}</TableCell>
+                </TableRow>
               )) : (
-                <tr><td colSpan={5} className="px-6 py-4 text-center text-gray-400">No audit log entries found.</td></tr>
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ color: 'text.secondary' }}>No audit log entries found.</TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Box>
   );
 }

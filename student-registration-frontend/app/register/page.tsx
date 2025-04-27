@@ -6,8 +6,9 @@ import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import { Box, Paper, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
 import { FaUserPlus, FaUser, FaLock, FaBirthdayCake } from 'react-icons/fa';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 const registerSchema = z.object({
@@ -82,128 +83,129 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-        <h2 className="text-3xl font-extrabold text-indigo-800 text-center flex items-center justify-center gap-2 mb-8">
-          <FaUserPlus className="inline text-indigo-500" /> Create a new account
-        </h2>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-              First Name
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-              <input
-                id="firstName"
-                type="text"
-                {...register('firstName')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-              />
-              {errors.firstName && (
-                <p className="mt-2 text-sm text-red-600">{errors.firstName.message}</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-              Last Name
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-              <input
-                id="lastName"
-                type="text"
-                {...register('lastName')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-              />
-              {errors.lastName && (
-                <p className="mt-2 text-sm text-red-600">{errors.lastName.message}</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                {...register('email')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-              />
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaLock /></span>
-              <input
-                id="password"
-                type="password"
-                {...register('password')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-              />
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
-              Date of Birth
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-2.5 text-gray-400"><FaBirthdayCake /></span>
-              <input
-                id="dateOfBirth"
-                type="date"
-                {...register('dateOfBirth')}
-                className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-              />
-              {errors.dateOfBirth && (
-                <p className="mt-2 text-sm text-red-600">{errors.dateOfBirth.message}</p>
-              )}
-            </div>
-          </div>
-          <button
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
+      <Paper elevation={3} sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: 4, borderRadius: 4 }}>
+        <Typography variant="h4" fontWeight={700} color="primary" align="center" gutterBottom>
+          <FaUserPlus style={{ verticalAlign: 'middle', color: '#6366f1', marginRight: 8 }} /> Create a new account
+        </Typography>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            label="First Name"
+            type="text"
+            fullWidth
+            margin="normal"
+            {...register('firstName')}
+            error={!!errors.firstName}
+            helperText={errors.firstName?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaUser style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Last Name"
+            type="text"
+            fullWidth
+            margin="normal"
+            {...register('lastName')}
+            error={!!errors.lastName}
+            helperText={errors.lastName?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaUser style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Email address"
+            type="email"
+            fullWidth
+            margin="normal"
+            {...register('email')}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaUser style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            {...register('password')}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaLock style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Date of Birth"
+            type="date"
+            fullWidth
+            margin="normal"
+            {...register('dateOfBirth')}
+            error={!!errors.dateOfBirth}
+            helperText={errors.dateOfBirth?.message}
+            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FaBirthdayCake style={{ color: '#888' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
             type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 2, mb: 1 }}
             disabled={isSubmitting}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-2"
           >
             {isSubmitting ? 'Registering...' : 'Register'}
-          </button>
+          </Button>
         </form>
         {popupMsg && (
-  <div className="fixed inset-0 flex items-center justify-center z-50">
-    <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded shadow-lg max-w-sm w-full relative animate-fade-in">
-      <strong className="block text-lg mb-2">Warning</strong>
-      <span>{popupMsg}</span>
-      <button
-        className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 text-xl font-bold"
-        onClick={() => setPopupMsg(null)}
-        aria-label="Close warning"
-      >
-        &times;
-      </button>
-    </div>
-  </div>
-)}
-        <div className="mt-8 text-center">
-          <span className="text-gray-500">Already have an account? </span>
-          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200">
-            Sign in here
-          </Link>
-        </div>
-      </div>
-    </div>
+          <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1300 }}>
+            <Paper sx={{ bgcolor: 'warning.light', borderLeft: 4, borderColor: 'warning.main', color: 'warning.dark', p: 3, borderRadius: 2, maxWidth: 360, width: '100%', position: 'relative' }}>
+              <Typography variant="h6" fontWeight={700} mb={1}>Warning</Typography>
+              <Typography variant="body2">{popupMsg}</Typography>
+              <Button
+                onClick={() => setPopupMsg(null)}
+                sx={{ position: 'absolute', top: 8, right: 8, minWidth: 0, p: 0, color: 'warning.dark' }}
+                aria-label="Close warning"
+              >
+                &times;
+              </Button>
+            </Paper>
+          </Box>
+        )}
+        <Box mt={3} textAlign="center">
+          <Typography variant="body2" color="text.secondary">
+            Already have an account?{' '}
+            <MuiLink component={Link} href="/login" color="primary" underline="hover">
+              Sign in here
+            </MuiLink>
+          </Typography>
+        </Box>
+      </Paper>
+    </Box>
   );
 }

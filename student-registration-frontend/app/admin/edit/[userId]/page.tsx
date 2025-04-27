@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { useRouter, useParams } from 'next/navigation';
 import api from '../../../lib/api';
 import LoadingSpinner from '../../../components/LoadingSpinner';
+import { Box, Paper, Typography, TextField, Button, InputAdornment } from '@mui/material';
 import { FaUserEdit, FaUser, FaEnvelope, FaBirthdayCake, FaArrowLeft } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -84,85 +85,105 @@ export default function EditUserPage() {
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen"><LoadingSpinner size={56} /></div>;
-  if (error) return <div className="flex justify-center items-center min-h-screen text-red-600">{error}</div>;
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
+  if (error) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', color: 'error.main' }}>{error}</Box>;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <div className="flex-1 flex items-center justify-center py-12">
-        <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-          <button
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'grey.50' }}>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 6 }}>
+        <Paper elevation={3} sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: 4, borderRadius: 4 }}>
+          <Button
             type="button"
             onClick={() => router.back()}
-            className="mb-6 flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold"
+            startIcon={<FaArrowLeft />}
+            sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}
           >
-            <FaArrowLeft /> Back
-          </button>
-          <h2 className="text-2xl font-bold text-indigo-800 flex items-center gap-2 mb-6"><FaUserEdit /> Edit User</h2>
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
-              <div className="mt-1 relative">
-                <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-                <input
-                  id="firstName"
-                  type="text"
-                  {...register('firstName')}
-                  className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-                />
-                {errors.firstName && <p className="mt-2 text-sm text-red-600">{errors.firstName.message}</p>}
-              </div>
-            </div>
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
-              <div className="mt-1 relative">
-                <span className="absolute left-3 top-2.5 text-gray-400"><FaUser /></span>
-                <input
-                  id="lastName"
-                  type="text"
-                  {...register('lastName')}
-                  className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-                />
-                {errors.lastName && <p className="mt-2 text-sm text-red-600">{errors.lastName.message}</p>}
-              </div>
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-              <div className="mt-1 relative">
-                <span className="absolute left-3 top-2.5 text-gray-400"><FaEnvelope /></span>
-                <input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-                />
-                {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>}
-              </div>
-            </div>
-            <div>
-              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">Date of Birth</label>
-              <div className="mt-1 relative">
-                <span className="absolute left-3 top-2.5 text-gray-400"><FaBirthdayCake /></span>
-                <input
-                  id="dateOfBirth"
-                  type="date"
-                  {...register('dateOfBirth')}
-                  className="appearance-none block w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 sm:text-base transition-all duration-200"
-                />
-                {errors.dateOfBirth && <p className="mt-2 text-sm text-red-600">{errors.dateOfBirth.message}</p>}
-              </div>
-            </div>
-            {submitError && <div className="text-red-600 text-center">{submitError}</div>}
-            <button
+            Back
+          </Button>
+          <Typography variant="h5" fontWeight={700} color="primary" align="left" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+            <FaUserEdit style={{ color: '#6366f1', marginRight: 8 }} /> Edit User
+          </Typography>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <TextField
+              label="First Name"
+              type="text"
+              fullWidth
+              margin="normal"
+              {...register('firstName')}
+              error={!!errors.firstName}
+              helperText={errors.firstName?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser style={{ color: '#888' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Last Name"
+              type="text"
+              fullWidth
+              margin="normal"
+              {...register('lastName')}
+              error={!!errors.lastName}
+              helperText={errors.lastName?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser style={{ color: '#888' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Email address"
+              type="email"
+              fullWidth
+              margin="normal"
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaEnvelope style={{ color: '#888' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Date of Birth"
+              type="date"
+              fullWidth
+              margin="normal"
+              {...register('dateOfBirth')}
+              error={!!errors.dateOfBirth}
+              helperText={errors.dateOfBirth?.message}
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaBirthdayCake style={{ color: '#888' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {submitError && <Typography color="error" align="center" sx={{ mt: 1 }}>{submitError}</Typography>}
+            <Button
               type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ mt: 2, mb: 1 }}
               disabled={isSubmitting}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-2"
             >
               {isSubmitting ? 'Updating...' : 'Update User'}
-            </button>
+            </Button>
           </form>
-        </div>
-      </div>
-    </div>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

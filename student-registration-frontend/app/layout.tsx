@@ -26,9 +26,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className + ' min-h-screen flex flex-col relative bg-gray-50'}>
         {/* Watermark */}
-        <div className="fixed inset-0 pointer-events-none select-none z-0 flex justify-center items-center opacity-50">
+        {/* Removed background image for cleaner look */}
+        {/* <div className="fixed inset-0 pointer-events-none select-none z-0 flex justify-center items-center opacity-50">
           <img src="/bgpic.png" alt="Watermark" className="w-8/9 max-w-9xl" />
-        </div>
+        </div> */}
         <div className="relative z-10 flex flex-col min-h-screen">
           <ClientLayout isAdminRoute={isAdminRoute}>{children}</ClientLayout>
         </div>

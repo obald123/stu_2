@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { FaUserEdit, FaTrash, FaUserShield, FaUserGraduate, FaUsers } from 'react-icons/fa';
+import { FaUserEdit, FaTrash, FaUserShield, FaUserGraduate, FaUsers, FaCog } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import UserModal from '../../components/UserModal';
@@ -23,6 +23,7 @@ import {
   Legend
 } from 'recharts';
 import { useNotification } from '../../context/NotificationContext';
+import { Box, Paper, Typography, Grid, Button, Select, MenuItem, InputBase, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Pagination, Divider } from '@mui/material';
 
 
 type User = {
@@ -114,41 +115,45 @@ export default function AdminDashboard() {
   })) || [];
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: 'grey.50' }}>
       {/* Sidebar */}
-      <aside className="w-64 min-h-screen bg-white border-r border-gray-200 shadow-lg flex flex-col">
-        <div className="flex items-center gap-2 px-6 py-6 border-b border-gray-200">
-          <FaUsers className="text-indigo-500 text-2xl" />
-          <span className="font-bold text-xl">Admin Panel</span>
-        </div>
-        <nav className="flex-1 px-6 py-4 flex flex-col gap-2">
-          <button className="flex items-center gap-2 py-2 px-3 rounded hover:bg-indigo-50 transition" disabled>
-            <FaUsers /> User Management
-          </button>
+      <Box component="aside" sx={{ width: 260, minHeight: '100vh', bgcolor: 'background.paper', borderRight: 1, borderColor: 'grey.200', boxShadow: 3, display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 3, py: 3, borderBottom: 1, borderColor: 'grey.200' }}>
+          <FaUsers style={{ color: '#6366f1', fontSize: 24 }} />
+          <Typography fontWeight="bold" fontSize={20}>Admin Panel</Typography>
+        </Box>
+        <Box sx={{ flex: 1, px: 3, py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Button startIcon={<FaUsers />} variant="outlined" color="primary" disabled>User Management</Button>
           {/* Add more sidebar links here */}
-        </nav>
-      </aside>
+        </Box>
+      </Box>
       {/* Main content */}
-      <main className="flex-1 flex flex-col min-h-screen bg-gray-50">
-        <div className="w-full max-w-7xl mx-auto px-8 py-8 flex flex-col gap-8">
+      <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'grey.50' }}>
+        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: 4, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Summary cards with analytics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center gap-2 border border-gray-200">
-              <FaUsers className="text-indigo-500 text-2xl" />
-              <span className="text-2xl font-bold">{analyticsLoading ? '...' : analytics?.totalUsers ?? totalUsers}</span>
-              <span className="text-gray-500">Total Users</span>
-            </div>
-            <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center gap-2 border border-gray-200">
-              <FaUserShield className="text-green-500 text-2xl" />
-              <span className="text-2xl font-bold">{analyticsLoading ? '...' : analytics?.totalAdmins ?? totalAdmins}</span>
-              <span className="text-gray-500">Admins</span>
-            </div>
-            <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center gap-2 border border-gray-200">
-              <FaUserGraduate className="text-blue-500 text-2xl" />
-              <span className="text-2xl font-bold">{analyticsLoading ? '...' : analytics?.totalStudents ?? totalStudents}</span>
-              <span className="text-gray-500">Students</span>
-            </div>
-          </div>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={4}>
+              <Paper elevation={2} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, borderRadius: 3 }}>
+                <FaUsers style={{ color: '#6366f1', fontSize: 24 }} />
+                <Typography variant="h5" fontWeight={700}>{analyticsLoading ? '...' : analytics?.totalUsers ?? totalUsers}</Typography>
+                <Typography color="text.secondary">Total Users</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Paper elevation={2} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, borderRadius: 3 }}>
+                <FaUserShield style={{ color: '#22c55e', fontSize: 24 }} />
+                <Typography variant="h5" fontWeight={700}>{analyticsLoading ? '...' : analytics?.totalAdmins ?? totalAdmins}</Typography>
+                <Typography color="text.secondary">Admins</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Paper elevation={2} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, borderRadius: 3 }}>
+                <FaUserGraduate style={{ color: '#3b82f6', fontSize: 24 }} />
+                <Typography variant="h5" fontWeight={700}>{analyticsLoading ? '...' : analytics?.totalStudents ?? totalStudents}</Typography>
+                <Typography color="text.secondary">Students</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
           {/* Analytics Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-xl shadow p-6 border border-gray-200 flex flex-col items-center">
@@ -194,174 +199,119 @@ export default function AdminDashboard() {
             </div>
           )}
           {/* Search and filter */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center mb-4">
-            <input
-              type="text"
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: 'center', mb: 3 }}>
+            <InputBase
               placeholder="Search by name or email..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              sx={{
+                border: 1,
+                borderColor: 'grey.300',
+                borderRadius: 2,
+                px: 2,
+                py: 1,
+                width: { xs: '100%', sm: 240 },
+                bgcolor: 'background.paper',
+                boxShadow: 1,
+              }}
+              inputProps={{ 'aria-label': 'search users' }}
             />
-            <select
+            <Select
               value={filterRole}
               onChange={e => setFilterRole(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              sx={{
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+                width: { xs: '100%', sm: 180 },
+                boxShadow: 1,
+              }}
+              size="small"
             >
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="student">Student</option>
-            </select>
-          </div>
+              <MenuItem value="all">All Roles</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="student">Student</MenuItem>
+            </Select>
+          </Box>
           {/* User Table */}
-          <div className="bg-white shadow-lg overflow-hidden rounded-xl border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200 flex items-center gap-2">
-              <FaUsers className="text-indigo-500 text-2xl" />
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-              User Management
-              </h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Reg. Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created At
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user: User) => (
-                <tr key={user.id} className="hover:bg-indigo-50 transition-colors duration-150">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    {user.role === 'admin' ? (
-                    <FaUserShield className="text-green-500" />
-                    ) : (
-                    <FaUserGraduate className="text-blue-500" />
-                    )}
-                    <div className="text-sm font-medium text-gray-900">
-                    {user.firstName} {user.lastName}
-                    </div>
-                  </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 font-semibold">{user.email}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 font-semibold">{user.registrationNumber}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-3 py-1 inline-flex text-sm leading-6 font-medium rounded-full shadow-md transition-all duration-200 ${
-                    user.role === 'admin'
-                      ? 'bg-green-200 text-green-900 hover:bg-green-300'
-                      : 'bg-blue-200 text-blue-900 hover:bg-blue-300'
-                    }`}
-                  >
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(new Date(user.createdAt), 'MMM dd, yyyy')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                  <button
-                    onClick={() => router.push(`/admin/edit/${user.id}`)}
-                    className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1 transition-colors duration-150"
-                  >
-                    <FaUserEdit /> Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="text-red-600 hover:text-red-900 flex items-center gap-1 transition-colors duration-150"
-                  >
-                    <FaTrash /> Delete
-                  </button>
-                  </td>
-                </tr>
-                ))}
-              </tbody>
-              </table>
-            </div>
-            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{(page - 1) * 10 + 1}</span> to{' '}
-                <span className="font-medium">
-                  {Math.min(page * 10, data.pagination.total)}
-                </span>{' '}
-                of <span className="font-medium">{data.pagination.total}</span> users
-                </p>
-              </div>
-              <div>
-                <nav
-                className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                aria-label="Pagination"
-                >
-                <button
-                  onClick={() => setPage((old) => Math.max(old - 1, 1))}
-                  disabled={page === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="sr-only">Previous</span>
-                  &lt;
-                </button>
-                {Array.from({ length: Math.min(5, data.pagination.totalPages) }).map(
-                  (_, i) => {
-                  const pageNumber =
-                    data.pagination.totalPages <= 5
-                    ? i + 1
-                    : page <= 3
-                    ? i + 1
-                    : page >= data.pagination.totalPages - 2
-                    ? data.pagination.totalPages - 4 + i
-                    : page - 2 + i;
-                  return (
-                    <button
-                    key={pageNumber}
-                    onClick={() => setPage(pageNumber)}
-                    aria-current={page === pageNumber ? 'page' : undefined}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                      page === pageNumber
-                      ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                    }`}
-                    >
-                    {pageNumber}
-                    </button>
-                  );
-                  }
-                )}
-                <button
-                  onClick={() => setPage((old) => (!data.pagination.hasNext ? old : old + 1))}
-                  disabled={!data.pagination.hasNext}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="sr-only">Next</span>
-                  &gt;
-                </button>
-                </nav>
-              </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          <Paper elevation={2} sx={{ overflow: 'hidden', borderRadius: 3 }}>
+            <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'grey.200', display: 'flex', alignItems: 'center', gap: 2 }}>
+              <FaUsers style={{ color: '#6366f1', fontSize: 22 }} />
+              <Typography variant="h6" fontWeight={600}>User Management</Typography>
+            </Box>
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ bgcolor: 'grey.50' }}>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Reg. Number</TableCell>
+                    <TableCell>Role</TableCell>
+                    <TableCell>Created At</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredUsers.map((user: User) => (
+                    <TableRow key={user.id} hover>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {user.role === 'admin' ? (
+                            <FaUserShield style={{ color: '#22c55e' }} />
+                          ) : (
+                            <FaUserGraduate style={{ color: '#3b82f6' }} />
+                          )}
+                          <Typography fontWeight={500}>{user.firstName} {user.lastName}</Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.registrationNumber}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          color={user.role === 'admin' ? 'success' : 'primary'}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>{format(new Date(user.createdAt), 'MMM dd, yyyy')}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          color="primary"
+                          startIcon={<FaUserEdit />}
+                          onClick={() => router.push(`/admin/edit/${user.id}`)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={<FaTrash />}
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Divider />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Showing <b>{(page - 1) * 10 + 1}</b> to <b>{Math.min(page * 10, data.pagination.total)}</b> of <b>{data.pagination.total}</b> users
+              </Typography>
+              <Pagination
+                count={data.pagination.totalPages}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                color="primary"
+                shape="rounded"
+                size="small"
+              />
+            </Box>
+          </Paper>
+        </Box>
 
         <UserModal
           isOpen={isModalOpen}
@@ -376,7 +326,7 @@ export default function AdminDashboard() {
             setSelectedUser(null);
           }}
         />
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }
