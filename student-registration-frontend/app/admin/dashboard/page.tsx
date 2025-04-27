@@ -25,7 +25,6 @@ import {
 import { useNotification } from '../../context/NotificationContext';
 import { Box, Paper, Typography, Grid, Button, Select, MenuItem, InputBase, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Pagination, Divider } from '@mui/material';
 
-
 type User = {
   id: string;
   firstName: string;

@@ -58,7 +58,7 @@ export default function Home() {
         <Box sx={{ mt: 6, maxWidth: 600, mx: 'auto', bgcolor: 'indigo.50', borderRadius: 2, p: 3, display: 'flex', alignItems: 'center', gap: 2, boxShadow: 1 }}>
           <FaQuoteLeft style={{ color: '#6366f1', fontSize: 24 }} />
           <Typography variant="body2" color="text.secondary" fontStyle="italic">
-            “Education is the passport to the future, for tomorrow belongs to those who prepare for it today.”
+            “Education is the passport to the future, for tomorrow belongs to those who prepare for it today”
           </Typography>
         </Box>
       </div>

@@ -47,6 +47,12 @@ export default function Sidebar() {
             <ListItemText primary="Audit Log" />
           </ListItemButton>
         </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton component="a" href="/admin/settings" selected={pathname === '/admin/settings'}>
+            <ListItemIcon><FaTachometerAlt /></ListItemIcon>
+            <ListItemText primary="Settings" />
+          </ListItemButton>
+        </ListItem>
       </List>
       <Divider />
       <Box sx={{ px: 3, py: 2 }}>
