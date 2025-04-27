@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "prettier": "prettier --write 'src/**/*.{ts,js,json,md}'",
+    "lint": "eslint 'src/**/*.{ts,js}'",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "mocha --timeout 10000 -r ts-node/register 'test/**/*.test.ts'"
+    "test": "mocha --timeout 10000 -r ts-node/register 'test/**/*.test.ts'",
+    "obald": "nodemon src/server.ts"
   },
   "keywords": [],
   "author": "",
