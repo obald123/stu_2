@@ -19,11 +19,11 @@ This is the backend for the Student Registration System, built with **Express.js
    - Update your `.env` file with the correct database URL.
    - Run migrations:
      ```bash
-     npx prisma migrate deploy
+     npx prisma migrate 
      ```
 3. Start the server:
    ```bash
-   npm run dev
+   npm run obald
    ```
 
 ## Project Structure
