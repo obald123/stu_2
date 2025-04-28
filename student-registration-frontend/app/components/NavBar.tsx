@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { FaUserCircle, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaTachometerAlt, FaCog, FaUniversity } from 'react-icons/fa';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemButton, ListItemText, Divider } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 
@@ -28,9 +28,6 @@ export default function NavBar() {
     ...(isAuthenticated && isAdmin && pathname === '/profile' ? [
       { label: 'Admin Dashboard', href: '/admin/dashboard', icon: <FaTachometerAlt /> },
     ] : []),
-    ...(isAuthenticated && !isAdmin && pathname === '/profile' ? [
-      { label: 'Home', href: '/', icon: <FaTachometerAlt /> },
-    ] : []),
   ];
 
   return (
@@ -43,7 +40,7 @@ export default function NavBar() {
         {/* Desktop Nav */}
         <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
           {navLinks.map((link) => (
-            <Button key={link.label} color="inherit" component={Link} href={link.href} startIcon={link.icon} sx={{ color: '#111', fontWeight: 600 }}>
+            <Button key={link.href} color="inherit" component={Link} href={link.href} startIcon={link.icon} sx={{ color: '#111', fontWeight: 600 }}>
               {link.label}
             </Button>
           ))}
@@ -60,15 +57,19 @@ export default function NavBar() {
             <Box sx={{ width: 240 }} role="presentation" onClick={() => setMobileOpen(false)}>
               <List>
                 {navLinks.map((link) => (
-                  <ListItem button key={link.label} component={Link} href={link.href}>
-                    {link.icon}
-                    <ListItemText primary={link.label} sx={{ ml: 2 }} />
+                  <ListItem key={link.href} disablePadding>
+                    <ListItemButton component={Link} href={link.href}>
+                      {link.icon}
+                      <ListItemText primary={link.label} sx={{ ml: 2 }} />
+                    </ListItemButton>
                   </ListItem>
                 ))}
                 {isAuthenticated && (
-                  <ListItem button onClick={logout}>
-                    <FaSignOutAlt />
-                    <ListItemText primary="Logout" sx={{ ml: 2 }} />
+                  <ListItem disablePadding>
+                    <ListItemButton onClick={logout}>
+                      <FaSignOutAlt />
+                      <ListItemText primary="Logout" sx={{ ml: 2 }} />
+                    </ListItemButton>
                   </ListItem>
                 )}
               </List>

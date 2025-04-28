@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { FaClipboardList } from 'react-icons/fa';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import Sidebar from '../../components/Sidebar';
 
 export default function AuditLogPage() {
   const { isAdmin, isAuthenticated, loading } = useAuth();

@@ -24,6 +24,7 @@ import {
 } from 'recharts';
 import { useNotification } from '../../context/NotificationContext';
 import { Box, Paper, Typography, Grid, Button, Select, MenuItem, InputBase, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Pagination, Divider } from '@mui/material';
+import Sidebar from '../../components/Sidebar';
 
 type User = {
   id: string;
@@ -115,18 +116,7 @@ export default function AdminDashboard() {
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f4f6fb' }}>
-      {/* Sidebar */}
-      <Box component="aside" sx={{ width: 260, minHeight: '100vh', bgcolor: '#fff', borderRight: '1px solid #e0e7ef', boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 3, py: 3, borderBottom: 1, borderColor: 'grey.200' }}>
-          <FaUsers style={{ color: '#6366f1', fontSize: 24 }} />
-          <Typography fontWeight="bold" fontSize={20}>Admin Panel</Typography>
-        </Box>
-        <Box sx={{ flex: 1, px: 3, py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button startIcon={<FaUsers />} variant="outlined" color="primary" disabled>User Management</Button>
-          {/* Add more sidebar links here */}
-        </Box>
-      </Box>
-      {/* Main content */}
+      <Sidebar />
       <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f4f6fb' }}>
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: 4, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Summary cards with analytics */}
