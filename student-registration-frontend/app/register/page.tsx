@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { Box, Paper, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
+import { Box, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
 import { FaUserPlus, FaUser, FaLock, FaBirthdayCake } from 'react-icons/fa';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -83,44 +83,44 @@ export default function RegisterPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
-      <Paper elevation={3} sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: 4, borderRadius: 4 }}>
-        <Typography variant="h4" fontWeight={700} color="primary" align="center" gutterBottom>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f4f6fb', py: 6 }}>
+      <Box sx={{ width: '100%', maxWidth: { xs: 340, sm: 420 }, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef' }}>
+        <Typography variant="h4" fontWeight={800} color="primary" align="center" gutterBottom sx={{ letterSpacing: 1, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           <FaUserPlus style={{ verticalAlign: 'middle', color: '#6366f1', marginRight: 8 }} /> Create a new account
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            label="First Name"
-            type="text"
-            fullWidth
-            margin="normal"
-            {...register('firstName')}
-            error={!!errors.firstName}
-            helperText={errors.firstName?.message}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FaUser style={{ color: '#888' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Last Name"
-            type="text"
-            fullWidth
-            margin="normal"
-            {...register('lastName')}
-            error={!!errors.lastName}
-            helperText={errors.lastName?.message}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FaUser style={{ color: '#888' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+            <TextField
+              label="First Name"
+              type="text"
+              fullWidth
+              {...register('firstName')}
+              error={!!errors.firstName}
+              helperText={errors.firstName?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser style={{ color: '#bbb' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Last Name"
+              type="text"
+              fullWidth
+              {...register('lastName')}
+              error={!!errors.lastName}
+              helperText={errors.lastName?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser style={{ color: '#bbb' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
           <TextField
             label="Email address"
             type="email"
@@ -132,7 +132,7 @@ export default function RegisterPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <FaUser style={{ color: '#888' }} />
+                  <FaUser style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
             }}
@@ -148,7 +148,7 @@ export default function RegisterPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <FaLock style={{ color: '#888' }} />
+                  <FaLock style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
             }}
@@ -165,7 +165,7 @@ export default function RegisterPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <FaBirthdayCake style={{ color: '#888' }} />
+                  <FaBirthdayCake style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
             }}
@@ -176,36 +176,31 @@ export default function RegisterPage() {
             variant="contained"
             color="primary"
             size="large"
-            sx={{ mt: 2, mb: 1 }}
+            sx={{ mt: 3, mb: 1, fontWeight: 700, borderRadius: 2, boxShadow: 2, py: 1.5, fontSize: '1.1rem' }}
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Registering...' : 'Register'}
           </Button>
         </form>
         {popupMsg && (
-          <Box sx={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1300 }}>
-            <Paper sx={{ bgcolor: 'warning.light', borderLeft: 4, borderColor: 'warning.main', color: 'warning.dark', p: 3, borderRadius: 2, maxWidth: 360, width: '100%', position: 'relative' }}>
-              <Typography variant="h6" fontWeight={700} mb={1}>Warning</Typography>
-              <Typography variant="body2">{popupMsg}</Typography>
-              <Button
-                onClick={() => setPopupMsg(null)}
-                sx={{ position: 'absolute', top: 8, right: 8, minWidth: 0, p: 0, color: 'warning.dark' }}
-                aria-label="Close warning"
-              >
-                &times;
-              </Button>
-            </Paper>
+          <Box sx={{ mt: 2, bgcolor: 'warning.light', color: 'warning.dark', p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="body2">{popupMsg}</Typography>
           </Box>
         )}
         <Box mt={3} textAlign="center">
           <Typography variant="body2" color="text.secondary">
             Already have an account?{' '}
-            <MuiLink component={Link} href="/login" color="primary" underline="hover">
+            <MuiLink component={Link} href="/login" sx={{ color: '#111', fontWeight: 600 }} underline="hover">
               Sign in here
             </MuiLink>
           </Typography>
         </Box>
-      </Paper>
+        <Box mt={2} textAlign="center">
+          <MuiLink href="#" sx={{ color: '#111', fontWeight: 600, fontSize: 13 }} underline="hover">
+            Terms & Privacy
+          </MuiLink>
+        </Box>
+      </Box>
     </Box>
   );
 }

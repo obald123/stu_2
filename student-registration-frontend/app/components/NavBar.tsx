@@ -4,54 +4,77 @@ import { usePathname } from 'next/navigation';
 import { FaUserCircle, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaTachometerAlt, FaCog, FaUniversity } from 'react-icons/fa';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemText, Divider } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useState } from 'react';
 
 export default function NavBar() {
   const pathname = usePathname();
   const { isAuthenticated, isAdmin, logout } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { label: 'Home', href: '/', icon: <FaUniversity /> },
+    ...(!isAuthenticated ? [
+      { label: 'Login', href: '/login', icon: <FaSignInAlt /> },
+      { label: 'Register', href: '/register', icon: <FaUserPlus /> },
+    ] : []),
+    ...(isAuthenticated && isAdmin ? [
+      { label: 'Profile', href: '/profile', icon: <FaUserCircle /> },
+    ] : []),
+    ...(isAuthenticated && !isAdmin ? [
+      { label: 'Profile', href: '/profile', icon: <FaUserCircle /> },
+    ] : []),
+    ...(isAuthenticated && isAdmin && pathname === '/profile' ? [
+      { label: 'Admin Dashboard', href: '/admin/dashboard', icon: <FaTachometerAlt /> },
+    ] : []),
+    ...(isAuthenticated && !isAdmin && pathname === '/profile' ? [
+      { label: 'Home', href: '/', icon: <FaTachometerAlt /> },
+    ] : []),
+  ];
 
   return (
-    <AppBar position="static" color="primary" sx={{ mb: 2 }}>
-      <Toolbar>
+    <AppBar position="static" sx={{ mb: 2, bgcolor: '#fff', color: '#111', boxShadow: 2, borderBottom: '1px solid #e0e7ef' }}>
+      <Toolbar sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: { xs: 1, sm: 3 } }}>
         <Logo size={36} />
-        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700, ml: 2 }}>
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700, ml: 2, color: '#111', display: { xs: 'none', sm: 'block' } }}>
           Student Registration System
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-          color="inherit"
-          component={Link}
-          href="/"
-          startIcon={<FaUniversity />}
-        >
-          Home
-        </Button>
-          {/* Home Page */}
-          {pathname === '/' && (
-            <>
-              {!isAuthenticated && (
-                <>
-                  <Button color="inherit" component={Link} href="/login" startIcon={<FaSignInAlt />}>Login</Button>
-                  <Button color="inherit" component={Link} href="/register" startIcon={<FaUserPlus />}>Register</Button>
-                </>
-              )}
-            </>
-          )}
-          {/* Admin Dashboard */}
-          {pathname === '/admin/dashboard' && isAdmin && (
-            <Button color="inherit" component={Link} href="/profile" startIcon={<FaUserCircle />}>Profile</Button>
-          )}
-          {/* Profile Page */}
-          {pathname === '/profile' && isAdmin && (
-            <Button color="inherit" component={Link} href="/admin/dashboard" startIcon={<FaTachometerAlt />}>Admin Dashboard</Button>
-          )}
-          {pathname === '/profile' && !isAdmin && isAuthenticated && (
-            <Button color="inherit" component={Link} href="/" startIcon={<FaTachometerAlt />}>Home</Button>
-          )}
+        {/* Desktop Nav */}
+        <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
+          {navLinks.map((link) => (
+            <Button key={link.label} color="inherit" component={Link} href={link.href} startIcon={link.icon} sx={{ color: '#111', fontWeight: 600 }}>
+              {link.label}
+            </Button>
+          ))}
           {isAuthenticated && (
-            <Button color="inherit" onClick={logout} startIcon={<FaSignOutAlt />}>Logout</Button>
+            <Button color="inherit" onClick={logout} startIcon={<FaSignOutAlt />} sx={{ color: '#111', fontWeight: 600 }}>Logout</Button>
           )}
+        </Box>
+        {/* Mobile Nav */}
+        <Box sx={{ display: { xs: 'flex', sm: 'none' } }}>
+          <IconButton color="inherit" edge="end" onClick={() => setMobileOpen(true)}>
+            <MenuIcon />
+          </IconButton>
+          <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
+            <Box sx={{ width: 240 }} role="presentation" onClick={() => setMobileOpen(false)}>
+              <List>
+                {navLinks.map((link) => (
+                  <ListItem button key={link.label} component={Link} href={link.href}>
+                    {link.icon}
+                    <ListItemText primary={link.label} sx={{ ml: 2 }} />
+                  </ListItem>
+                ))}
+                {isAuthenticated && (
+                  <ListItem button onClick={logout}>
+                    <FaSignOutAlt />
+                    <ListItemText primary="Logout" sx={{ ml: 2 }} />
+                  </ListItem>
+                )}
+              </List>
+              <Divider />
+            </Box>
+          </Drawer>
         </Box>
       </Toolbar>
     </AppBar>

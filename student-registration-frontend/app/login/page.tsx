@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { useEffect } from 'react';
-import { Box, Paper, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
+import { Box, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -60,9 +60,9 @@ export default function LoginPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
-      <Paper elevation={3} sx={{ width: '100%', maxWidth: 400, mx: 'auto', p: 4, borderRadius: 4 }}>
-        <Typography variant="h4" fontWeight={700} color="primary" align="center" gutterBottom>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f4f6fb', py: 6 }}>
+      <Box sx={{ width: '100%', maxWidth: { xs: 340, sm: 400 }, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef' }}>
+        <Typography variant="h4" fontWeight={800} color="primary" align="center" gutterBottom sx={{ letterSpacing: 1, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           <FaUser style={{ verticalAlign: 'middle', color: '#6366f1', marginRight: 8 }} /> Sign in
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <FaUser style={{ color: '#888' }} />
+                  <FaUser style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
             }}
@@ -93,7 +93,7 @@ export default function LoginPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <FaLock style={{ color: '#888' }} />
+                  <FaLock style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
             }}
@@ -104,7 +104,7 @@ export default function LoginPage() {
             variant="contained"
             color="primary"
             size="large"
-            sx={{ mt: 2, mb: 1 }}
+            sx={{ mt: 3, mb: 1, fontWeight: 700, borderRadius: 2, boxShadow: 2, py: 1.5, fontSize: '1.1rem' }}
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Signing in...' : 'Sign in'}
@@ -113,12 +113,12 @@ export default function LoginPage() {
         <Box mt={3} textAlign="center">
           <Typography variant="body2" color="text.secondary">
             Don't have an account?{' '}
-            <MuiLink component={Link} href="/register" color="primary" underline="hover">
+            <MuiLink component={Link} href="/register" sx={{ color: '#111', fontWeight: 600 }} underline="hover">
               Register here
             </MuiLink>
           </Typography>
         </Box>
-      </Paper>
+      </Box>
     </Box>
   );
 }

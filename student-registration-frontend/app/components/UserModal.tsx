@@ -6,7 +6,7 @@ import { z } from 'zod';
 import api from '../lib/api';
 import { toast } from 'react-hot-toast';
 import { useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputAdornment } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputAdornment, Box } from '@mui/material';
 
 const updateUserSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -71,42 +71,42 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
   if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit User</DialogTitle>
+    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: '#fff', color: '#111', borderRadius: 4, boxShadow: 2, border: '1px solid #e0e7ef' } }}>
+      <DialogTitle sx={{ fontWeight: 700, color: '#111', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>Edit User</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            label="First Name"
-            type="text"
-            fullWidth
-            margin="normal"
-            {...register('firstName')}
-            error={!!errors.firstName}
-            helperText={errors.firstName?.message}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  {/* icon if needed */}
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Last Name"
-            type="text"
-            fullWidth
-            margin="normal"
-            {...register('lastName')}
-            error={!!errors.lastName}
-            helperText={errors.lastName?.message}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  {/* icon if needed */}
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+            <TextField
+              label="First Name"
+              type="text"
+              fullWidth
+              {...register('firstName')}
+              error={!!errors.firstName}
+              helperText={errors.firstName?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {/* icon if needed */}
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Last Name"
+              type="text"
+              fullWidth
+              {...register('lastName')}
+              error={!!errors.lastName}
+              helperText={errors.lastName?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {/* icon if needed */}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
           <TextField
             label="Email"
             type="email"
@@ -141,8 +141,8 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
             }}
           />
           <DialogActions sx={{ mt: 2 }}>
-            <Button onClick={onClose} color="secondary">Cancel</Button>
-            <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
+            <Button onClick={onClose} color="secondary" sx={{ fontWeight: 600 }}>Cancel</Button>
+            <Button type="submit" variant="contained" color="primary" disabled={isSubmitting} sx={{ fontWeight: 600 }}>
               {isSubmitting ? 'Updating...' : 'Update'}
             </Button>
           </DialogActions>

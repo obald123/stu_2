@@ -9,6 +9,7 @@ import LoadingSpinner from '../../../components/LoadingSpinner';
 import { Box, Paper, Typography, TextField, Button, InputAdornment } from '@mui/material';
 import { FaUserEdit, FaUser, FaEnvelope, FaBirthdayCake, FaArrowLeft } from 'react-icons/fa';
 import { useState } from 'react';
+import Sidebar from '../../../components/Sidebar';
 
 const editUserSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -89,9 +90,10 @@ export default function EditUserPage() {
   if (error) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', color: 'error.main' }}>{error}</Box>;
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'grey.50' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f4f6fb' }}>
+      <Sidebar />
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 6 }}>
-        <Paper elevation={3} sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: 4, borderRadius: 4 }}>
+        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: '#111', boxShadow: 2, border: '1px solid #e0e7ef' }}>
           <Button
             type="button"
             onClick={() => router.back()}
@@ -104,38 +106,38 @@ export default function EditUserPage() {
             <FaUserEdit style={{ color: '#6366f1', marginRight: 8 }} /> Edit User
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              label="First Name"
-              type="text"
-              fullWidth
-              margin="normal"
-              {...register('firstName')}
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FaUser style={{ color: '#888' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              label="Last Name"
-              type="text"
-              fullWidth
-              margin="normal"
-              {...register('lastName')}
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FaUser style={{ color: '#888' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+              <TextField
+                label="First Name"
+                type="text"
+                fullWidth
+                {...register('firstName')}
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaUser style={{ color: '#888' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                label="Last Name"
+                type="text"
+                fullWidth
+                {...register('lastName')}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaUser style={{ color: '#888' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
             <TextField
               label="Email address"
               type="email"
@@ -176,13 +178,13 @@ export default function EditUserPage() {
               variant="contained"
               color="primary"
               size="large"
-              sx={{ mt: 2, mb: 1 }}
+              sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 2, boxShadow: 2, py: 1.5, fontSize: '1.1rem' }}
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Updating...' : 'Update User'}
             </Button>
           </form>
-        </Paper>
+        </Box>
       </Box>
     </Box>
   );

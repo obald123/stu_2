@@ -29,8 +29,8 @@ export default function AuditLogPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', py: 6 }}>
-      <Paper elevation={3} sx={{ width: '100%', maxWidth: 900, mx: 'auto', p: 4, borderRadius: 4 }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f4f6fb', py: 6 }}>
+      <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', p: 4, borderRadius: 4, bgcolor: '#fff', color: '#111', boxShadow: 2, border: '1px solid #e0e7ef' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
           <FaClipboardList style={{ color: '#6366f1', fontSize: 28 }} />
           <Typography variant="h5" fontWeight={700}>Audit Log</Typography>
@@ -63,7 +63,7 @@ export default function AuditLogPage() {
             </TableBody>
           </Table>
         </TableContainer>
-      </Paper>
+      </Box>
     </Box>
   );
 }
