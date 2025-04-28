@@ -69,6 +69,7 @@ export default function LoginPage() {
           <TextField
             label="Email address"
             type="email"
+            placeholder="Enter your email"
             fullWidth
             margin="normal"
             {...register('email')}
@@ -85,6 +86,7 @@ export default function LoginPage() {
           <TextField
             label="Password"
             type="password"
+            placeholder="Enter your password"
             fullWidth
             margin="normal"
             {...register('password')}
