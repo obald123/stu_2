@@ -1,5 +1,6 @@
 import { Request, Response, RequestHandler, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
+import { Role, UserResponse, UsersListResponse, MessageResponse } from "../types";
 
 // Extend Express Request interface to include 'user'
 declare global {
@@ -47,7 +48,10 @@ export const getAuditLog = async (req: Request, res: Response) => {
   res.status(200).json({ log: auditLog.slice(0, 50) });
 };
 
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (
+  req: Request,
+  res: Response<UsersListResponse | MessageResponse>,
+): Promise<Response<UsersListResponse | MessageResponse>> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -66,14 +70,22 @@ export const getAllUsers = async (req: Request, res: Response) => {
           dateOfBirth: true,
           role: true,
           createdAt: true,
+          password: true,
+          updatedAt: true,
         },
         orderBy: { createdAt: "desc" },
       }),
       prisma.user.count(),
     ]);
 
-    res.status(200).json({
-      users,
+    // Map Prisma role to your application's Role type
+    const mappedUsers = users.map((user) => ({
+      ...user,
+      role: user.role as Role,
+    }));
+
+    return res.status(200).json({
+      users: mappedUsers,
       pagination: {
         total: totalCount,
         page,
@@ -82,12 +94,11 @@ export const getAllUsers = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Get all users error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const getAnalytics = async (req: Request, res: Response) => {
+export const getAnalytics = async (req: Request, res: Response): Promise<Response> => {
   try {
     const [totalUsers, totalAdmins, totalStudents, recentUsers] =
       await Promise.all([
@@ -106,7 +117,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
           },
         }),
       ]);
-    res.status(200).json({
+    return res.status(200).json({
       totalUsers,
       totalAdmins,
       totalStudents,
@@ -115,36 +126,36 @@ export const getAnalytics = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Get analytics error:", error);
     res.status(500).json({ message: "Internal server error" });
+    return Promise.reject(error);
   }
 };
 
 export const updateUser = async (
   req: Request,
-  res: Response,
-  next: any,
-): Promise<void> => {
+  res: Response<MessageResponse>,
+  next: NextFunction,
+): Promise<Response<MessageResponse>> => {
   try {
     const userId = req.params.id;
     const userData = req.body;
     if (!userId) {
-      res.status(400).json({ error: "User ID is required" });
-      return;
+      return res.status(400).json({ message: "User ID is required" });
     }
-    // Update user in the database
     await prisma.user.update({
       where: { id: userId },
       data: userData,
     });
     logAudit("updateUser", req.user?.id || "unknown", userId, userData);
-    res.status(200).json({ message: "User updated successfully" });
+    return res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     next(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const deleteUser: RequestHandler = async (
+export const deleteUser = async (
   req: Request,
-  res: Response,
+  res: Response<MessageResponse>,
   next: NextFunction,
 ): Promise<void> => {
   try {
@@ -156,17 +167,16 @@ export const deleteUser: RequestHandler = async (
       res.status(404).json({ message: "User not found" });
       return;
     }
-
-    // Don't allow deleting admin users
     if (existingUser.role === "admin") {
       res.status(403).json({ message: "Cannot delete admin users" });
       return;
     }
 
+    // Delete user from the database
     await prisma.user.delete({ where: { id } });
     logAudit("deleteUser", req.user?.id || "unknown", id);
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

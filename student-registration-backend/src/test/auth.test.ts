@@ -74,4 +74,27 @@ describe("Auth API", () => {
       expect(res.body).to.have.property("message", "Invalid credentials");
     });
   });
+
+  describe("GET /api/profile (QR code tester)", () => {
+    let token: string;
+    before(async () => {
+      // Login to get a valid token
+      const res = await request(app).post("/api/login").send({
+        email: "john.doe@example.com",
+        password: "password123",
+      });
+      token = res.body.token;
+    });
+
+    it("should return a PNG image as QR code", async () => {
+      const res = await request(app)
+        .get("/api/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+      expect(res.headers["content-type"]).to.equal("image/png");
+      expect(res.body).to.be.instanceOf(Buffer);
+      // Optionally, check that the image is not empty
+      expect(res.body.length).to.be.greaterThan(100);
+    });
+  });
 });

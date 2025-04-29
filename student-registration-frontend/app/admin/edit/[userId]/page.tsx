@@ -20,6 +20,14 @@ const editUserSchema = z.object({
 
 type EditUserFormData = z.infer<typeof editUserSchema>;
 
+// Define a type for the user fetched from the API
+interface UserApiResponse {
+  firstName: string;
+  lastName: string;
+  email: string;
+  dateOfBirth?: string;
+}
+
 export default function EditUserPage() {
   const router = useRouter();
   const params = useParams();
@@ -48,10 +56,10 @@ export default function EditUserPage() {
     async function fetchUser() {
       try {
         setLoading(true);
-        const res = await api.get(`/admin/users?page=1&limit=100`); // get all users (or use a dedicated endpoint)
-        const user = res.data.users.find((u: any) => u.id === userId);
-        if (!user) {
-          setError('User not found');
+        const res = await api.get(`/users/${userId}`); // fetch user by ID from new endpoint
+        const user: UserApiResponse = res.data;
+        if (!user || !user.dateOfBirth) {
+          setError('User not found or missing date of birth');
         } else {
           setInitialData({
             firstName: user.firstName,
