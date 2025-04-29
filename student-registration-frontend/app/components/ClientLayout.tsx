@@ -6,8 +6,13 @@ import NotificationDisplay from '../components/NotificationDisplay';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
+import { usePathname } from 'next/navigation';
 
 export default function ClientLayout({ children, isAdminRoute }: { children: React.ReactNode; isAdminRoute: boolean }) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login';
+  const isRegisterPage = pathname === '/register';
+  const hideNavAndFooter = isLoginPage || isRegisterPage;
   return (
     <ReactQueryProvider>
       <AuthProvider>
@@ -22,13 +27,13 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
             </div>
           ) : (
             <>
-              <NavBar />
+              {!hideNavAndFooter && <NavBar />}
               <main className="flex-1 flex flex-col justify-center items-center w-full">
                 {children}
               </main>
             </>
           )}
-          <Footer />
+          {!hideNavAndFooter && <Footer />}
         </NotificationProvider>
       </AuthProvider>
     </ReactQueryProvider>

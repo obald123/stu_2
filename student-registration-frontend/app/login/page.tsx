@@ -1,5 +1,16 @@
-'use client';
-
+"use client";
+import React from 'react';
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment,
+  Link as MuiLink
+} from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,8 +19,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { FaUser, FaLock } from 'react-icons/fa';
-import { useEffect } from 'react';
-import { Box, Typography, TextField, Button, InputAdornment, Link as MuiLink } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -21,6 +32,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
+  const [keepSignedIn, setKeepSignedIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -60,16 +73,18 @@ export default function LoginPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f4f6fb', py: 6 }}>
-      <Box sx={{ width: '100%', maxWidth: { xs: 340, sm: 400 }, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef' }}>
-        <Typography variant="h4" fontWeight={800} color="primary" align="center" gutterBottom sx={{ letterSpacing: 1, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-          <FaUser style={{ verticalAlign: 'middle', color: '#6366f1', marginRight: 8 }} /> Sign in
+    <Container maxWidth="sm">
+      <Box mt={8}>
+        <Typography variant="h3" textAlign="center" fontWeight={900} fontFamily="'Segoe Script', cursive" color="primary.main" mb={1}>
+          Welcome Back!
+        </Typography>
+        <Typography variant="body1" textAlign="center" mb={4}>
+          Sign in into your account and get started
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <TextField
-            label="Email address"
-            type="email"
-            placeholder="Enter your email"
+            label="Email"
+            variant="outlined"
             fullWidth
             margin="normal"
             {...register('email')}
@@ -81,12 +96,14 @@ export default function LoginPage() {
                   <FaUser style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
+              sx: { borderRadius: 4, background: '#f7f8fa' },
             }}
+            sx={{ borderRadius: 4, background: '#f7f8fa', mb: 2 }}
           />
           <TextField
             label="Password"
-            type="password"
-            placeholder="Enter your password"
+            type={showPassword ? 'text' : 'password'}
+            variant="outlined"
             fullWidth
             margin="normal"
             {...register('password')}
@@ -98,29 +115,39 @@ export default function LoginPage() {
                   <FaLock style={{ color: '#bbb' }} />
                 </InputAdornment>
               ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </Button>
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 4, background: '#f7f8fa' },
             }}
+            sx={{ borderRadius: 4, background: '#f7f8fa', mb: 2 }}
+          />
+          <FormControlLabel
+            control={<Checkbox checked={keepSignedIn} onChange={e => setKeepSignedIn(e.target.checked)} />}
+            label="Keep me signed in"
           />
           <Button
             type="submit"
-            fullWidth
             variant="contained"
             color="primary"
-            size="large"
-            sx={{ mt: 3, mb: 1, fontWeight: 700, borderRadius: 2, boxShadow: 2, py: 1.5, fontSize: '1.1rem' }}
+            fullWidth
             disabled={isSubmitting}
+            sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 4, py: 1.5, fontSize: '1.1rem' }}
           >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
-        <Box mt={3} textAlign="center">
-          <Typography variant="body2" color="text.secondary">
-            Don't have an account?{' '}
-            <MuiLink component={Link} href="/register" sx={{ color: '#111', fontWeight: 600 }} underline="hover">
-              Register here
-            </MuiLink>
-          </Typography>
-        </Box>
+        <Typography variant="body2" textAlign="center" mt={2}>
+          Don’t have an account?{' '}
+          <MuiLink component={Link} href="/register" sx={{ color: '#111', fontWeight: 600 }} underline="hover">
+            Signup
+          </MuiLink>
+        </Typography>
       </Box>
-    </Box>
+    </Container>
   );
 }
