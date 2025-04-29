@@ -3,15 +3,16 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { generateRegistrationNumber } from "../utils/registrationNumber";
+import { Role, UserDto, UserResponse, AuthSuccessResponse, MessageResponse } from "../types";
 
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
 
 export const registerStudent = async (
-  req: Request,
-  res: Response,
+  req: Request<{}, {}, UserDto>,
+  res: Response<AuthSuccessResponse | MessageResponse>,
   next: Function,
-): Promise<any> => {
+): Promise<Response<AuthSuccessResponse | MessageResponse>> => {
   try {
     const { firstName, lastName, email, password, dateOfBirth } = req.body;
 
@@ -21,7 +22,7 @@ export const registerStudent = async (
       return res.status(400).json({ message: "Email already in use" });
     }
 
-    // Hash password
+  
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Generate registration number
@@ -54,35 +55,40 @@ export const registerStudent = async (
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         email: newUser.email,
+        password: newUser.password,
         registrationNumber: newUser.registrationNumber,
-        role: newUser.role,
+        dateOfBirth: newUser.dateOfBirth,
+        role: newUser.role as Role,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
       },
       token,
     });
   } catch (error) {
     next(error);
+    return Promise.reject(error);
   }
 };
 
 export const loginUser = async (
   req: Request,
-  res: Response,
+  res: Response<AuthSuccessResponse | MessageResponse>,
   next: Function,
-): Promise<void> => {
+): Promise<Response<AuthSuccessResponse | MessageResponse>> => {
   try {
     const { email, password } = req.body;
 
     // Find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.status(401).json({ message: "Invalid credentials" });
-      return; // Ensure no further code is executed
+      return res.status(401).json({ message: "Invalid credentials" });
+      
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ message: "Invalid credentials" });
-      return; // Ensure no further code is executed
+      return res.status(401).json({ message: "Invalid credentials" });
+       
     }
 
     // Generate JWT token
@@ -90,20 +96,24 @@ export const loginUser = async (
       expiresIn: "1h",
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Login successful",
       user: {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        password: user.password,
         registrationNumber: user.registrationNumber,
-        role: user.role,
+        dateOfBirth: user.dateOfBirth,
+        role: user.role as Role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
       token,
     });
-    return; // Ensure no further code is executed
   } catch (error) {
     next(error);
+    return Promise.reject(error);
   }
 };

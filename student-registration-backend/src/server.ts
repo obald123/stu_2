@@ -15,9 +15,10 @@ const port = process.env.PORT || 5005;
 
 app.use(
   cors({
-    origin: "*", // Allow all origins
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-  }),
+    origin: '*', // Or specify your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
 );
 app.use(express.json());
 
@@ -35,7 +36,7 @@ app.get("/test", (req, res) => {
   res.send("Test route is working");
 });
 
-// Swagger documentation
+
 swaggerDocs(app, Number(port));
 
 // Error handling middleware

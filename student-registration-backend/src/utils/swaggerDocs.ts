@@ -211,5 +211,56 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/users/{id}": {
+      get: {
+        summary: "Get user by ID (admin or self)",
+        tags: ["User"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: "path",
+            name: "id",
+            required: true,
+            schema: { type: "string" },
+            description: "User ID",
+          },
+        ],
+        responses: {
+          200: { description: "User data" },
+          401: { description: "Unauthorized" },
+          404: { description: "User not found" },
+        },
+      },
+    },
+    "/api/admin/audit-log": {
+      get: {
+        summary: "Get admin audit log (admin only)",
+        tags: ["Admin"],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: "Audit log data" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+        },
+      },
+    },
+    "/api/test": {
+      get: {
+        summary: "Test route (health check)",
+        tags: ["Misc"],
+        responses: {
+          200: { description: "Test route is working" },
+        },
+      },
+    },
+    "/api/": {
+      get: {
+        summary: "Root route (health check)",
+        tags: ["Misc"],
+        responses: {
+          200: { description: "Server is running" },
+        },
+      },
+    },
   },
 };

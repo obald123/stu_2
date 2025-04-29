@@ -5,7 +5,12 @@ import { registerSchema, loginSchema } from "../validations/authValidation";
 
 const router = Router();
 
-router.post("/register", validate(registerSchema), registerStudent);
-router.post("/login", validate(loginSchema), loginUser);
+const asyncHandler = (fn: any) => (req: any, res: any, next: any) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+router.post("/register", validate(registerSchema), asyncHandler(registerStudent));
+router.post("/login", validate(loginSchema), asyncHandler(loginUser));
+
 
 export default router;

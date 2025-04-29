@@ -1,12 +1,14 @@
 import { Router } from "express";
-import { getProfile, getUserQRCode, testUserQRCode } from "../controllers/userController";
+import { testUserQRCode, getUserById } from '../controllers/userController';
 import authenticate from "../middleware/authenticate";
 
 const router = Router();
 
 
-router.get("/profile", authenticate, testUserQRCode);
-router.get("/users/:id", getUserQRCode);
+
+router.get("/users/:id", (req, res, next) => {
+  Promise.resolve(getUserById(req, res)).catch(next);
+}); 
 
 
 export default router;
