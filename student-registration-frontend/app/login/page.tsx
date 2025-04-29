@@ -83,8 +83,22 @@ export default function LoginPage() {
         minHeight: '100vh',
         bgcolor: 'indigo.50',
         position: 'relative',
+        '::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'url(/bgpic.png) center center no-repeat',
+          backgroundSize: '60vw auto',
+          opacity: 0.08,
+          pointerEvents: 'none',
+          zIndex: 0,
+        },
+        zIndex: 1,
       }}>
-        <Box sx={{ textAlign: 'center', px: 6 }}>
+        <Box sx={{ textAlign: 'center', px: 6, position: 'relative', zIndex: 2 }}>
           <FaUniversity style={{ fontSize: 120, color: '#6366f1', marginBottom: 24 }} />
           <Typography variant="h4" fontWeight={800} color="primary" mb={2}>
             Welcome Back to Campus
