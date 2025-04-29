@@ -78,7 +78,12 @@ export default function RegisterPage() {
   }, [isAuthenticated, router]);
 
   useEffect(() => {
-    reset({ firstName: '', lastName: '', email: '', password: '', dateOfBirth: '' });
+    reset({ email: '', password: '' });
+    // Remove any saved form data on mount (refresh)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('registerEmail');
+      localStorage.removeItem('registerPassword');
+    }
   }, [reset]);
 
   if (isAuthenticated) {
@@ -86,8 +91,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box mt={8}>
+    <Container maxWidth="sm" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box mt={{ xs: 4, sm: 8 }} sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef', minWidth: 0 }}>
         <Typography variant="h4" textAlign="center">
           Create an account
         </Typography>
@@ -95,7 +100,7 @@ export default function RegisterPage() {
           Create your account now and get started
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
             <TextField
               label="Firstname"
               variant="outlined"
