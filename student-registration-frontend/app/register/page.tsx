@@ -6,11 +6,12 @@ import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { Box, Typography, TextField, Button, InputAdornment, Link as MuiLink, Container, Checkbox, FormControlLabel } from '@mui/material';
-import { FaUserPlus, FaUser, FaLock, FaBirthdayCake } from 'react-icons/fa';
+import { Typography, TextField, Button, InputAdornment, Link as MuiLink, Container, Checkbox, FormControlLabel, Grid } from '@mui/material';
+import { FaUserPlus, FaUser, FaLock, FaBirthdayCake, FaUniversity } from 'react-icons/fa';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Box } from '@mui/material';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -91,111 +92,153 @@ export default function RegisterPage() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Box mt={{ xs: 4, sm: 8 }} sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef', minWidth: 0 }}>
-        <Typography variant="h4" textAlign="center">
-          Create an account
-        </Typography>
-        <Typography variant="body1" textAlign="center" mb={4}>
-          Create your account now and get started
-        </Typography>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
-            <TextField
-              label="Firstname"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              {...register('firstName')}
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
-              sx={{ borderRadius: 8, background: '#f7f8fa' }}
-              InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
-            />
-            <TextField
-              label="Lastname"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              {...register('lastName')}
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-              sx={{ borderRadius: 8, background: '#f7f8fa' }}
-              InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
-            />
-          </Box>
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            {...register('email')}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            sx={{ borderRadius: 8, background: '#f7f8fa' }}
-            InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
-          />
-          <TextField
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            {...register('password')}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-            sx={{ borderRadius: 8, background: '#f7f8fa' }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </Button>
-                </InputAdornment>
-              ),
-              sx: { borderRadius: 8, background: '#f7f8fa' },
-            }}
-          />
-          <TextField
-            label="Date of Birth"
-            type="date"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            {...register('dateOfBirth')}
-            error={!!errors.dateOfBirth}
-            helperText={errors.dateOfBirth?.message}
-            InputLabelProps={{ shrink: true }}
-            sx={{ borderRadius: 8, background: '#f7f8fa' }}
-            InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={agree} onChange={e => setAgree(e.target.checked)} />}
-            label="I agree to the terms and conditions"
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={isSubmitting || !agree}
-            sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 2, py: 1.5, fontSize: '1.1rem' }}
-          >
-            {isSubmitting ? 'Registering...' : 'Create Account'}
-          </Button>
-        </form>
-        <Typography variant="body2" textAlign="center" mt={2}>
-          Already have an account?{' '}
-          <MuiLink component={Link} href="/login" sx={{ color: '#111', fontWeight: 600 }} underline="hover">
-            Login
-          </MuiLink>
-        </Typography>
-        {popupMsg && (
-          <Box sx={{ mt: 2, bgcolor: 'warning.light', color: 'warning.dark', p: 2, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="body2">{popupMsg}</Typography>
-          </Box>
-        )}
+    <Box sx={{ minHeight: '100vh', width: '100vw', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, bgcolor: '' }}>
+      {/* Left side: Decorative illustration (hidden on mobile) */}
+      <Box sx={{
+        flex: 1,
+        display: { xs: 'none', md: 'flex' },
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: 'indigo.50',
+        position: 'relative',
+      }}>
+        <Box sx={{ textAlign: 'center', px: 6 }}>
+          <FaUniversity style={{ fontSize: 120, color: '#6366f1', marginBottom: 24 }} />
+          <Typography variant="h4" fontWeight={800} color="primary" mb={2}>
+            Welcome to Campus Registration
+          </Typography>
+          <Typography variant="h6" color="text.secondary">
+            Join our vibrant academic community and manage your student journey with ease.
+          </Typography>
+        </Box>
       </Box>
-    </Container>
+      {/* Right side: Registration form */}
+      <Box sx={{
+        flex: 1,
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        zIndex: 1,
+        bgcolor: { xs: 'rgba(255,255,255,0.98)', md: 'rgba(255,255,255,0.95)' },
+      }}>
+        <Container maxWidth="sm" sx={{ p: { xs: 2, sm: 4 }, borderRadius: 6, boxShadow: 6, border: '1px solid #e0e7ef', bgcolor: 'transparent' }}>
+          <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', textAlign: 'center' }}>
+            <FaUniversity style={{ fontSize: 48, color: '#6366f1', marginBottom: 8 }} />
+            <Typography variant="h5" textAlign="center" fontWeight={700} mb={2}>
+              Sign up
+            </Typography>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    label="First Name"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    {...register('firstName')}
+                    error={!!errors.firstName}
+                    helperText={errors.firstName?.message}
+                    sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                    InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    label="Last Name"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    {...register('lastName')}
+                    error={!!errors.lastName}
+                    helperText={errors.lastName?.message}
+                    sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                    InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
+                  />
+                </Grid>
+              </Grid>
+              <TextField
+                required
+                label="Email"
+                variant="outlined"
+                type="email"
+                fullWidth
+                margin="normal"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
+              />
+              <TextField
+                required
+                label="Password"
+                variant="outlined"
+                type={showPassword ? 'text' : 'password'}
+                fullWidth
+                margin="normal"
+                {...register('password')}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </Button>
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 8, background: '#f7f8fa' },
+                }}
+              />
+              <TextField
+                required
+                label="Date of Birth"
+                type="date"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                {...register('dateOfBirth')}
+                error={!!errors.dateOfBirth}
+                helperText={errors.dateOfBirth?.message}
+                InputLabelProps={{ shrink: true }}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
+              />
+              <FormControlLabel
+                control={<Checkbox checked={agree} onChange={e => setAgree(e.target.checked)} />}
+                label="I agree to the terms and conditions"
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="error"
+                fullWidth
+                disabled={isSubmitting || !agree}
+                sx={{ mt: 2, fontWeight: 700, borderRadius: 2, py: 1.5, fontSize: '1.1rem' }}
+              >
+                {isSubmitting ? 'Registering...' : 'SIGN UP'}
+              </Button>
+            </form>
+            <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
+              Already have an account?{' '}
+              <MuiLink component={Link} href="/login" sx={{ color: '#0056B3', fontWeight: 600 }} underline="hover">
+                Sign in
+              </MuiLink>
+            </Typography>
+            {popupMsg && (
+              <Box sx={{ mt: 2, bgcolor: 'warning.light', color: 'warning.dark', p: 2, borderRadius: 2, textAlign: 'center' }}>
+                <Typography variant="body2">{popupMsg}</Typography>
+              </Box>
+            )}
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   );
 }

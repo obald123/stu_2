@@ -15,9 +15,10 @@ export const getProfile = async (
   res: Response<UserResponse | MessageResponse>,
 ): Promise<Response<UserResponse | MessageResponse>> => {
   try {
+    // Make sure req.userId is set by your authentication middleware
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(401).json({ message: "Unauthorized: userId not set on request" });
     }
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -39,6 +40,7 @@ export const getProfile = async (
     }
     return res.status(200).json({ ...user, role: user.role as Role });
   } catch (error) {
+    console.error("getProfile error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

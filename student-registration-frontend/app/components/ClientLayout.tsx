@@ -12,7 +12,6 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
   const pathname = usePathname();
   const isLoginPage = pathname === '/login';
   const isRegisterPage = pathname === '/register';
-  const hideNavAndFooter = isLoginPage || isRegisterPage;
   return (
     <ReactQueryProvider>
       <AuthProvider>
@@ -27,13 +26,13 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
             </div>
           ) : (
             <>
-              {!hideNavAndFooter && <NavBar />}
+              {!(isLoginPage || isRegisterPage) && <NavBar />}
               <main className="flex-1 flex flex-col justify-center items-center w-full">
                 {children}
               </main>
             </>
           )}
-          {!hideNavAndFooter && <Footer />}
+          {!(isLoginPage || isRegisterPage) && <Footer />}
         </NotificationProvider>
       </AuthProvider>
     </ReactQueryProvider>
