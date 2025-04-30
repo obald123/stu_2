@@ -15,9 +15,9 @@ const router = Router();
 
 router.use(authenticate, authorizeAdmin);
 
-router.get("/users", asyncHandler(getAllUsers));
-router.put("/users/:id", validate(updateUserSchema), asyncHandler(updateUser));
-router.delete("/users/:id", asyncHandler(deleteUser));
-router.get("/analytics", asyncHandler(getAnalytics));
+router.get("/admin/users", asyncHandler(getAllUsers));
+router.put("/admin/users/:id", validate(updateUserSchema), asyncHandler(updateUser));
+router.delete("/admin/users/:id", asyncHandler(deleteUser));
+router.get("/admin/analytics", asyncHandler(getAnalytics));
 
 export default router;

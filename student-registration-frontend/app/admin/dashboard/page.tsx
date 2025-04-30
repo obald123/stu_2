@@ -239,10 +239,10 @@ export default function AdminDashboard() {
             <Divider />
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                Showing <b>{(page - 1) * 10 + 1}</b> to <b>{Math.min(page * 10, data.pagination.total)}</b> of <b>{data.pagination.total}</b> users
+                Showing <b>{(page - 1) * 10 + 1}</b> to <b>{Math.min(page * 10, data?.pagination?.total ?? 0)}</b> of <b>{data?.pagination?.total ?? 0}</b> users
               </Typography>
               <Pagination
-                count={data.pagination.totalPages}
+                count={data?.pagination?.totalPages ?? 1}
                 page={page}
                 onChange={(_, value) => setPage(value)}
                 color="primary"
