@@ -4,6 +4,7 @@ import {
   updateUser,
   deleteUser,
   getAnalytics,
+  getAuditLog,
 } from "../controllers/adminController";
 import authenticate from "../middleware/authenticate";
 import authorizeAdmin from "../middleware/authorizeAdmin";
@@ -18,5 +19,6 @@ router.get("/admin/users", getAllUsers);
 router.put("/admin/users/:id", validate(updateUserSchema), updateUser);
 router.delete("/admin/users/:id", deleteUser);
 router.get("/admin/analytics", getAnalytics);
+router.get("/admin/audit-log", getAuditLog);
 
 export default router;

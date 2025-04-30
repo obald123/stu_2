@@ -18,7 +18,7 @@ declare global {
 const prisma = new PrismaClient();
 
 // In-memory audit log (for demo; use DB in production)
-const auditLog: Array<{
+export const auditLog: Array<{
   id: number;
   action: string;
   userId?: string;
@@ -51,6 +51,7 @@ export const getAuditLog = async (req: Request, res: Response) => {
 export const getAllUsers = async (
   req: Request,
   res: Response<UsersListResponse | MessageResponse>,
+  next: NextFunction
 ): Promise<Response<UsersListResponse | MessageResponse> | any> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -94,11 +95,11 @@ export const getAllUsers = async (
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
-export const getAnalytics = async (req: Request, res: Response): Promise<Response | any> => {
+export const getAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<Response | any> => {
   try {
     const [totalUsers, totalAdmins, totalStudents, recentUsers] =
       await Promise.all([
@@ -124,9 +125,7 @@ export const getAnalytics = async (req: Request, res: Response): Promise<Respons
       recentUsers,
     });
   } catch (error) {
-    console.error("Get analytics error:", error);
-    res.status(500).json({ message: "Internal server error" });
-    return Promise.reject(error);
+    next(error);
   }
 };
 
@@ -167,7 +166,6 @@ export const updateUser = async (
     return res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     next(error);
-    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -195,6 +193,6 @@ export const deleteUser = async (
     logAudit("deleteUser", req.user?.id || "unknown", id);
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };

@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import adminRoutes from "./routes/adminRoutes";
-import swaggerDocs from "./utils/swagger";
+import swaggerDocs from "./docs/swagger";
 import dotenv from "dotenv";
 
 dotenv.config();

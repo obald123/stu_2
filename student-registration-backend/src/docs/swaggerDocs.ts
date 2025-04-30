@@ -42,6 +42,33 @@ export const openApiSpec = {
           registrationNumber: { type: "string" },
         },
       },
+      User: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          email: { type: "string", format: "email" },
+          registrationNumber: { type: "string" },
+          dateOfBirth: { type: "string", format: "date" },
+          role: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+      MessageResponse: {
+        type: "object",
+        properties: {
+          message: { type: "string" },
+        },
+      },
+      ErrorResponse: {
+        type: "object",
+        properties: {
+          message: { type: "string" },
+          errors: { type: "array", items: { type: "object" } },
+        },
+      },
     },
   },
   security: [{ bearerAuth: [] }],
@@ -59,8 +86,22 @@ export const openApiSpec = {
           },
         },
         responses: {
-          201: { description: "Student registered successfully" },
-          400: { description: "Bad request" },
+          201: {
+            description: "Student registered successfully",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/User" },
+              },
+            },
+          },
+          400: {
+            description: "Bad request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -77,9 +118,30 @@ export const openApiSpec = {
           },
         },
         responses: {
-          200: { description: "Login successful" },
-          400: { description: "Bad request" },
-          401: { description: "Invalid credentials" },
+          200: {
+            description: "Login successful",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/User" },
+              },
+            },
+          },
+          400: {
+            description: "Bad request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Invalid credentials",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -89,8 +151,22 @@ export const openApiSpec = {
         tags: ["User"],
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: "User profile data" },
-          401: { description: "Unauthorized" },
+          200: {
+            description: "User profile data",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/User" },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -98,6 +174,7 @@ export const openApiSpec = {
       get: {
         summary: "Get a QR code for a user's name, email, and registration number",
         tags: ["User"],
+        security: [{ bearerAuth: [] }],
         parameters: [
           {
             in: "path",
@@ -116,33 +193,30 @@ export const openApiSpec = {
               },
             },
           },
-          404: { description: "User not found" },
-        },
-      },
-    },
-    "/api/user/{id}/qrcode/test": {
-      get: {
-        summary: "Test QR code generation for a user (returns sample QR code)",
-        tags: ["User"],
-        parameters: [
-          {
-            in: "path",
-            name: "id",
-            required: true,
-            schema: { type: "string" },
-            description: "User ID (use a valid or sample ID)",
-          },
-        ],
-        responses: {
-          200: {
-            description: "Sample QR code image for testing",
+          401: {
+            description: "Unauthorized",
             content: {
-              "image/png": {
-                schema: { type: "string", format: "binary" },
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
               },
             },
           },
-          404: { description: "User not found" },
+          403: {
+            description: "Forbidden (not self or admin)",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "User not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -156,9 +230,30 @@ export const openApiSpec = {
           { in: "query", name: "limit", schema: { type: "integer" }, description: "Number of users per page" },
         ],
         responses: {
-          200: { description: "List of users" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
+          200: {
+            description: "List of users",
+            content: {
+              "application/json": {
+                schema: { type: "array", items: { $ref: "#/components/schemas/User" } },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          403: {
+            description: "Admin access required",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -179,10 +274,38 @@ export const openApiSpec = {
           },
         },
         responses: {
-          200: { description: "User updated successfully" },
-          400: { description: "Bad request" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
+          200: {
+            description: "User updated successfully",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/User" },
+              },
+            },
+          },
+          400: {
+            description: "Bad request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          403: {
+            description: "Admin access required",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
       delete: {
@@ -193,9 +316,30 @@ export const openApiSpec = {
           { in: "path", name: "id", required: true, schema: { type: "string" }, description: "User ID" },
         ],
         responses: {
-          200: { description: "User deleted successfully" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
+          200: {
+            description: "User deleted successfully",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/MessageResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          403: {
+            description: "Admin access required",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -205,9 +349,30 @@ export const openApiSpec = {
         tags: ["Admin"],
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: "User analytics data" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
+          200: {
+            description: "User analytics data",
+            content: {
+              "application/json": {
+                schema: { type: "object" },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          403: {
+            description: "Admin access required",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -226,9 +391,38 @@ export const openApiSpec = {
           },
         ],
         responses: {
-          200: { description: "User data" },
-          401: { description: "Unauthorized" },
-          404: { description: "User not found" },
+          200: {
+            description: "User data",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/User" },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          403: {
+            description: "Forbidden (not self or admin)",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "User not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },
@@ -238,9 +432,30 @@ export const openApiSpec = {
         tags: ["Admin"],
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: "Audit log data" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
+          200: {
+            description: "Audit log data",
+            content: {
+              "application/json": {
+                schema: { type: "object" },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          403: {
+            description: "Admin access required",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
         },
       },
     },

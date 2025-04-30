@@ -20,6 +20,14 @@ model User {
   updatedAt          DateTime @updatedAt
 }
 
+model TestResult {
+  id        String   @id @default(uuid())
+  testName  String
+  status    String
+  error     String?
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   admin
   student
