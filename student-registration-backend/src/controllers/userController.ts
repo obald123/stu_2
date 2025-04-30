@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { Role, UserResponse, MessageResponse } from "../types";
 import QRCode from "qrcode";
+import { date } from "zod";
 
 const prisma = new PrismaClient();
 
@@ -48,6 +49,7 @@ export const getUserQRCode = async (
         lastName: true,
         email: true,
         registrationNumber: true,
+        dateOfBirth: true,
       },
     });
     if (!user) {
@@ -57,6 +59,7 @@ export const getUserQRCode = async (
       name: `${user.firstName} ${user.lastName}`,
       email: user.email,
       registrationNumber: user.registrationNumber,
+      dateOfBirth: user.dateOfBirth,
     };
     const qrString = JSON.stringify(qrData);
     const qrImage = await QRCode.toDataURL(qrString, { errorCorrectionLevel: 'M', width: 300 });

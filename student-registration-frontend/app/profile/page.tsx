@@ -170,9 +170,14 @@ function UserCard({ user }: { user: any }) {
 
   const handleDownload = () => {
     if (!qrUrl) return;
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
     const link = document.createElement('a');
     link.href = qrUrl;
-    link.download = `${user.firstName}_${user.lastName}_QRCode.png`;
+    link.download = `${user.firstName}_${user.lastName}_QR_${dateStr}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
