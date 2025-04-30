@@ -9,7 +9,6 @@ import authenticate from "../middleware/authenticate";
 import authorizeAdmin from "../middleware/authorizeAdmin";
 import validate from "../middleware/validate";
 import { updateUserSchema } from "../validations/userValidation";
-import { asyncHandler } from "../utils/asyncHandler";
 
 const router = Router();
 
