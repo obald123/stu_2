@@ -117,77 +117,76 @@ export default function LoginPage() {
         bgcolor: { xs: 'rgba(255,255,255,0.98)', md: 'rgba(255,255,255,0.95)' },
       }}>
         <Container maxWidth="sm" sx={{ p: { xs: 2, sm: 4 }, borderRadius: 6, boxShadow: 6, border: '1px solid #e0e7ef', bgcolor: 'transparent' }}>
-          <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', textAlign: 'center' }}>
-            <FaUniversity style={{ fontSize: 48, color: '#6366f1', marginBottom: 8 }} />
+            <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', textAlign: 'center' }}>
             <Typography variant="h5" textAlign="center" fontWeight={700} mb={2}>
               Sign in
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
               <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                {...register('email')}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaUser style={{ color: '#bbb' }} />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 8, background: '#f7f8fa' },
-                }}
+              label="Email"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              sx={{ borderRadius: 8, background: '#f7f8fa' }}
+              InputProps={{
+                startAdornment: (
+                <InputAdornment position="start">
+                  <FaUser style={{ color: '#bbb' }} />
+                </InputAdornment>
+                ),
+                sx: { borderRadius: 8, background: '#f7f8fa' },
+              }}
               />
               <TextField
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                {...register('password')}
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaLock style={{ color: '#bbb' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </Button>
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 8, background: '#f7f8fa' },
-                }}
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              {...register('password')}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              sx={{ borderRadius: 8, background: '#f7f8fa' }}
+              InputProps={{
+                startAdornment: (
+                <InputAdornment position="start">
+                  <FaLock style={{ color: '#bbb' }} />
+                </InputAdornment>
+                ),
+                endAdornment: (
+                <InputAdornment position="end">
+                  <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </Button>
+                </InputAdornment>
+                ),
+                sx: { borderRadius: 8, background: '#f7f8fa' },
+              }}
               />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1, mb: 1 }}>
               <FormControlLabel
                 control={<Checkbox checked={keepSignedIn} onChange={e => setKeepSignedIn(e.target.checked)} />}
                 label="Keep me signed in"
+                sx={{ m: 0 }}
               />
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                disabled={isSubmitting}
-                sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 4, py: 1.5, fontSize: '1.1rem', bgcolor: '#111', color: '#fff', '&:hover': { bgcolor: 'blue' } }}
-              >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
-            <Typography variant="body2" textAlign="center" mt={2}>
-              Don’t have an account?{' '}
               <MuiLink component={Link} href="/register" sx={{ color: '#0056B3', fontWeight: 600 }} underline="hover">
                 Signup
               </MuiLink>
-            </Typography>
-          </Box>
+              </Box>
+              <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={isSubmitting}
+              sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 4, py: 1.5, fontSize: '1.1rem', bgcolor: '#111', color: '#fff', '&:hover': { bgcolor: 'blue' } }}
+              >
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </form>
+            </Box>
         </Container>
       </Box>
     </Box>

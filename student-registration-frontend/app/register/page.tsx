@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Typography, TextField, Button, InputAdornment, Link as MuiLink, Container, Checkbox, FormControlLabel, Grid } from '@mui/material';
-import { FaUserPlus, FaUser, FaLock, FaBirthdayCake, FaUniversity } from 'react-icons/fa';
+import { FaUserPlus, FaUniversity, FaUser, FaLock } from 'react-icons/fa';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -141,58 +141,71 @@ export default function RegisterPage() {
         <Container maxWidth="sm" sx={{ p: { xs: 2, sm: 4 }, borderRadius: 6, boxShadow: 6, border: '1px solid #e0e7ef', bgcolor: 'transparent' }}>
           <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', textAlign: 'center' }}>
             <FaUniversity style={{ fontSize: 48, color: '#6366f1', marginBottom: 8 }} />
-            <Typography variant="h5" textAlign="center" fontWeight={700} mb={2}>
-              Sign up
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+              <FaUserPlus style={{ fontSize: 28, color: '#6366f1', marginRight: 8 }} />
+              <Typography variant="h5" textAlign="center" fontWeight={700}>
+              Create Your Account
+              </Typography>
+            </Box>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} component={undefined as any}>
-                  <TextField
-                    required
-                    label="First Name"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    {...register('firstName')}
-                    error={!!errors.firstName}
-                    helperText={errors.firstName?.message}
-                    sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                    InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} component={undefined as any}>
-                  <TextField
-                    required
-                    label="Last Name"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    {...register('lastName')}
-                    error={!!errors.lastName}
-                    helperText={errors.lastName?.message}
-                    sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                    InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
-                  />
-                </Grid>
-              </Grid>
               <TextField
-                required
+                label="First Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                {...register('firstName')}
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaUser style={{ color: '#bbb' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 8, background: '#f7f8fa' },
+                }}
+              />
+              <TextField
+                label="Last Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                {...register('lastName')}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaUser style={{ color: '#bbb' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 8, background: '#f7f8fa' },
+                }}
+              />
+              <TextField
                 label="Email"
                 variant="outlined"
-                type="email"
                 fullWidth
                 margin="normal"
                 {...register('email')}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaUser style={{ color: '#bbb' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 8, background: '#f7f8fa' },
+                }}
               />
               <TextField
-                required
                 label="Password"
-                variant="outlined"
                 type={showPassword ? 'text' : 'password'}
+                variant="outlined"
                 fullWidth
                 margin="normal"
                 {...register('password')}
@@ -200,6 +213,11 @@ export default function RegisterPage() {
                 helperText={errors.password?.message}
                 sx={{ borderRadius: 8, background: '#f7f8fa' }}
                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaLock style={{ color: '#bbb' }} />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
@@ -211,7 +229,6 @@ export default function RegisterPage() {
                 }}
               />
               <TextField
-                required
                 label="Date of Birth"
                 type="date"
                 variant="outlined"
@@ -224,18 +241,21 @@ export default function RegisterPage() {
                 sx={{ borderRadius: 8, background: '#f7f8fa' }}
                 InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
               />
-              <FormControlLabel
-                control={<Checkbox checked={agree} onChange={e => setAgree(e.target.checked)} />}
-                label="I agree to the terms and conditions"
-              />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', mt: 1, mb: 1 }}>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="I agree to the terms and conditions"
+                  sx={{ m: 0 }}
+                />
+              </Box>
               <Button
                 type="submit"
                 variant="contained"
                 fullWidth
-                disabled={isSubmitting || !agree}
-                sx={{ mt: 2, fontWeight: 700, borderRadius: 2, py: 1.5, fontSize: '1.1rem', bgcolor: '#111', color: '#fff', '&:hover': { bgcolor: 'blue' } }}
+                disabled={isSubmitting}
+                sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 4, py: 1.5, fontSize: '1.1rem', bgcolor: '#111', color: '#fff', '&:hover': { bgcolor: 'blue' } }}
               >
-                {isSubmitting ? 'Registering...' : 'SIGN UP'}
+                {isSubmitting ? 'Registering...' : 'Register'}
               </Button>
             </form>
             <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>

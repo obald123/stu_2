@@ -56,7 +56,7 @@ export default function EditUserPage() {
     async function fetchUser() {
       try {
         setLoading(true);
-        const res = await api.get(`/users/${userId}`); // fetch user by ID from new endpoint
+        const res = await api.get(`/users/${userId}`); 
         const user: UserApiResponse = res.data;
         if (!user || !user.dateOfBirth) {
           setError('User not found or missing date of birth');
