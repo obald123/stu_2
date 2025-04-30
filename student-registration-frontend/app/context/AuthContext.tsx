@@ -42,34 +42,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function loadUser() {
       try {
         const token = localStorage.getItem('token');
-        if (token) {
-          console.log('[AuthContext] Token found, verifying and loading user...');
-          const response = await api.get('/profile');
-          console.log('[AuthContext] User loaded:', response.data);
+        const storedUser = localStorage.getItem('user');
+        let userId = null;
+        if (storedUser) {
+          try {
+            userId = JSON.parse(storedUser)?.id;
+          } catch {}
+        }
+        if (!userId && token) {
+          // Optionally decode JWT to get userId if needed
+        }
+        if (token && userId) {
+          const response = await api.get(`/users/${userId}`);
           setUser(response.data);
         } else {
-          console.log('[AuthContext] No token found.');
+          setUser(null);
         }
       } catch (error) {
-        console.error('[AuthContext] Error loading user:', error);
         localStorage.removeItem('token');
+        setUser(null);
       } finally {
         setLoading(false);
       }
     }
-
     loadUser();
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('[AuthContext] Attempting login for', email);
       const response = await api.post('/login', { email, password });
-      console.log('[AuthContext] Login response:', response.data);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
     } catch (error) {
-      console.error('[AuthContext] Login error:', error);
       throw error;
     }
   };
@@ -82,7 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dateOfBirth: string
   ) => {
     try {
-      console.log('[AuthContext] Attempting register for', email);
       const response = await api.post('/register', {
         firstName,
         lastName,
@@ -90,11 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         dateOfBirth,
       });
-      console.log('[AuthContext] Register response:', response.data);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
     } catch (error) {
-      console.error('[AuthContext] Register error:', error);
       throw error;
     }
   };

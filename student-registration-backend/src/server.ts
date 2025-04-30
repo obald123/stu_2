@@ -22,10 +22,8 @@ app.use(
 );
 app.use(express.json());
 
-// Routes
-app.use("/api", authRoutes);
-app.use("/api", userRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api", authRoutes, userRoutes, adminRoutes);
+
 
 app.get("/", (req, res) => {
   console.log("Root route accessed");
