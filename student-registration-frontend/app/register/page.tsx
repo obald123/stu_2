@@ -146,7 +146,7 @@ export default function RegisterPage() {
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={6} component={undefined as any}>
                   <TextField
                     required
                     label="First Name"
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                     InputProps={{ sx: { borderRadius: 8, background: '#f7f8fa' } }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={6} component={undefined as any}>
                   <TextField
                     required
                     label="Last Name"
@@ -231,10 +231,9 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 variant="contained"
-                color="error"
                 fullWidth
                 disabled={isSubmitting || !agree}
-                sx={{ mt: 2, fontWeight: 700, borderRadius: 2, py: 1.5, fontSize: '1.1rem' }}
+                sx={{ mt: 2, fontWeight: 700, borderRadius: 2, py: 1.5, fontSize: '1.1rem', bgcolor: '#111', color: '#fff', '&:hover': { bgcolor: 'blue' } }}
               >
                 {isSubmitting ? 'Registering...' : 'SIGN UP'}
               </Button>

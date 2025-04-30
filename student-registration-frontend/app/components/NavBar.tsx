@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemButton, ListItemText, Divider } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
+import { alpha } from '@mui/material/styles';
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -31,21 +32,58 @@ export default function NavBar() {
   ];
 
   return (
-    <AppBar position="static" sx={{ mb: 2, bgcolor: '#fff', color: '#111', boxShadow: 2, borderBottom: '1px solid #e0e7ef' }}>
-      <Toolbar sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: { xs: 1, sm: 3 } }}>
-        <Logo size={36} />
-        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700, ml: 2, color: '#111', display: { xs: 'none', sm: 'block' } }}>
-          Student Registration System
-        </Typography>
+    <AppBar position="sticky" elevation={0} sx={{
+      bgcolor: 'rgba(255,255,255,0.95)',
+      color: '#222',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+      borderBottom: '1px solid #e0e7ef',
+      backdropFilter: 'blur(8px)',
+      zIndex: 1201
+    }}>
+      <Toolbar sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: { xs: 1, sm: 3 },
+        minHeight: { xs: 56, sm: 64 }
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Logo size={40} />
+          <Typography variant="h6" sx={{ fontWeight: 800, ml: 1, color: '#6366f1', letterSpacing: 1, display: { xs: 'none', sm: 'block' } }}>
+            Student Registration
+          </Typography>
+        </Box>
         {/* Desktop Nav */}
-        <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
+        <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
           {navLinks.map((link) => (
-            <Button key={link.href} color="inherit" component={Link} href={link.href} startIcon={link.icon} sx={{ color: '#111', fontWeight: 600 }}>
+            <Button
+              key={link.href}
+              color="inherit"
+              component={Link}
+              href={link.href}
+              startIcon={link.icon}
+              sx={{
+                color: pathname === link.href ? '#6366f1' : '#222',
+                fontWeight: 600,
+                borderRadius: 2,
+                px: 2,
+                py: 1,
+                background: pathname === link.href ? alpha('#6366f1', 0.08) : 'transparent',
+                transition: 'background 0.2s',
+                '&:hover': {
+                  background: alpha('#6366f1', 0.12),
+                  color: '#6366f1',
+                },
+              }}
+            >
               {link.label}
             </Button>
           ))}
           {isAuthenticated && (
-            <Button color="inherit" onClick={logout} startIcon={<FaSignOutAlt />} sx={{ color: '#111', fontWeight: 600 }}>Logout</Button>
+            <Button color="inherit" onClick={logout} startIcon={<FaSignOutAlt />} sx={{ color: '#e11d48', fontWeight: 600, borderRadius: 2, px: 2, py: 1, ml: 1, '&:hover': { background: alpha('#e11d48', 0.08) } }}>
+              Logout
+            </Button>
           )}
         </Box>
         {/* Mobile Nav */}
@@ -54,11 +92,15 @@ export default function NavBar() {
             <MenuIcon />
           </IconButton>
           <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
-            <Box sx={{ width: 240 }} role="presentation" onClick={() => setMobileOpen(false)}>
+            <Box sx={{ width: 240, pt: 2 }} role="presentation" onClick={() => setMobileOpen(false)}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, pl: 2 }}>
+                <Logo size={32} />
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#6366f1' }}>Student Registration</Typography>
+              </Box>
               <List>
                 {navLinks.map((link) => (
                   <ListItem key={link.href} disablePadding>
-                    <ListItemButton component={Link} href={link.href}>
+                    <ListItemButton component={Link} href={link.href} selected={pathname === link.href} sx={{ borderRadius: 2, color: pathname === link.href ? '#6366f1' : '#222', fontWeight: 600 }}>
                       {link.icon}
                       <ListItemText primary={link.label} sx={{ ml: 2 }} />
                     </ListItemButton>
@@ -66,14 +108,14 @@ export default function NavBar() {
                 ))}
                 {isAuthenticated && (
                   <ListItem disablePadding>
-                    <ListItemButton onClick={logout}>
+                    <ListItemButton onClick={logout} sx={{ borderRadius: 2, color: '#e11d48', fontWeight: 600 }}>
                       <FaSignOutAlt />
                       <ListItemText primary="Logout" sx={{ ml: 2 }} />
                     </ListItemButton>
                   </ListItem>
                 )}
               </List>
-              <Divider />
+              <Divider sx={{ my: 1 }} />
             </Box>
           </Drawer>
         </Box>

@@ -103,9 +103,6 @@ export default function LoginPage() {
           <Typography variant="h4" fontWeight={800} color="primary" mb={2}>
             Welcome Back to Campus
           </Typography>
-          <Typography variant="h6" color="text.secondary">
-            Sign in to access your student dashboard and manage your academic journey.
-          </Typography>
         </Box>
       </Box>
       {/* Right side: Login form */}
@@ -177,10 +174,9 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 variant="contained"
-                color="primary"
                 fullWidth
                 disabled={isSubmitting}
-                sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 2, py: 1.5, fontSize: '1.1rem' }}
+                sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 4, py: 1.5, fontSize: '1.1rem', bgcolor: '#111', color: '#fff', '&:hover': { bgcolor: 'blue' } }}
               >
                 {isSubmitting ? 'Signing in...' : 'Sign In'}
               </Button>
