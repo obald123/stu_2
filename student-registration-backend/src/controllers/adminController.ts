@@ -137,7 +137,25 @@ export const updateUser = async (
 ): Promise<Response<MessageResponse>> => {
   try {
     const userId = req.params.id;
-    const userData = req.body;
+    // Only allow editable fields
+    const allowedFields = [
+      'firstName',
+      'lastName',
+      'email',
+      'dateOfBirth',
+      'registrationNumber',
+      'role',
+    ];
+    const userData: any = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        userData[field] = req.body[field];
+      }
+    }
+    // Convert dateOfBirth string to Date object for Prisma
+    if (userData.dateOfBirth) {
+      userData.dateOfBirth = new Date(userData.dateOfBirth);
+    }
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }

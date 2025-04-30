@@ -4,7 +4,8 @@ import { AnyZodObject } from "zod";
 const validate =
   (schema: AnyZodObject) =>
   (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
+    // Combine body and params for Zod validation
+    const result = schema.safeParse({ body: req.body, params: req.params });
     if (!result.success) {
       res.status(400).json({ error: result.error.errors[0].message });
     } else {

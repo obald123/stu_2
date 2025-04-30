@@ -36,6 +36,7 @@ export default function EditUserPage() {
   const [error, setError] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<EditUserFormData | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [fullUser, setFullUser] = useState<any>(null);
 
   const {
     register,
@@ -56,8 +57,9 @@ export default function EditUserPage() {
     async function fetchUser() {
       try {
         setLoading(true);
-        const res = await api.get(`/users/${userId}`); 
-        const user: UserApiResponse = res.data;
+        const res = await api.get(`/users/${userId}`);
+        const user = res.data;
+        setFullUser(user); // Save the full user object
         if (!user || !user.dateOfBirth) {
           setError('User not found or missing date of birth');
         } else {
@@ -87,7 +89,28 @@ export default function EditUserPage() {
   const onSubmit = async (data: EditUserFormData) => {
     setSubmitError(null);
     try {
-      await api.put(`/admin/users/${userId}`, data);
+      if (!fullUser) throw new Error('User data not loaded');
+      // Only send allowed fields
+      const allowedFields = [
+        'firstName',
+        'lastName',
+        'email',
+        'dateOfBirth',
+        'registrationNumber',
+        'role',
+      ];
+      const updateData: any = {};
+      for (const field of allowedFields) {
+        if (data[field as keyof EditUserFormData] !== undefined) updateData[field] = data[field as keyof EditUserFormData];
+        if ((field === 'registrationNumber' || field === 'role') && fullUser[field] !== undefined) {
+          updateData[field] = fullUser[field];
+        }
+      }
+      // Convert dateOfBirth to string in YYYY-MM-DD format for backend validation
+      if (updateData.dateOfBirth instanceof Date) {
+        updateData.dateOfBirth = updateData.dateOfBirth.toISOString().slice(0, 10);
+      }
+      await api.put(`/admin/users/${userId}`, updateData);
       router.push('/admin/dashboard');
     } catch (e: any) {
       setSubmitError('Failed to update user');
@@ -102,14 +125,7 @@ export default function EditUserPage() {
       <Sidebar />
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 6 }}>
         <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: '#111', boxShadow: 2, border: '1px solid #e0e7ef' }}>
-          <Button
-            type="button"
-            onClick={() => router.back()}
-            startIcon={<FaArrowLeft />}
-            sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}
-          >
-            Back
-          </Button>
+
           <Typography variant="h5" fontWeight={700} color="primary" align="left" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
             <FaUserEdit style={{ color: '#6366f1', marginRight: 8 }} /> Edit User
           </Typography>

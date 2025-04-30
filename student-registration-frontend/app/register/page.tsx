@@ -140,52 +140,56 @@ export default function RegisterPage() {
       }}>
         <Container maxWidth="sm" sx={{ p: { xs: 2, sm: 4 }, borderRadius: 6, boxShadow: 6, border: '1px solid #e0e7ef', bgcolor: 'transparent' }}>
           <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', textAlign: 'center' }}>
-            <FaUniversity style={{ fontSize: 48, color: '#6366f1', marginBottom: 8 }} />
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
               <FaUserPlus style={{ fontSize: 28, color: '#6366f1', marginRight: 8 }} />
               <Typography variant="h5" textAlign="center" fontWeight={700}>
               Create Your Account
               </Typography>
             </Box>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <TextField
-                label="First Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                {...register('firstName')}
-                error={!!errors.firstName}
-                helperText={errors.firstName?.message}
-                sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaUser style={{ color: '#bbb' }} />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 8, background: '#f7f8fa' },
-                }}
-              />
-              <TextField
-                label="Last Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                {...register('lastName')}
-                error={!!errors.lastName}
-                helperText={errors.lastName?.message}
-                sx={{ borderRadius: 8, background: '#f7f8fa' }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaUser style={{ color: '#bbb' }} />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 8, background: '#f7f8fa' },
-                }}
-              />
+            <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                <TextField
+                  label="First Name"
+                  autoComplete="off"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  {...register('firstName')}
+                  error={!!errors.firstName}
+                  helperText={errors.firstName?.message}
+                  sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaUser style={{ color: '#bbb' }} />
+                      </InputAdornment>
+                    ),
+                    sx: { borderRadius: 8, background: '#f7f8fa' },
+                  }}
+                />
+                <TextField
+                  label="Last Name"
+                  autoComplete="off"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  {...register('lastName')}
+                  error={!!errors.lastName}
+                  helperText={errors.lastName?.message}
+                  sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaUser style={{ color: '#bbb' }} />
+                      </InputAdornment>
+                    ),
+                    sx: { borderRadius: 8, background: '#f7f8fa' },
+                  }}
+                />
+              </Box>
               <TextField
                 label="Email"
+                autoComplete="off"
                 variant="outlined"
                 fullWidth
                 margin="normal"
@@ -204,6 +208,7 @@ export default function RegisterPage() {
               />
               <TextField
                 label="Password"
+                autoComplete="new-password"
                 type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 fullWidth
@@ -230,6 +235,7 @@ export default function RegisterPage() {
               />
               <TextField
                 label="Date of Birth"
+                autoComplete="off"
                 type="date"
                 variant="outlined"
                 fullWidth

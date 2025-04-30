@@ -234,3 +234,8 @@ footer {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1rem;
 }
+
+@keyframes pulseBg {
+  0%, 100% { opacity: 0.09; }
+  50% { opacity: 0.15; }
+}

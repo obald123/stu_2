@@ -121,50 +121,51 @@ export default function LoginPage() {
             <Typography variant="h5" textAlign="center" fontWeight={700} mb={2}>
               Sign in
             </Typography>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <TextField
-              label="Email"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              sx={{ borderRadius: 8, background: '#f7f8fa' }}
-              InputProps={{
-                startAdornment: (
-                <InputAdornment position="start">
-                  <FaUser style={{ color: '#bbb' }} />
-                </InputAdornment>
-                ),
-                sx: { borderRadius: 8, background: '#f7f8fa' },
-              }}
+                label="Email"
+                autoComplete="off"
+                fullWidth
+                margin="normal"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{
+                  startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser style={{ color: '#bbb' }} />
+                  </InputAdornment>
+                  ),
+                  sx: { borderRadius: 8, background: '#f7f8fa' },
+                }}
               />
               <TextField
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              {...register('password')}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-              sx={{ borderRadius: 8, background: '#f7f8fa' }}
-              InputProps={{
-                startAdornment: (
-                <InputAdornment position="start">
-                  <FaLock style={{ color: '#bbb' }} />
-                </InputAdornment>
-                ),
-                endAdornment: (
-                <InputAdornment position="end">
-                  <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </Button>
-                </InputAdornment>
-                ),
-                sx: { borderRadius: 8, background: '#f7f8fa' },
-              }}
+                label="Password"
+                autoComplete="new-password"
+                type={showPassword ? 'text' : 'password'}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                {...register('password')}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                sx={{ borderRadius: 8, background: '#f7f8fa' }}
+                InputProps={{
+                  startAdornment: (
+                  <InputAdornment position="start">
+                    <FaLock style={{ color: '#bbb' }} />
+                  </InputAdornment>
+                  ),
+                  endAdornment: (
+                  <InputAdornment position="end">
+                    <Button onClick={() => setShowPassword((show) => !show)} tabIndex={-1} sx={{ minWidth: 0, p: 0 }}>
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </Button>
+                  </InputAdornment>
+                  ),
+                  sx: { borderRadius: 8, background: '#f7f8fa' },
+                }}
               />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1, mb: 1 }}>
               <FormControlLabel
