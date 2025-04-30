@@ -20,7 +20,7 @@ const editUserSchema = z.object({
 
 type EditUserFormData = z.infer<typeof editUserSchema>;
 
-// Define a type for the user fetched from the API
+
 interface UserApiResponse {
   firstName: string;
   lastName: string;
@@ -83,14 +83,14 @@ export default function EditUserPage() {
       }
     }
     fetchUser();
-    // eslint-disable-next-line
+    
   }, [userId, reset]);
 
   const onSubmit = async (data: EditUserFormData) => {
     setSubmitError(null);
     try {
       if (!fullUser) throw new Error('User data not loaded');
-      // Only send allowed fields
+      
       const allowedFields = [
         'firstName',
         'lastName',
@@ -106,7 +106,7 @@ export default function EditUserPage() {
           updateData[field] = fullUser[field];
         }
       }
-      // Convert dateOfBirth to string in YYYY-MM-DD format for backend validation
+      
       if (updateData.dateOfBirth instanceof Date) {
         updateData.dateOfBirth = updateData.dateOfBirth.toISOString().slice(0, 10);
       }

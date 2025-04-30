@@ -51,7 +51,7 @@ export const getAuditLog = async (req: Request, res: Response) => {
 export const getAllUsers = async (
   req: Request,
   res: Response<UsersListResponse | MessageResponse>,
-): Promise<Response<UsersListResponse | MessageResponse>> => {
+): Promise<Response<UsersListResponse | MessageResponse> | any> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -98,7 +98,7 @@ export const getAllUsers = async (
   }
 };
 
-export const getAnalytics = async (req: Request, res: Response): Promise<Response> => {
+export const getAnalytics = async (req: Request, res: Response): Promise<Response | any> => {
   try {
     const [totalUsers, totalAdmins, totalStudents, recentUsers] =
       await Promise.all([
@@ -134,7 +134,7 @@ export const updateUser = async (
   req: Request,
   res: Response<MessageResponse>,
   next: NextFunction,
-): Promise<Response<MessageResponse>> => {
+): Promise<Response<MessageResponse> | any> => {
   try {
     const userId = req.params.id;
     // Only allow editable fields
