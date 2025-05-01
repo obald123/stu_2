@@ -1,8 +1,6 @@
 import { expect } from "chai";
 import request from "supertest";
-import express from "express";
 import { app, startServer, stopServer } from "../server";
-import swaggerDocs from "../docs/swagger";
 import { openApiSpec } from "../docs/swaggerDocs";
 import { PrismaClient } from "@prisma/client";
 
@@ -20,9 +18,7 @@ describe("swagger.ts", () => {
   });
 
   it("should set up /api-docs and /api-docs.json endpoints", async () => {
-    const app = express();
-    swaggerDocs(app, 3000);
-    // Test /api-docs.json returns the OpenAPI spec
+    // Use the existing app instance which already has Swagger set up
     const res = await request(app).get("/api-docs.json");
     expect(res.status).to.equal(200);
     expect(res.body).to.deep.equal(openApiSpec);
