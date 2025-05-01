@@ -32,14 +32,20 @@ export default function NavBar() {
   ];
 
   return (
-    <AppBar position="sticky" elevation={0} sx={{
-      bgcolor: 'rgba(255,255,255,0.95)',
-      color: '#222',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-      borderBottom: '1px solid #e0e7ef',
-      backdropFilter: 'blur(8px)',
-      zIndex: 1201
-    }}>
+    <AppBar 
+      position="sticky" 
+      elevation={0} 
+      component="nav"
+      aria-label="Main navigation"
+      sx={{
+        bgcolor: 'rgba(255,255,255,0.95)',
+        color: '#222',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        borderBottom: '1px solid #e0e7ef',
+        backdropFilter: 'blur(8px)',
+        zIndex: 1201
+      }}
+    >
       <Toolbar sx={{
         display: 'flex',
         flexDirection: 'row',
