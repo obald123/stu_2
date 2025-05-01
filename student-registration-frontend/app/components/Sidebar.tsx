@@ -71,11 +71,10 @@ export default function Sidebar() {
             color: '#111',
             borderRight: '1px solid #e0e7ef',
             boxShadow: 2,
-            top: NAVBAR_HEIGHT,
-            height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
-            position: 'sticky',
-            alignSelf: 'flex-start',
-            transition: 'top 0.2s',
+            position: 'fixed',
+            top: 0,
+            height: '100vh',
+            zIndex: 1100,
           }
         }}
         open

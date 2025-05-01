@@ -12,20 +12,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(-45deg, #f5f7fa, #c3cfe2, #a1c4fd, #c2e9fb);
+  background: linear-gradient(-45deg, #f5f7fa, #e3eeff, #eef2ff, #f8faff);
   background-size: 400% 400%;
   animation: gradientBG 15s ease infinite;
-  color: #222;
+  color: #333;
   position: relative;
   z-index: 0;
 }
@@ -238,4 +231,106 @@ footer {
 @keyframes pulseBg {
   0%, 100% { opacity: 0.09; }
   50% { opacity: 0.15; }
+}
+
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+  animation: float 15s infinite linear;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(100vw);
+    opacity: 0;
+  }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.glow {
+  position: relative;
+}
+
+.glow::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    rgba(66, 153, 225, 0.1) 0%,
+    rgba(99, 179, 237, 0) 70%
+  );
+  border-radius: inherit;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.glow:hover::after {
+  opacity: 1;
+}
+
+.moisture-bg {
+  background: linear-gradient(135deg, #f8faff 0%, #e3eeff 100%);
+  position: relative;
+}
+
+.moisture-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(66, 153, 225, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(99, 179, 237, 0.05) 0%, transparent 50%);
+  animation: moistureFlow 20s ease-in-out infinite alternate;
+}
+
+@keyframes moistureFlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
 }

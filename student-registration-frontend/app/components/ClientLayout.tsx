@@ -21,19 +21,19 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
           {isAdminRoute ? (
             <div className="flex min-h-screen">
               <Sidebar />
-              <main className="flex-1 flex flex-col justify-center items-center w-full">
+              <main className="flex-1 flex flex-col w-full pl-[260px]">
                 {children}
               </main>
             </div>
           ) : (
             <>
               {!hideNavAndFooter && <NavBar />}
-              <main className="flex-1 flex flex-col justify-center items-center w-full">
+              <main className="flex-1 flex flex-col w-full">
                 {children}
               </main>
+              {!hideNavAndFooter && <Footer />}
             </>
           )}
-          {!hideNavAndFooter && <Footer />}
         </NotificationProvider>
       </AuthProvider>
     </ReactQueryProvider>

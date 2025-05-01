@@ -67,7 +67,6 @@ export function startServer() {
   swaggerDocs(app, Number(port));
   server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
-    console.log(`Docs available at http://localhost:${port}/api-docs`);
   });
   return server;
 }
