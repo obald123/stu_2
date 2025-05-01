@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { FaUserCircle, FaIdBadge, FaEnvelope } from 'react-icons/fa';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Button, Grid } from '@mui/material';
+import { Box, Paper, Typography, Button } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import api from '../lib/api';
 
@@ -83,13 +83,19 @@ export default function ProfilePage() {
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', py: 6 }}>
           <Box sx={{ width: '100%', maxWidth: 1000, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef' }}>
             <Typography variant="h4" fontWeight={700} align="center" sx={{ mb: 3 }}>All Users</Typography>
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)'
+              },
+              gap: 3
+            }}>
               {allUsers.map((u) => (
-                <Grid item xs={12} sm={6} md={4} key={u.id}>
-                  <UserCard user={u} />
-                </Grid>
+                <UserCard key={u.id} user={u} />
               ))}
-            </Grid>
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -112,32 +118,29 @@ export default function ProfilePage() {
           <Typography variant="h5" fontWeight={700} align="center">{profile.firstName} {profile.lastName}</Typography>
           <Typography variant="body2" color="text.secondary" align="center">{profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}</Typography>
           <Box sx={{ width: '100%' }}>
-            <Grid container columns={12} spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaEnvelope /> Email</Typography>
-                  <Typography fontWeight={500}>{profile.email}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaIdBadge /> Registration #</Typography>
-                  <Typography fontWeight={500}>{profile.registrationNumber}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary">Date of Birth</Typography>
-                  <Typography fontWeight={500}>{profile.dateOfBirth ? format(new Date(profile.dateOfBirth), 'yyyy-MM-dd') : '-'}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary">Joined</Typography>
-                  <Typography fontWeight={500}>{profile.createdAt ? format(new Date(profile.createdAt), 'yyyy-MM-dd') : '-'}</Typography>
-                </Box>
-              </Grid>
-            </Grid>
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+              gap: 2,
+              mt: 1
+            }}>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaEnvelope /> Email</Typography>
+                <Typography fontWeight={500}>{profile.email}</Typography>
+              </Box>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaIdBadge /> Registration #</Typography>
+                <Typography fontWeight={500}>{profile.registrationNumber}</Typography>
+              </Box>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary">Date of Birth</Typography>
+                <Typography fontWeight={500}>{profile.dateOfBirth ? format(new Date(profile.dateOfBirth), 'yyyy-MM-dd') : '-'}</Typography>
+              </Box>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary">Joined</Typography>
+                <Typography fontWeight={500}>{profile.createdAt ? format(new Date(profile.createdAt), 'yyyy-MM-dd') : '-'}</Typography>
+              </Box>
+            </Box>
           </Box>
           {qrCodeUrl && (
             <Box sx={{ mt: 3, mb: 1, textAlign: 'center' }}>

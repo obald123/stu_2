@@ -22,9 +22,8 @@ import {
   Legend
 } from 'recharts';
 import { useNotification } from '../../context/NotificationContext';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import Sidebar from '../../components/Sidebar';
-import { Grid } from '@mui/material';
 
 type User = {
   id: string;
@@ -79,29 +78,23 @@ export default function AdminDashboard() {
       <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f4f6fb' }}>
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: 4, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Summary cards with analytics */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <FaUsers style={{ color: '#6366f1', fontSize: 24 }} />
-                <Typography variant="h5" fontWeight={700}>{analytics?.totalUsers ?? 0}</Typography>
-                <Typography color="text.secondary">Total Users</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <FaUserShield style={{ color: '#22c55e', fontSize: 24 }} />
-                <Typography variant="h5" fontWeight={700}>{analytics?.totalAdmins ?? 0}</Typography>
-                <Typography color="text.secondary">Admins</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <FaUserGraduate style={{ color: '#3b82f6', fontSize: 24 }} />
-                <Typography variant="h5" fontWeight={700}>{analytics?.totalStudents ?? 0}</Typography>
-                <Typography color="text.secondary">Students</Typography>
-              </Box>
-            </Grid>
-          </Grid>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 3 }}>
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <FaUsers style={{ color: '#6366f1', fontSize: 24 }} />
+              <Typography variant="h5" fontWeight={700}>{analytics?.totalUsers ?? 0}</Typography>
+              <Typography color="text.secondary">Total Users</Typography>
+            </Box>
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <FaUserShield style={{ color: '#22c55e', fontSize: 24 }} />
+              <Typography variant="h5" fontWeight={700}>{analytics?.totalAdmins ?? 0}</Typography>
+              <Typography color="text.secondary">Admins</Typography>
+            </Box>
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <FaUserGraduate style={{ color: '#3b82f6', fontSize: 24 }} />
+              <Typography variant="h5" fontWeight={700}>{analytics?.totalStudents ?? 0}</Typography>
+              <Typography color="text.secondary">Students</Typography>
+            </Box>
+          </Box>
           {/* Analytics Charts */}
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 6 }}>
             <Box sx={{ bgcolor: '#fff', border: '1px solid #e0e7ef', boxShadow: 2, borderRadius: 3, p: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
