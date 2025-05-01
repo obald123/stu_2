@@ -1,15 +1,26 @@
 import { expect } from "chai";
 import request from "supertest";
-import { app } from "../server";
+import { app, startServer, stopServer } from "../server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
+let server: any;
 
 describe("adminController edge/error cases", () => {
   let adminId: string;
   let adminToken: string;
+
+  before(async () => {
+    server = startServer();
+  });
+
+  after(async () => {
+    await prisma.$disconnect();
+    stopServer();
+  });
+
   beforeEach(async () => {
     await prisma.user.deleteMany();
     const admin = await prisma.user.create({
@@ -26,6 +37,7 @@ describe("adminController edge/error cases", () => {
     adminId = admin.id;
     adminToken = jwt.sign({ userId: adminId, role: "admin" }, jwtSecret);
   });
+
   afterEach(async () => {
     await prisma.user.deleteMany();
   });
@@ -58,6 +70,16 @@ describe("adminController edge/error cases", () => {
 describe("userController edge/error cases", () => {
   let userId: string;
   let token: string;
+
+  before(async () => {
+    server = startServer();
+  });
+
+  after(async () => {
+    await prisma.$disconnect();
+    stopServer();
+  });
+
   beforeEach(async () => {
     await prisma.user.deleteMany();
     const user = await prisma.user.create({
@@ -74,6 +96,7 @@ describe("userController edge/error cases", () => {
     userId = user.id;
     token = jwt.sign({ userId, role: "student" }, jwtSecret);
   });
+
   afterEach(async () => {
     await prisma.user.deleteMany();
   });
@@ -88,6 +111,15 @@ describe("userController edge/error cases", () => {
 });
 
 describe("server error handling", () => {
+  before(async () => {
+    server = startServer();
+  });
+
+  after(async () => {
+    await prisma.$disconnect();
+    stopServer();
+  });
+
   it("should handle 404 for unknown route", async () => {
     const res = await request(app).get("/api/unknownroute");
     expect(res.status).to.be.oneOf([404, 400, 401]);

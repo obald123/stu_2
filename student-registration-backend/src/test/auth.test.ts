@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import request from "supertest";
-import { app } from "../server";
+import { app, startServer, stopServer } from "../server";
 import { PrismaClient } from "@prisma/client";
 import { logTestResult } from "../utils/logTestResult";
 
 const prisma = new PrismaClient();
+let server: any;
 
 function logResultWrapper(testName: string, fn: () => Promise<void>) {
   return async function() {
@@ -20,12 +21,14 @@ function logResultWrapper(testName: string, fn: () => Promise<void>) {
 
 describe("Auth API", () => {
   before(async () => {
+    server = startServer();
     await prisma.user.deleteMany();
   });
 
   after(async () => {
     await prisma.user.deleteMany();
     await prisma.$disconnect();
+    stopServer();
   });
 
   describe("POST /api/register", () => {

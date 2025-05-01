@@ -15,7 +15,7 @@ const port = process.env.PORT || 8000;
 
 app.use(
   cors({
-    origin: '*', // Or specify your frontend URL
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -23,7 +23,6 @@ app.use(
 app.use(express.json());
 
 app.use("/api", authRoutes, userRoutes, adminRoutes);
-
 
 app.get("/", (req, res) => {
   console.log("Root route accessed");
@@ -33,9 +32,6 @@ app.get("/", (req, res) => {
 app.get("/test", (req, res) => {
   res.send("Test route is working");
 });
-
-
-swaggerDocs(app, Number(port));
 
 // Error handling middleware
 app.use(
@@ -65,18 +61,41 @@ app.use(
   },
 );
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+let server: any = null;
+
+export function startServer() {
+  swaggerDocs(app, Number(port));
+  server = app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(`Docs available at http://localhost:${port}/api-docs`);
+  });
+  return server;
+}
+
+export function stopServer() {
+  if (server) {
+    server.close();
+  }
+}
+
+// Start server if this file is run directly
+if (require.main === module) {
+  startServer();
+}
 
 // Graceful shutdown
 process.on("SIGTERM", async () => {
+  if (server) {
+    server.close();
+  }
   await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on("SIGINT", async () => {
+  if (server) {
+    server.close();
+  }
   await prisma.$disconnect();
   process.exit(0);
 });

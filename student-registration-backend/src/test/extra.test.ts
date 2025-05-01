@@ -1,13 +1,23 @@
 import { expect } from "chai";
 import request from "supertest";
-import { app } from "../server";
+import { app, startServer, stopServer } from "../server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
+let server: any;
 
 describe("Server and Middleware", () => {
+  before(async () => {
+    server = startServer();
+  });
+
+  after(async () => {
+    await prisma.$disconnect();
+    stopServer();
+  });
+
   it("should return 200 for root route", async () => {
     const res = await request(app).get("/");
     expect(res.status).to.equal(200);
