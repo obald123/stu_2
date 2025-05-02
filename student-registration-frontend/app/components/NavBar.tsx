@@ -9,7 +9,15 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import { alpha } from '@mui/material/styles';
 
-export default function NavBar() {
+export default function NavBar({ 
+  isCollapsed = false, 
+  showSidebar = false,
+  isMobile = false
+}: { 
+  isCollapsed?: boolean;
+  showSidebar?: boolean;
+  isMobile?: boolean;
+}) {
   const pathname = usePathname();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -44,36 +52,78 @@ export default function NavBar() {
 
   return (
     <AppBar 
-      position="sticky" 
+      position="fixed"
       elevation={0} 
       component="nav"
       aria-label="Main navigation"
-      className="bg-transparent"
       sx={{
         bgcolor: 'rgba(255,255,255,0.95)',
         color: '#222',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
         borderBottom: '1px solid #e0e7ef',
         backdropFilter: 'blur(8px)',
-        zIndex: 1201
+        zIndex: 1200,
+        width: showSidebar ? {
+          xs: '100%',
+          md: `calc(100% - ${isCollapsed ? '80px' : '260px'})`
+        } : '100%',
+        left: showSidebar ? {
+          xs: 0,
+          md: isCollapsed ? '80px' : '260px'
+        } : 0,
+        transition: 'all 0.3s ease'
       }}
     >
       <Toolbar sx={{
         display: 'flex',
-        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        px: { xs: 1, sm: 3 },
-        minHeight: { xs: 56, sm: 64 }
+        px: { 
+          xs: 2, 
+          sm: 3, 
+          md: showSidebar ? (isCollapsed ? 4 : 3) : 4, 
+          lg: 6 
+        },
+        minHeight: { xs: '64px', sm: '72px', md: '80px' },
+        maxWidth: { 
+          xs: '100%',
+          sm: showSidebar ? 
+            (isCollapsed ? '900px' : '800px') : 
+            '600px',
+          md: showSidebar ? 
+            (isCollapsed ? '1200px' : '1100px') : 
+            '900px',
+          lg: showSidebar ? 
+            (isCollapsed ? '1400px' : '1300px') : 
+            '1200px'
+        },
+        width: '100%',
+        mx: 'auto',
+        transition: 'all 0.3s ease'
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Logo size={40} />
-          <Typography variant="h6" sx={{ fontWeight: 800, ml: 1, color: '#6366f1', letterSpacing: 1, display: { xs: 'none', sm: 'block' } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+          <Logo size={32} />
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 800, 
+              ml: { xs: 1, sm: 2 }, 
+              color: '#6366f1', 
+              letterSpacing: 1, 
+              fontSize: { xs: '1.1rem', sm: '1.25rem' },
+              display: { xs: 'none', sm: 'block' } 
+            }}
+          >
             Student Registration
           </Typography>
         </Box>
+
         {/* Desktop Nav */}
-        <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
+        <Box sx={{ 
+          display: { xs: 'none', md: 'flex' }, 
+          gap: { sm: 1, md: 2 },
+          alignItems: 'center'
+        }}>
           {navLinks.map((link) => (
             <Button
               key={link.href}
@@ -85,13 +135,15 @@ export default function NavBar() {
                 color: pathname === link.href ? '#6366f1' : '#222',
                 fontWeight: 600,
                 borderRadius: 2,
-                px: 2,
+                px: { sm: 1.5, md: 2 },
                 py: 1,
+                fontSize: { sm: '0.875rem', md: '1rem' },
                 background: pathname === link.href ? alpha('#6366f1', 0.08) : 'transparent',
-                transition: 'background 0.2s',
+                transition: 'all 0.2s ease',
                 '&:hover': {
                   background: alpha('#6366f1', 0.12),
                   color: '#6366f1',
+                  transform: 'translateY(-1px)'
                 },
               }}
             >
@@ -107,14 +159,12 @@ export default function NavBar() {
                   color: '#222',
                   fontWeight: 600,
                   borderRadius: 2,
-                  px: 2,
-                  py: 1
+                  px: { sm: 1.5, md: 2 },
+                  py: 1,
+                  fontSize: { sm: '0.875rem', md: '1rem' }
                 }}
               >
                 {user?.firstName} {user?.lastName}
-                {user?.hasNewMessages && (
-                  <span data-testid="notification-badge" className="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-                )}
               </Button>
               <Button 
                 color="inherit" 
@@ -124,11 +174,13 @@ export default function NavBar() {
                   color: '#e11d48', 
                   fontWeight: 600, 
                   borderRadius: 2, 
-                  px: 2, 
-                  py: 1, 
-                  ml: 1, 
+                  px: { sm: 1.5, md: 2 }, 
+                  py: 1,
+                  ml: { sm: 0.5, md: 1 },
+                  fontSize: { sm: '0.875rem', md: '1rem' },
                   '&:hover': { 
-                    background: alpha('#e11d48', 0.08) 
+                    background: alpha('#e11d48', 0.08),
+                    transform: 'translateY(-1px)'
                   } 
                 }}
               >
@@ -137,13 +189,22 @@ export default function NavBar() {
             </>
           )}
         </Box>
+
         {/* Mobile Nav */}
-        <Box sx={{ display: { xs: 'flex', sm: 'none' } }}>
+        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
           <IconButton 
             color="inherit" 
             edge="end" 
             onClick={() => setMobileOpen(true)}
             data-testid="mobile-menu-button"
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              '&:hover': {
+                background: alpha('#6366f1', 0.08)
+              }
+            }}
           >
             <MenuIcon />
           </IconButton>
@@ -151,26 +212,43 @@ export default function NavBar() {
             anchor="right" 
             open={mobileOpen} 
             onClose={handleClose}
-            ModalProps={{
-              keepMounted: true,
-              disablePortal: true
-            }}
             PaperProps={{
-              'data-testid': 'mobile-menu'
+              sx: {
+                width: { xs: '100%', sm: 320 },
+                borderTopLeftRadius: { xs: '1rem', sm: 0 },
+                borderBottomLeftRadius: { xs: '1rem', sm: 0 },
+                mt: { xs: '64px', sm: '72px' },
+                height: { xs: 'calc(100% - 64px)', sm: 'calc(100% - 72px)' }
+              }
             }}
           >
-            <Box 
-              sx={{ width: 240, pt: 2 }} 
-              role="presentation"
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, pl: 2 }}>
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
                 <Logo size={32} />
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#6366f1' }}>Student Registration</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#6366f1' }}>
+                  Student Registration
+                </Typography>
               </Box>
               <List>
                 {navLinks.map((link) => (
                   <ListItem key={link.href} disablePadding>
-                    <ListItemButton component={Link} href={link.href} selected={pathname === link.href} sx={{ borderRadius: 2, color: pathname === link.href ? '#6366f1' : '#222', fontWeight: 600 }}>
+                    <ListItemButton 
+                      component={Link} 
+                      href={link.href} 
+                      selected={pathname === link.href}
+                      sx={{ 
+                        borderRadius: 2,
+                        mb: 1,
+                        color: pathname === link.href ? '#6366f1' : '#222',
+                        bgcolor: pathname === link.href ? alpha('#6366f1', 0.08) : 'transparent',
+                        fontWeight: 600,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: alpha('#6366f1', 0.12),
+                          transform: 'translateX(4px)'
+                        }
+                      }}
+                    >
                       {link.icon}
                       <ListItemText primary={link.label} sx={{ ml: 2 }} />
                     </ListItemButton>
@@ -178,14 +256,25 @@ export default function NavBar() {
                 ))}
                 {isAuthenticated && (
                   <ListItem disablePadding>
-                    <ListItemButton onClick={logout} sx={{ borderRadius: 2, color: '#e11d48', fontWeight: 600 }}>
+                    <ListItemButton 
+                      onClick={logout}
+                      sx={{ 
+                        borderRadius: 2,
+                        color: '#e11d48',
+                        fontWeight: 600,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: alpha('#e11d48', 0.08),
+                          transform: 'translateX(4px)'
+                        }
+                      }}
+                    >
                       <FaSignOutAlt />
                       <ListItemText primary="Logout" sx={{ ml: 2 }} />
                     </ListItemButton>
                   </ListItem>
                 )}
               </List>
-              <Divider sx={{ my: 1 }} />
             </Box>
           </Drawer>
         </Box>

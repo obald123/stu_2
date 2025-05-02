@@ -102,7 +102,7 @@ export default function LoginPage() {
       className="moisture-bg"
       sx={{ 
         minHeight: '100vh', 
-        width: '100vw', 
+        width: '100%', 
         display: 'flex', 
         flexDirection: { xs: 'column', md: 'row' },
         position: 'relative',
@@ -113,24 +113,24 @@ export default function LoginPage() {
 
       {/* Left side: Brand section */}
       <Box sx={{
-        flex: 1,
-        display: { xs: 'none', md: 'flex' },
+        flex: { xs: '0 0 auto', md: '1 0 50%' },
+        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh',
-        background: `url('/login.jpg')`,
+        minHeight: { xs: '30vh', md: '100vh' },
+        background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/login.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         position: 'relative',
         color: '#fff',
-        p: 6
+        p: { xs: 3, sm: 4, md: 6 }
       }}>
         <Box className="glow" sx={{ 
           position: 'relative', 
           zIndex: 1, 
           textAlign: 'center',
-          p: 4,
+          p: { xs: 2, sm: 3, md: 4 },
           borderRadius: 4,
           transition: 'transform 0.3s ease',
           background: 'rgba(0, 0, 0, 0.4)',
@@ -142,7 +142,8 @@ export default function LoginPage() {
           <FaUniversity style={{ fontSize: 80, marginBottom: 24, color: '#fff' }} />
           <Typography variant="h3" fontWeight={800} mb={3} sx={{ 
             color: '#fff',
-            textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
           }}>
             Welcome Back
           </Typography>
@@ -150,7 +151,8 @@ export default function LoginPage() {
             color: '#fff', 
             maxWidth: 400, 
             mx: 'auto',
-            lineHeight: 1.6
+            lineHeight: 1.6,
+            fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
           }}>
             Access your student portal and manage your academic journey with ease
           </Typography>
@@ -159,7 +161,7 @@ export default function LoginPage() {
 
       {/* Right side: Login form */}
       <Box sx={{
-        flex: 1,
+        flex: { xs: '1 1 auto', md: '1 0 50%' },
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -167,24 +169,11 @@ export default function LoginPage() {
         background: 'rgba(255,255,255,0.9)',
         backdropFilter: 'blur(10px)',
         position: 'relative',
-        '&::before': {
-          content: '"LOGIN"',
-          position: 'absolute',
-          right: -40,
-          top: '50%',
-          transform: 'translateY(-50%) rotate(-90deg)',
-          fontSize: '120px',
-          fontWeight: 800,
-          opacity: 0.03,
-          color: '#000',
-          zIndex: 0,
-          letterSpacing: '1rem',
-          userSelect: 'none'
-        }
+        minHeight: { xs: '70vh', md: '100vh' }
       }}>
         <Container maxWidth="sm">
           <Box className="glass-card" sx={{ 
-            maxWidth: 480, 
+            maxWidth: { xs: '100%', sm: 480 }, 
             mx: 'auto',
             textAlign: 'center',
             p: { xs: 3, sm: 4 },

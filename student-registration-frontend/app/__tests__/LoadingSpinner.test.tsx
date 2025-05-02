@@ -36,7 +36,7 @@ describe('LoadingSpinner', () => {
     const testValue = true;
     render(<LoadingSpinner fullHeight={testValue} />);
     const element = screen.getByTestId('loadingspinner-container');
-    expect(element).toHaveAttribute('data-fullHeight', true);
+    expect(element).toHaveAttribute('data-fullheight', true);
   });
 
   it('has proper accessibility attributes', () => {

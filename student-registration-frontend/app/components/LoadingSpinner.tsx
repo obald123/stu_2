@@ -6,30 +6,49 @@ interface LoadingSpinnerProps {
 }
 
 export default function LoadingSpinner({ 
-  size = 8, 
-  color = 'red',
-  center = false,
+  size = 40,
+  color = '#4299e1',
+  center = true,
   fullHeight = false 
 }: LoadingSpinnerProps) {
-  const containerClasses = [
-    'flex',
-    center ? 'justify-center items-center' : '',
-    fullHeight ? 'h-screen' : ''
-  ].filter(Boolean).join(' ');
-
   return (
     <div 
-      className={containerClasses}
-      data-testid="spinner-container"
+      style={{
+        display: 'flex',
+        justifyContent: center ? 'center' : 'flex-start',
+        alignItems: center ? 'center' : 'flex-start',
+        height: fullHeight ? '100vh' : 'auto',
+        width: '100%',
+        padding: '20px'
+      }}
+      data-testid="loadingspinner-container"
+      data-size={size}
+      data-color={color}
+      data-center={center}
+      data-fullheight={fullHeight}
     >
       <div
         data-testid="loading-spinner"
-        className={`w-${size} h-${size} animate-spin text-${color}-500`}
+        style={{
+          width: size,
+          height: size,
+          animation: 'spin 1s linear infinite',
+          position: 'relative'
+        }}
         role="status"
         aria-label="Loading..."
         aria-busy="true"
       >
-        <div className="border-4 border-current border-t-transparent rounded-full w-full h-full" />
+        <div 
+          style={{
+            border: `4px solid ${color}`,
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            width: '100%',
+            height: '100%',
+            animation: 'spin 1s linear infinite'
+          }} 
+        />
       </div>
     </div>
   );
