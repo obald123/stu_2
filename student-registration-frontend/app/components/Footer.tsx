@@ -3,20 +3,24 @@ import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt, FaGithub, FaTwitter, FaLinkedin
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{
-      width: '100%',
-      bgcolor: 'rgba(245,247,250,0.95)',
-      color: '#222',
-      py: 4,
-      px: 2,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      mt: 'auto',
-      fontSize: '1rem',
-      borderTop: '1px solid #e0e7ef',
-      boxShadow: '0 -2px 8px rgba(0,0,0,0.03)'
-    }}>
+    <Box 
+      component="footer" 
+      data-testid="footer-container"
+      sx={{
+        width: '100%',
+        bgcolor: 'rgba(245,247,250,0.95)',
+        color: '#222',
+        py: 4,
+        px: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        mt: 'auto',
+        fontSize: '1rem',
+        borderTop: '1px solid #e0e7ef',
+        boxShadow: '0 -2px 8px rgba(0,0,0,0.03)'
+      }}
+    >
       <Box sx={{
         display: 'flex',
         flexDirection: { xs: 'column', sm: 'row' },

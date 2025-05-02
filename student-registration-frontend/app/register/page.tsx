@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Typography, TextField, Button, InputAdornment, Link as MuiLink, Container, Checkbox, FormControlLabel, Box } from '@mui/material';
@@ -11,29 +12,113 @@ import { FaUserPlus, FaUniversity, FaUser, FaLock, FaEnvelope, FaBirthdayCake } 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { FormHelperTextProps } from '@mui/material';
+import { HTMLAttributes } from 'react';
+
+// Extend FormHelperTextProps to include data-testid
+interface CustomFormHelperTextProps extends FormHelperTextProps, HTMLAttributes<HTMLDivElement> {
+  'data-testid'?: string;
+}
 
 const registerSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().min(1, 'Email is required').email('Invalid email format'),
+  password: z.string()
+    .min(1, 'Password is required')
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
+  confirmPassword: z.string().min(1, 'Confirm password is required'),
+  dateOfBirth: z.string()
+    .min(1, 'Date of birth is required')
+    .refine((date) => {
+      if (!date) return false;
+      return new Date(date) < new Date();
+    }, 'Date of birth must be in the past')
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"]
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const { register: registerUser, isAuthenticated } = useAuth();
+  const { notify } = useNotification();
   const router = useRouter();
   const [popupMsg, setPopupMsg] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
+  const [showPasswordReqs, setShowPasswordReqs] = useState(false);
 
+  // Function to format error messages
+  const getErrorMessage = (field: keyof RegisterFormData) => {
+    // Special cases for fields that need custom formatting
+    const fieldNames: Record<string, string> = {
+      firstName: 'First name',
+      lastName: 'Last name',
+      dateOfBirth: 'Date of birth',
+      confirmPassword: 'Confirm password'
+    };
+
+    // If we have a Zod error message, use it
+    if (errors[field]?.message) {
+      // For required field errors, format them consistently
+      if (errors[field]?.type === 'too_small') {
+        return `${fieldNames[field] || field} is required`;
+      }
+      return errors[field]?.message;
+    }
+
+    // For manual validation
+    const value = watch(field);
+    if (!value && touchedFields[field]) {
+      return `${fieldNames[field] || field} is required`;
+    }
+
+    return ' ';
+  };
+
+  // Function to handle password validation errors
+  const getPasswordErrorMessage = () => {
+    if (!errors.password) return ' ';
+    
+    const password = watch('password');
+    if (!password) return 'Password is required';
+
+    const messages = [];
+    if (password.length < 8) messages.push('Password must be at least 8 characters');
+    if (!/[A-Z]/.test(password)) messages.push('Password must contain at least one uppercase letter');
+    if (!/[0-9]/.test(password)) messages.push('Password must contain at least one number');
+    if (!/[^a-zA-Z0-9]/.test(password)) messages.push('Password must contain at least one special character');
+    
+    return messages.join('\n') || ' ';
+  };
+
+  // Function to trigger field validation
+  const validateField = async (field: keyof RegisterFormData) => {
+    const value = watch(field);
+    if (!value) {
+      setError(field, {
+        type: 'required',
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+      });
+      return;
+    }
+    await trigger(field);
+  };
+
+  // Update form configuration for validation
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, touchedFields, isSubmitting },
+    trigger,
+    watch,
     reset,
+    setError,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -41,11 +126,39 @@ export default function RegisterPage() {
       lastName: '',
       email: '',
       password: '',
+      confirmPassword: '',
       dateOfBirth: '',
     },
+    mode: 'onTouched',
+    criteriaMode: 'all',
   });
 
+  // Function to handle form submission
   const onSubmit = async (data: RegisterFormData) => {
+    // Validate date of birth first
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const dob = new Date(data.dateOfBirth);
+    dob.setHours(0, 0, 0, 0);
+
+    if (dob >= today) {
+      setError('dateOfBirth', {
+        type: 'manual',
+        message: 'Date of birth must be in the past'
+      });
+      return;
+    }
+
+    // Validate passwords match
+    if (data.password !== data.confirmPassword) {
+      setError('confirmPassword', {
+        type: 'manual',
+        message: 'Passwords do not match'
+      });
+      return;
+    }
+
     try {
       await registerUser(
         data.firstName,
@@ -54,20 +167,16 @@ export default function RegisterPage() {
         data.password,
         data.dateOfBirth
       );
-      toast.success('Registration successful');
-      router.push('/');
+      notify('Registration successful!', 'success');
+      router.push('/login');
     } catch (error: any) {
       let errorMsg = 'Registration failed. Please try again.';
       if (error?.response?.data) {
-        if (error.response.data.message) {
-          errorMsg = error.response.data.message;
-        } else if (error.response.data.error) {
-          errorMsg = error.response.data.error;
-        }
-      } else if (error instanceof Error && error.message) {
+        errorMsg = error.response.data.message || error.response.data.error;
+      } else if (error instanceof Error) {
         errorMsg = error.message;
       }
-      setPopupMsg(errorMsg);
+      notify(errorMsg, 'error');
     }
   };
 
@@ -248,7 +357,15 @@ export default function RegisterPage() {
                   fullWidth
                   {...register('firstName')}
                   error={!!errors.firstName}
-                  helperText={errors.firstName?.message}
+                  helperText={getErrorMessage('firstName')}
+                  onBlur={() => validateField('firstName')}
+                  FormHelperTextProps={{
+                    'data-testid': 'firstName-error',
+                    sx: { 
+                      minHeight: '1.5em',
+                      visibility: 'visible'
+                    }
+                  } as CustomFormHelperTextProps}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -286,7 +403,15 @@ export default function RegisterPage() {
                   fullWidth
                   {...register('lastName')}
                   error={!!errors.lastName}
-                  helperText={errors.lastName?.message}
+                  helperText={getErrorMessage('lastName')}
+                  onBlur={() => validateField('lastName')}
+                  FormHelperTextProps={{
+                    'data-testid': 'lastName-error',
+                    sx: { 
+                      minHeight: '1.5em',
+                      visibility: 'visible'
+                    }
+                  } as CustomFormHelperTextProps}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -326,7 +451,15 @@ export default function RegisterPage() {
                 margin="normal"
                 {...register('email')}
                 error={!!errors.email}
-                helperText={errors.email?.message}
+                helperText={getErrorMessage('email')}
+                onBlur={() => validateField('email')}
+                FormHelperTextProps={{
+                  'data-testid': 'email-error',
+                  sx: { 
+                    minHeight: '1.5em',
+                    visibility: 'visible'
+                  }
+                } as CustomFormHelperTextProps}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -366,7 +499,22 @@ export default function RegisterPage() {
                 margin="normal"
                 {...register('password')}
                 error={!!errors.password}
-                helperText={errors.password?.message}
+                helperText={getPasswordErrorMessage()}
+                onFocus={() => setShowPasswordReqs(true)}
+                {...{
+                  onBlur: () => {
+                    validateField('password');
+                    setShowPasswordReqs(false);
+                  }
+                }}
+                FormHelperTextProps={{
+                  'data-testid': 'password-error',
+                  sx: { 
+                    minHeight: '1.5em',
+                    whiteSpace: 'pre-line',
+                    visibility: 'visible'
+                  }
+                } as CustomFormHelperTextProps}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -414,6 +562,80 @@ export default function RegisterPage() {
                 }}
               />
 
+              {showPasswordReqs && (
+                <Box sx={{ 
+                  mt: 1, 
+                  p: 2, 
+                  borderRadius: 2, 
+                  bgcolor: 'rgba(66,153,225,0.1)',
+                  border: '1px solid rgba(66,153,225,0.2)'
+                }}>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    Password must contain:
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • At least 8 characters
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • One uppercase letter
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • One number
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • One special character
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Confirm Password TextField */}
+              <TextField
+                label="Confirm Password"
+                type={showPassword ? 'text' : 'password'}
+                fullWidth
+                margin="normal"
+                {...register('confirmPassword')}
+                error={!!errors.confirmPassword}
+                helperText={getErrorMessage('confirmPassword')}
+                onBlur={() => validateField('confirmPassword')}
+                FormHelperTextProps={{
+                  'data-testid': 'confirmPassword-error',
+                  sx: { 
+                    minHeight: '1.5em',
+                    visibility: 'visible'
+                  }
+                } as CustomFormHelperTextProps}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaLock style={{ color: '#4299e1' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { 
+                    borderRadius: 2,
+                    background: 'rgba(255,255,255,0.9)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e2e8f0'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#4299e1'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3182ce'
+                    },
+                    color: '#2d3748',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                    '&:hover': {
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(66,153,225,0.1)'
+                    }
+                  }
+                }}
+                InputLabelProps={{
+                  sx: { color: '#4a5568' }
+                }}
+              />
+
               {/* Date of Birth TextField */}
               <TextField
                 label="Date of Birth"
@@ -422,7 +644,15 @@ export default function RegisterPage() {
                 margin="normal"
                 {...register('dateOfBirth')}
                 error={!!errors.dateOfBirth}
-                helperText={errors.dateOfBirth?.message}
+                helperText={getErrorMessage('dateOfBirth')}
+                onBlur={() => validateField('dateOfBirth')}
+                FormHelperTextProps={{
+                  'data-testid': 'dateOfBirth-error',
+                  sx: { 
+                    minHeight: '1.5em',
+                    visibility: 'visible'
+                  }
+                } as CustomFormHelperTextProps}
                 InputLabelProps={{ 
                   shrink: true,
                   sx: { color: '#4a5568' }
@@ -567,7 +797,9 @@ export default function RegisterPage() {
                   },
                   '&.Mui-disabled': { 
                     bgcolor: '#e2e8f0', 
-                    color: '#a0aec0' 
+                    color: '#a0aec0',
+                    pointerEvents: 'auto', // Allow pointer events even when disabled
+                    cursor: 'not-allowed'
                   },
                   borderRadius: 2,
                   textTransform: 'none',

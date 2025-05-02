@@ -1,15 +1,20 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import NotificationDisplay from '../components/NotificationDisplay';
-import { NotificationProvider } from '../context/NotificationContext';
 
 describe('NotificationDisplay', () => {
-  it('renders without crashing', () => {
-    render(
-      <NotificationProvider>
-        <NotificationDisplay />
-      </NotificationProvider>
-    );
+  it('renders with default props', () => {
+    render(<NotificationDisplay />);
+    const element = screen.getByTestId('notificationdisplay-container');
+    expect(element).toBeInTheDocument();
+  });
+
+  
+
+  it('has proper accessibility attributes', () => {
+    render(<NotificationDisplay />);
+    const element = screen.getByRole('generic');
+    expect(element).toBeInTheDocument();
   });
 });

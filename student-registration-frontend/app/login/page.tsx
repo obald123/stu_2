@@ -20,6 +20,7 @@ import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { FaUser, FaLock, FaUniversity, FaSignInAlt } from 'react-icons/fa';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useNotification } from '../context/NotificationContext';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -30,6 +31,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
+  const { notify } = useNotification();
   const router = useRouter();
   const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -53,11 +55,17 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data.email, data.password);
-      toast.success('Login successful');
-      router.push('/');
+      const response = await login(data.email, data.password);
+      notify('Login successful', 'success');
+      interface LoginResponse {
+        user: {
+          role: string;
+        };
+      }
+      reset();
     } catch (error) {
-      toast.error('Invalid credentials');
+      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
+      notify(errorMessage, 'error');
     }
   };
 
@@ -263,6 +271,9 @@ export default function LoginPage() {
                   label="Password"
                   type={showPassword ? 'text' : 'password'}
                   fullWidth
+                  inputProps={{
+                    'aria-label': 'password input'
+                  }}
                   {...register('password')}
                   error={!!errors.password}
                   helperText={errors.password?.message}
@@ -276,6 +287,7 @@ export default function LoginPage() {
                       <InputAdornment position="end">
                         <Button 
                           onClick={() => setShowPassword(!showPassword)}
+                          aria-label="toggle password visibility"
                           sx={{ 
                             minWidth: 'auto', 
                             color: '#4299e1',
@@ -326,6 +338,9 @@ export default function LoginPage() {
                     <Checkbox 
                       checked={keepSignedIn}
                       onChange={(e) => setKeepSignedIn(e.target.checked)}
+                      inputProps={{
+                        'aria-label': 'keep me signed in'
+                      }}
                       sx={{ 
                         color: '#4299e1',
                         '&.Mui-checked': { color: '#4299e1' },
@@ -333,11 +348,11 @@ export default function LoginPage() {
                       }}
                     />
                   }
-                  label={<Typography sx={{ color: '#4a5568' }}>Remember me</Typography>}
+                  label={<Typography sx={{ color: '#4a5568' }}>Keep me signed in</Typography>}
                 />
                 <MuiLink 
                   component={Link} 
-                  href="#"
+                  href="/forgot-password"
                   sx={{ 
                     color: '#4299e1',
                     textDecoration: 'none',
@@ -402,7 +417,7 @@ export default function LoginPage() {
               >
                 {isSubmitting ? (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span className="loading-dots">Signing in</span>
+                    <span className="loading-dots" data-testid="loading-spinner">Signing in</span>
                   </Box>
                 ) : (
                   'Sign in'
@@ -413,6 +428,8 @@ export default function LoginPage() {
                 <Typography variant="body2" sx={{ color: '#4a5568' }}>
                   Don't have an account?{' '}
                   <MuiLink 
+                    aria-label="register new account"
+                    role="link"
                     component={Link} 
                     href="/register"
                     sx={{ 

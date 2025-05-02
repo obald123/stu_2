@@ -4,15 +4,26 @@ import { usePathname } from 'next/navigation';
 import { FaUserCircle, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaTachometerAlt, FaCog, FaUniversity } from 'react-icons/fa';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemButton, ListItemText, Divider } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Box, Drawer, List, ListItem, ListItemButton, ListItemText, Divider, ClickAwayListener } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import { alpha } from '@mui/material/styles';
 
 export default function NavBar() {
   const pathname = usePathname();
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleClose = () => {
+    setMobileOpen(false);
+  };
+
+  const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
+    // Close if clicking outside the menu
+    if ((event.target as HTMLElement).closest('[data-testid="mobile-menu"]') === null) {
+      handleClose();
+    }
+  };
 
   const navLinks = [
     { label: 'Home', href: '/', icon: <FaUniversity /> },
@@ -37,6 +48,7 @@ export default function NavBar() {
       elevation={0} 
       component="nav"
       aria-label="Main navigation"
+      className="bg-transparent"
       sx={{
         bgcolor: 'rgba(255,255,255,0.95)',
         color: '#222',
@@ -87,18 +99,70 @@ export default function NavBar() {
             </Button>
           ))}
           {isAuthenticated && (
-            <Button color="inherit" onClick={logout} startIcon={<FaSignOutAlt />} sx={{ color: '#e11d48', fontWeight: 600, borderRadius: 2, px: 2, py: 1, ml: 1, '&:hover': { background: alpha('#e11d48', 0.08) } }}>
-              Logout
-            </Button>
+            <>
+              <Button 
+                color="inherit" 
+                aria-label="user menu"
+                sx={{ 
+                  color: '#222',
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  px: 2,
+                  py: 1
+                }}
+              >
+                {user?.firstName} {user?.lastName}
+                {user?.hasNewMessages && (
+                  <span data-testid="notification-badge" className="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
+              </Button>
+              <Button 
+                color="inherit" 
+                onClick={logout} 
+                startIcon={<FaSignOutAlt />} 
+                sx={{ 
+                  color: '#e11d48', 
+                  fontWeight: 600, 
+                  borderRadius: 2, 
+                  px: 2, 
+                  py: 1, 
+                  ml: 1, 
+                  '&:hover': { 
+                    background: alpha('#e11d48', 0.08) 
+                  } 
+                }}
+              >
+                Logout
+              </Button>
+            </>
           )}
         </Box>
         {/* Mobile Nav */}
         <Box sx={{ display: { xs: 'flex', sm: 'none' } }}>
-          <IconButton color="inherit" edge="end" onClick={() => setMobileOpen(true)}>
+          <IconButton 
+            color="inherit" 
+            edge="end" 
+            onClick={() => setMobileOpen(true)}
+            data-testid="mobile-menu-button"
+          >
             <MenuIcon />
           </IconButton>
-          <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
-            <Box sx={{ width: 240, pt: 2 }} role="presentation" onClick={() => setMobileOpen(false)}>
+          <Drawer 
+            anchor="right" 
+            open={mobileOpen} 
+            onClose={handleClose}
+            ModalProps={{
+              keepMounted: true,
+              disablePortal: true
+            }}
+            PaperProps={{
+              'data-testid': 'mobile-menu'
+            }}
+          >
+            <Box 
+              sx={{ width: 240, pt: 2 }} 
+              role="presentation"
+            >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, pl: 2 }}>
                 <Logo size={32} />
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#6366f1' }}>Student Registration</Typography>

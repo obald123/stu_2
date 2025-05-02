@@ -4,7 +4,7 @@ import { Snackbar, Alert } from '@mui/material';
 export default function NotificationDisplay() {
   const { notifications, remove } = useNotification();
   return (
-    <>
+    <div data-testid="notification-display">
       {notifications.map((n) => (
         <Snackbar
           key={n.id}
@@ -23,6 +23,6 @@ export default function NotificationDisplay() {
           </Alert>
         </Snackbar>
       ))}
-    </>
+    </div>
   );
 }

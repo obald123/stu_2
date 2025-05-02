@@ -19,20 +19,20 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
         <NotificationProvider>
           <NotificationDisplay />
           {isAdminRoute ? (
-            <div className="flex min-h-screen">
+            <div className="flex min-h-screen" data-testid="admin-layout">
               <Sidebar />
               <main className="flex-1 flex flex-col w-full pl-[260px]">
                 {children}
               </main>
             </div>
           ) : (
-            <>
+            <div data-testid="clientlayout-container">
               {!hideNavAndFooter && <NavBar />}
               <main className="flex-1 flex flex-col w-full">
                 {children}
               </main>
               {!hideNavAndFooter && <Footer />}
-            </>
+            </div>
           )}
         </NotificationProvider>
       </AuthProvider>

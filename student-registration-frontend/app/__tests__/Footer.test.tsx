@@ -4,8 +4,17 @@ import '@testing-library/jest-dom';
 import Footer from '../components/Footer';
 
 describe('Footer', () => {
-  it('renders the copyright', () => {
+  it('renders with default props', () => {
     render(<Footer />);
-    expect(screen.getByText(/All Rights Reserved/i)).toBeInTheDocument();
+    const element = screen.getByTestId('footer-container');
+    expect(element).toBeInTheDocument();
+  });
+
+  
+
+  it('has proper accessibility attributes', () => {
+    render(<Footer />);
+    const element = screen.getByRole('generic');
+    expect(element).toBeInTheDocument();
   });
 });

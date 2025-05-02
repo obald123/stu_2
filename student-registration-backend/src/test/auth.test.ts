@@ -3,6 +3,11 @@ import request from "supertest";
 import { app, startServer, stopServer } from "../server";
 import { PrismaClient } from "@prisma/client";
 import { logTestResult } from "../utils/logTestResult";
+import jwt from "jsonwebtoken";
+import sinon from "sinon";
+
+// Define your JWT secret for testing purposes
+const jwtSecret = "test_jwt_secret";
 
 const prisma = new PrismaClient();
 let server: any;
@@ -84,7 +89,7 @@ describe("Auth API", () => {
       await prisma.user.deleteMany();
     });
 
-    it("should return 400 if firstName is missing", logResultWrapper("should return 400 if firstName is missing", async () => {
+    it("should return 400 if firstName is missing", async () => {
       const res = await request(app).post("/api/register").send({
         lastName: "Doe",
         email: "missing@ex.com",
@@ -93,15 +98,14 @@ describe("Auth API", () => {
       });
       expect(res.status).to.equal(400);
       expect(
-        res.body.errors &&
-        res.body.errors.some((e: { path: string | string[]; message: string; }) =>
-          (Array.isArray(e.path) ? e.path.includes('firstName') : e.path === 'firstName') &&
+        res.body.errors.some((e: { path: (string | number)[]; message: string; }) =>
+          e.path.includes('firstName') &&
           /required|min|least|string/i.test(e.message)
         )
       ).to.be.true;
-    }));
+    });
 
-    it("should return 400 if email is invalid", logResultWrapper("should return 400 if email is invalid", async () => {
+    it("should return 400 if email is invalid", async () => {
       const res = await request(app).post("/api/register").send({
         firstName: "John",
         lastName: "Doe",
@@ -111,15 +115,14 @@ describe("Auth API", () => {
       });
       expect(res.status).to.equal(400);
       expect(
-        res.body.errors &&
-        res.body.errors.some((e: { path: string | string[]; message: string; }) =>
-          (Array.isArray(e.path) ? e.path.includes('email') : e.path === 'email') &&
+        res.body.errors.some((e: { path: (string | number)[]; message: string; }) =>
+          e.path.includes('email') &&
           /email|invalid/i.test(e.message)
         )
       ).to.be.true;
-    }));
+    });
 
-    it("should return 400 if password is too short", logResultWrapper("should return 400 if password is too short", async () => {
+    it("should return 400 if password is too short", async () => {
       const res = await request(app).post("/api/register").send({
         firstName: "John",
         lastName: "Doe",
@@ -129,31 +132,29 @@ describe("Auth API", () => {
       });
       expect(res.status).to.equal(400);
       expect(
-        res.body.errors &&
-        res.body.errors.some((e: { path: string | string[]; message: string; }) =>
-          (Array.isArray(e.path) ? e.path.includes('password') : e.path === 'password') &&
+        res.body.errors.some((e: { path: (string | number)[]; message: string; }) =>
+          e.path.includes('password') &&
           /password|min|least|string/i.test(e.message)
         )
       ).to.be.true;
-    }));
+    });
 
-    it("should return 400 if dateOfBirth is invalid format", logResultWrapper("should return 400 if dateOfBirth is invalid format", async () => {
+    it("should return 400 if dateOfBirth is invalid format", async () => {
       const res = await request(app).post("/api/register").send({
         firstName: "John",
         lastName: "Doe",
         email: "date@ex.com",
         password: "password123",
-        dateOfBirth: "01-01-2000",
+        dateOfBirth: "01-01-2000",  // Wrong format
       });
       expect(res.status).to.equal(400);
       expect(
-        res.body.errors &&
-        res.body.errors.some((e: { path: string | string[]; message: string; }) =>
-          (Array.isArray(e.path) ? e.path.includes('dateOfBirth') : e.path === 'dateOfBirth') &&
-          /date|invalid/i.test(e.message)
+        res.body.errors.some((e: { path: (string | number)[]; message: string; }) =>
+          e.path.includes('dateOfBirth') &&
+          /date|invalid|format/i.test(e.message)
         )
       ).to.be.true;
-    }));
+    });
   });
 
   describe("POST /api/login", () => {
@@ -172,6 +173,7 @@ describe("Auth API", () => {
         },
       });
     });
+
     afterEach(async () => {
       await prisma.user.deleteMany();
     });
@@ -185,6 +187,359 @@ describe("Auth API", () => {
       expect(res.body).to.have.property("message", "Login successful");
       expect(res.body.user).to.have.property("email", "john.doe@example.com");
       expect(res.body).to.have.property("token");
+
+      // Verify token is valid
+      const decoded = jwt.verify(res.body.token, process.env.JWT_SECRET || jwtSecret);
+      expect(decoded).to.have.property("email", "john.doe@example.com");
+    }));
+
+    it("should return 401 with invalid password", logResultWrapper("should return 401 with invalid password", async () => {
+      const res = await request(app).post("/api/login").send({
+        email: "john.doe@example.com",
+        password: "wrongpassword",
+      });
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property("message", "Invalid credentials");
+    }));
+
+    it("should return 401 with non-existent email", logResultWrapper("should return 401 with non-existent email", async () => {
+      const res = await request(app).post("/api/login").send({
+        email: "nonexistent@example.com",
+        password: "password123",
+      });
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property("message", "Invalid credentials");
+    }));
+
+    it("should return 400 with missing email", logResultWrapper("should return 400 with missing email", async () => {
+      const res = await request(app).post("/api/login").send({
+        password: "password123",
+      });
+      expect(res.status).to.equal(400);
+      expect(res.body.errors).to.exist;
+    }));
+
+    it("should return 400 with missing password", logResultWrapper("should return 400 with missing password", async () => {
+      const res = await request(app).post("/api/login").send({
+        email: "john.doe@example.com",
+      });
+      expect(res.status).to.equal(400);
+      expect(res.body.errors).to.exist;
+    }));
+
+    it("should return correct user role in token", logResultWrapper("should return correct user role in token", async () => {
+      const res = await request(app).post("/api/login").send({
+        email: "john.doe@example.com",
+        password: "password123",
+      });
+      expect(res.status).to.equal(200);
+      const decoded = jwt.verify(res.body.token, process.env.JWT_SECRET || jwtSecret);
+      expect(decoded).to.have.property("role", "student");
     }));
   });
+});
+
+describe('Authentication Edge Cases', () => {
+  let server: any;
+
+  before(() => {
+    server = startServer();
+  });
+
+  after(async () => {
+    await prisma.$disconnect();
+    stopServer();
+  });
+
+  beforeEach(async () => {
+    await prisma.user.deleteMany();
+  });
+
+  describe('Student Registration Edge Cases', () => {
+    it('should handle registration with existing email', async () => {
+      // First create a user
+      await prisma.user.create({
+        data: {
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@example.com',
+          password: 'password123',
+          registrationNumber: 'TEST001',
+          dateOfBirth: new Date('2000-01-01'),
+          role: 'student'
+        }
+      });
+
+      const res = await request(app)
+        .post('/api/register')
+        .send({
+          firstName: 'Another',
+          lastName: 'User',
+          email: 'test@example.com',
+          password: 'password456',
+          dateOfBirth: '2000-01-01'
+        });
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal('Email already in use');
+    });
+  });
+
+  describe('Password Tests', () => {
+    it('should handle password validation failure', async () => {
+      const res = await request(app)
+        .post('/api/register')
+        .send({
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@example.com',
+          password: 'weak',
+          dateOfBirth: '2000-01-01'
+        });
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal('Password must be at least 6 characters');
+    });
+  });
+
+  describe('Login Edge Cases', () => {
+    it('should handle login with non-existent email', async () => {
+      const res = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'nonexistent@example.com',
+          password: 'password123'
+        });
+
+      expect(res.status).to.equal(401);
+      expect(res.body.message).to.equal('Invalid credentials');
+    });
+  });
+
+  describe('Token Validation', () => {
+    it('should handle expired tokens', async () => {
+      const expiredToken = jwt.sign(
+        { userId: 'test-id', role: 'student' },
+        process.env.JWT_SECRET || 'your_jwt_secret',
+        { expiresIn: '0s' }
+      );
+
+      const res = await request(app)
+        .get('/api/verify')
+        .set('Authorization', `Bearer ${expiredToken}`);
+
+      expect(res.status).to.equal(401);
+      expect(res.body.message).to.equal('Token has expired');
+    });
+  });
+});
+
+describe('Auth Controller Password Tests', () => {
+  it('should handle password validation failure', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@example.com',
+        password: 'weak', // too short password
+        dateOfBirth: '2000-01-01'
+      });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.message).to.equal('Password must be at least 6 characters');
+  });
+
+  it('should handle expired tokens', async () => {
+    const expiredToken = jwt.sign(
+      { userId: 'test-id', role: 'student' },
+      jwtSecret,
+      { expiresIn: '0s' }
+    );
+
+    const res = await request(app)
+      .get('/api/verify')
+      .set('Authorization', `Bearer ${expiredToken}`);
+
+    expect(res.status).to.equal(401);
+    expect(res.body.message).to.match(/expired/i);
+  });
+});
+
+describe('Auth Controller Edge Cases', () => {
+  describe('Password and Token Validation', () => {
+    it('should validate password complexity requirements', async () => {
+      const res = await request(app)
+        .post('/api/register')
+        .send({
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@example.com',
+          password: 'short',  // Too short password
+          dateOfBirth: '2000-01-01'
+        });
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal('Password must be at least 6 characters');
+    });
+
+    it('should handle token verification with expired token', async () => {
+      const expiredToken = jwt.sign(
+        { userId: 'test-id', role: 'student' },
+        process.env.JWT_SECRET || 'your_jwt_secret',
+        { expiresIn: '0s' }
+      );
+
+      const res = await request(app)
+        .get('/api/verify')
+        .set('Authorization', `Bearer ${expiredToken}`);
+
+      expect(res.status).to.equal(401);
+    });
+  });
+
+  it('should handle password validation failure', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@example.com',
+        password: 'weak',
+        dateOfBirth: '2000-01-01'
+      });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.message).to.equal('Password must be at least 6 characters');
+  });
+
+  it('should handle login with non-existent email', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({
+        email: 'nonexistent@example.com',
+        password: 'password123'
+      });
+
+    expect(res.status).to.equal(401);
+    expect(res.body.message).to.equal('Invalid credentials');
+  });
+
+  it('should handle login with incorrect password', async () => {
+    // First create a user
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash('correctpassword', 10);
+    await prisma.user.create({
+      data: {
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@example.com',
+        password: hashedPassword,
+        registrationNumber: 'TEST001',
+        dateOfBirth: new Date('2000-01-01'),
+        role: 'student'
+      }
+    });
+
+    const res = await request(app)
+      .post('/api/login')
+      .send({
+        email: 'test@example.com',
+        password: 'wrongpassword'
+      });
+
+    expect(res.status).to.equal(401);
+    expect(res.body.message).to.equal('Invalid credentials');
+  });
+
+  describe('Token Validation', () => {
+    it('should handle expired tokens', async () => {
+      // Create an expired token
+      const expiredToken = jwt.sign(
+        { userId: 'test-id', role: 'student' },
+        process.env.JWT_SECRET || 'your_jwt_secret',
+        { expiresIn: '0s' }
+      );
+
+      const res = await request(app)
+        .get('/api/verify')
+        .set('Authorization', `Bearer ${expiredToken}`);
+
+      expect(res.status).to.equal(401);
+      expect(res.body.message).to.equal('Token has expired');
+    });
+  });
+});
+
+describe("Login Rate Limiting", () => {
+  beforeEach(async () => {
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash("password123", 10);
+      await prisma.user.create({
+          data: {
+              firstName: "Rate",
+              lastName: "Limited",
+              email: "rate.test@example.com",
+              password: hashedPassword,
+              registrationNumber: "REG777777",
+              dateOfBirth: new Date("2000-01-01"),
+              role: "student",
+          },
+      });
+  });
+
+  afterEach(async () => {
+      await prisma.user.deleteMany();
+  });
+
+  it("should block after multiple failed attempts", logResultWrapper("should block after multiple failed attempts", async () => {
+      const loginAttempt = () => request(app)
+          .post("/api/login")
+          .send({
+              email: "rate.test@example.com",
+              password: "wrongpassword"
+          });
+
+      // Make multiple failed attempts
+      for (let i = 0; i < 5; i++) {
+          const res = await loginAttempt();
+          expect(res.status).to.equal(401);
+      }
+
+      // Next attempt should be rate limited
+      const blockedRes = await loginAttempt();
+      expect(blockedRes.status).to.equal(429);
+      expect(blockedRes.body).to.have.property("message").that.includes("Too many login attempts");
+  }));
+
+  it("should allow login after rate limit window expires", logResultWrapper("should allow login after rate limit window expires", async () => {
+      // Simulate rate limit window expiration
+      const clock = sinon.useFakeTimers();
+      
+      // Make failed attempts
+      for (let i = 0; i < 5; i++) {
+          await request(app)
+              .post("/api/login")
+              .send({
+                  email: "rate.test@example.com",
+                  password: "wrongpassword"
+              });
+      }
+
+      // Advance time by 15 minutes
+      clock.tick(15 * 60 * 1000);
+
+      // Should now be able to attempt login again
+      const res = await request(app)
+          .post("/api/login")
+          .send({
+              email: "rate.test@example.com",
+              password: "password123"
+          });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property("message", "Login successful");
+
+      clock.restore();
+  }));
 });

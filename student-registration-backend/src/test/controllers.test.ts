@@ -3,7 +3,9 @@ import request from "supertest";
 import { app, startServer, stopServer } from "../server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-
+import { Request, Response, NextFunction } from "express";
+import { updateUser, deleteUser, getAllUsers, getAnalytics } from "../controllers/adminController";
+import sinon from "sinon";
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
 let server: any;
@@ -123,5 +125,176 @@ describe("server error handling", () => {
   it("should handle 404 for unknown route", async () => {
     const res = await request(app).get("/api/unknownroute");
     expect(res.status).to.be.oneOf([404, 400, 401]);
+  });
+});
+
+describe('Admin Controller Tests', () => {
+  let mockPrisma: any;
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let next: NextFunction;
+
+  beforeEach(() => {
+    mockPrisma = {
+      user: {
+        findUnique: sinon.stub(),
+        findMany: sinon.stub(),
+        update: sinon.stub(),
+        delete: sinon.stub(),
+        count: sinon.stub(),
+      },
+    };
+    req = {
+      params: {},
+      body: {},
+      user: { id: 'admin-id' },
+      query: {},
+    };
+    res = {
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub(),
+    };
+    next = sinon.stub() as unknown as NextFunction;
+  });
+
+  describe('updateUser', () => {
+    it('should handle database errors', async () => {
+      req.params = { id: 'invalid-id' };
+      req.body = { firstName: 'Test' };
+      mockPrisma.user.update.rejects(new Error('Database error'));
+      
+      await updateUser(req as Request, res as Response, next);
+      
+      sinon.assert.calledWith(res.status as sinon.SinonStub, 500);
+      sinon.assert.calledWith(res.json as sinon.SinonStub, { message: 'Database error' });
+    });
+  });
+
+  describe('Analytics and User Management', () => {
+    it('should handle errors in getAnalytics', async () => {
+      mockPrisma.user.count.rejects(new Error('Database error'));
+      await getAnalytics(req as Request, res as Response, next);
+      sinon.assert.calledWith(res.status as sinon.SinonStub, 500);
+      sinon.assert.calledWith(res.json as sinon.SinonStub, { message: 'Database error' });
+    });
+
+    it('should handle invalid date range in analytics', async () => {
+      req.query = {
+        startDate: 'invalid-date',
+        endDate: '2025-05-01'
+      };
+      await getAnalytics(req as Request, res as Response, next);
+      sinon.assert.calledWith(res.status as sinon.SinonStub, 400);
+      sinon.assert.calledWith(res.json as sinon.SinonStub, { message: 'Invalid date format' });
+    });
+
+    it('should handle pagination errors in getAllUsers', async () => {
+      req.query = {
+        page: 'invalid',
+        limit: 'invalid'
+      };
+      await getAllUsers(req as Request, res as Response, next);
+      sinon.assert.calledWith(res.status as sinon.SinonStub, 400);
+      sinon.assert.calledWith(res.json as sinon.SinonStub, { message: 'Invalid pagination parameters' });
+    });
+  });
+});
+
+describe('Admin Analytics and Error Handling', () => {
+  let mockPrisma: any;
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let next: NextFunction;
+
+  beforeEach(() => {
+    mockPrisma = {
+      user: {
+        count: sinon.stub(),
+        findMany: sinon.stub(),
+        findUnique: sinon.stub(),
+        update: sinon.stub(),
+        delete: sinon.stub(),
+      },
+    };
+    req = {};
+    res = {
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub(),
+    };
+    next = sinon.stub() as unknown as NextFunction;
+  });
+
+  it('should handle errors in getAnalytics', async () => {
+    const mockError = new Error('Database error');
+    mockPrisma.user.count.rejects(mockError);
+    await getAnalytics(req as Request, res as Response, next);
+    sinon.assert.called(next as sinon.SinonStub);
+  });
+
+  it('should handle invalid date range in analytics', async () => {
+    req.query = {
+      startDate: 'invalid-date',
+      endDate: '2025-05-01'
+    };
+    await getAnalytics(req as Request, res as Response, next);
+    sinon.assert.calledWith(res.status as sinon.SinonStub, 400);
+  });
+
+  it('should handle getAllUsers database error', async () => {
+    mockPrisma.user.findMany.rejects(new Error('Database error'));
+    await getAllUsers(req as Request, res as Response, next);
+    sinon.assert.called(next as sinon.SinonStub);
+  });
+
+  it('should handle pagination errors in getAllUsers', async () => {
+    req.query = {
+      page: 'invalid',
+      limit: 'invalid'
+    };
+    await getAllUsers(req as Request, res as Response, next);
+    sinon.assert.calledWith(res.status as sinon.SinonStub, 400);
+  });
+
+  it('should handle invalid update data in updateUser', async () => {
+    req.params = { id: 'valid-id' };
+    req.body = { invalidField: 'test' };
+    await updateUser(req as Request, res as Response, next);
+    sinon.assert.calledWith(res.status as sinon.SinonStub, 400);
+  });
+  it('should handle specific date range analytics', async () => {
+    req.query = {
+      startDate: '2025-01-01',
+      endDate: '2025-12-31'
+    };
+    mockPrisma.user.count.resolves(10);
+    await getAnalytics(req as Request, res as Response, next);
+    sinon.assert.calledWith(res.status as sinon.SinonStub, 200);
+  });
+
+  it('should handle specific pagination parameters', async () => {
+    req.query = {
+      page: '2',
+      limit: '10',
+      search: 'test'
+    };
+    mockPrisma.user.findMany.resolves([]);
+    mockPrisma.user.count.resolves(15);
+    await getAllUsers(req as Request, res as Response, next);
+    sinon.assert.calledWith(res.status as sinon.SinonStub, 200);
+  });
+
+  it('should handle user update with specific fields', async () => {
+    req.params = { id: 'valid-id' };
+    req.body = {
+      firstName: 'Updated',
+      lastName: 'User',
+      email: 'updated@example.com'
+    };
+    mockPrisma.user.update.resolves({
+      id: 'valid-id',
+      ...req.body
+    });
+    await updateUser(req as Request, res as Response, next);
+    sinon.assert.calledWith(res.status as sinon.SinonStub, 200);
   });
 });

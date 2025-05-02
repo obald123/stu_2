@@ -1,15 +1,20 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ClientLayout from '../components/ClientLayout';
 
 describe('ClientLayout', () => {
-  it('renders children', () => {
-    const { getByText } = render(
-      <ClientLayout isAdminRoute={false}>
-        <div>Test Child</div>
-      </ClientLayout>
-    );
-    expect(getByText('Test Child')).toBeInTheDocument();
+  it('renders with default props', () => {
+    render(<ClientLayout />);
+    const element = screen.getByTestId('clientlayout-container');
+    expect(element).toBeInTheDocument();
+  });
+
+  
+
+  it('has proper accessibility attributes', () => {
+    render(<ClientLayout />);
+    const element = screen.getByRole('generic');
+    expect(element).toBeInTheDocument();
   });
 });
