@@ -130,8 +130,3 @@ export default function Home() {
   );
 }
 
-/* Add this to your global styles for the background animation */
-// @keyframes pulseBg {
-//   0%, 100% { opacity: 0.09; }
-//   50% { opacity: 0.15; }
-// }
