@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { registerStudent, loginUser, verifyToken } from "../controllers/authController";
+import { registerStudent, loginUser, verifyToken, forgotPassword, resetPassword } from "../controllers/authController";
 import validate from "../middleware/validate";
-import { registerSchema, loginSchema } from "../validations/authValidation";
+import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "../validations/authValidation";
 
 const router = Router();
 
@@ -13,6 +13,8 @@ const asyncHandler = (fn: Function) => (req: any, res: any, next: any) => {
 // Public routes
 router.post("/register", validate(registerSchema), asyncHandler(registerStudent));
 router.post("/login", validate(loginSchema), asyncHandler(loginUser));
+router.post("/forgot-password", validate(forgotPasswordSchema), asyncHandler(forgotPassword));
+router.post("/reset-password/:token", validate(resetPasswordSchema as any), asyncHandler(resetPassword));
 
 // Token verification route
 router.get("/verify", asyncHandler(verifyToken));

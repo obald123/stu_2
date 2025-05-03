@@ -1,10 +1,11 @@
 'use client';
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext';
 import { useRouter } from 'next/navigation';
+import { useNotification } from '../context/NotificationContext';
+import api from '../lib/api';
 import {
   Box,
   Typography,
@@ -12,63 +13,44 @@ import {
   Button,
   InputAdornment,
   Link as MuiLink,
-  FormControlLabel,
-  Checkbox,
   Container
 } from '@mui/material';
-import { FaUser, FaLock, FaUniversity } from 'react-icons/fa';
+import { FaEnvelope, FaUniversity } from 'react-icons/fa';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useState } from 'react';
 import Logo from '../components/Logo';
 
-const loginSchema = z.object({
+const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+export default function ForgotPasswordPage() {
   const { notify } = useNotification();
   const router = useRouter();
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    formState: { errors },
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
-  useEffect(() => {
-    reset({ email: '', password: '' });
-  }, [reset]);
-
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      await login(data.email, data.password, keepSignedIn);
-      notify('Login successful', 'success');
-      router.push('/');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
-      notify(errorMessage, 'error');
+      setIsSubmitting(true);
+      const response = await api.post('/forgot-password', data);
+      notify('Password reset instructions sent to your email', 'success');
+      router.push('/login');
+    } catch (error: any) {
+      notify(error?.response?.data?.message || 'Error sending reset instructions', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/');
-    }
-  }, [isAuthenticated, router]);
 
   return (
     <Box 
@@ -114,7 +96,7 @@ export default function LoginPage() {
             textShadow: '0 2px 4px rgba(0,0,0,0.2)',
             fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
           }}>
-            Welcome Back!
+            Reset Password
           </Typography>
           <Typography variant="h6" sx={{ 
             color: '#fff', 
@@ -123,12 +105,12 @@ export default function LoginPage() {
             lineHeight: 1.6,
             fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
           }}>
-            Sign in to continue your journey with INES-Ruhengeri
+            We'll help you get back to your account
           </Typography>
         </Box>
       </Box>
 
-      {/* Right side: Login form */}
+      {/* Right side: Forgot Password form */}
       <Box sx={{
         flex: { xs: '1 1 auto', md: '1 0 50%' },
         display: 'flex',
@@ -172,9 +154,13 @@ export default function LoginPage() {
                 color: '#2d3748',
                 textShadow: '0 2px 4px rgba(0,0,0,0.05)'
               }}>
-                Sign in to your account
+                Forgot Password
               </Typography>
             </Box>
+
+            <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+              Enter your email address and we'll send you instructions to reset your password.
+            </Typography>
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <TextField
@@ -187,7 +173,7 @@ export default function LoginPage() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <FaUser style={{ color: '#4299e1' }} />
+                      <FaEnvelope style={{ color: '#4299e1' }} />
                     </InputAdornment>
                   ),
                   sx: { 
@@ -205,97 +191,6 @@ export default function LoginPage() {
                   }
                 }}
               />
-
-              <TextField
-                fullWidth
-                type={showPassword ? 'text' : 'password'}
-                label="Password"
-                {...register('password')}
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                sx={{ mb: 2 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaLock style={{ color: '#4299e1' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        onClick={() => setShowPassword(!showPassword)}
-                        sx={{ 
-                          minWidth: 'auto',
-                          color: '#4299e1',
-                          '&:hover': {
-                            background: 'rgba(66,153,225,0.1)'
-                          }
-                        }}
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </Button>
-                    </InputAdornment>
-                  ),
-                  sx: { 
-                    borderRadius: 2,
-                    background: 'rgba(255,255,255,0.9)',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e2e8f0'
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#4299e1'
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#3182ce'
-                    }
-                  }
-                }}
-              />
-
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                mb: 3,
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 1, sm: 0 }
-              }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={keepSignedIn}
-                      onChange={(e) => setKeepSignedIn(e.target.checked)}
-                      sx={{ 
-                        color: '#4299e1',
-                        '&.Mui-checked': {
-                          color: '#4299e1'
-                        }
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ color: '#4a5568' }}>
-                      Keep me signed in
-                    </Typography>
-                  }
-                />
-                <MuiLink
-                  component={Link}
-                  href="/forgot-password"
-                  sx={{
-                    color: '#4299e1',
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      color: '#3182ce',
-                      textDecoration: 'underline'
-                    }
-                  }}
-                >
-                  Forgot password?
-                </MuiLink>
-              </Box>
 
               <Button
                 type="submit"
@@ -320,21 +215,15 @@ export default function LoginPage() {
                   transition: 'all 0.2s ease'
                 }}
               >
-                {isSubmitting ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span>Signing in...</span>
-                  </Box>
-                ) : (
-                  'Sign In'
-                )}
+                {isSubmitting ? 'Sending...' : 'Send Reset Instructions'}
               </Button>
 
               <Box sx={{ mt: 3, textAlign: 'center' }}>
                 <Typography variant="body2" sx={{ color: '#4a5568' }}>
-                  Don't have an account?{' '}
+                  Remember your password?{' '}
                   <MuiLink 
                     component={Link} 
-                    href="/register"
+                    href="/login"
                     sx={{ 
                       color: '#4299e1',
                       textDecoration: 'none',
@@ -362,7 +251,7 @@ export default function LoginPage() {
                       }
                     }}
                   >
-                    Register here
+                    Back to Login
                   </MuiLink>
                 </Typography>
               </Box>

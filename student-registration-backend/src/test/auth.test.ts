@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { logTestResult } from "../utils/logTestResult";
 import jwt from "jsonwebtoken";
 import sinon from "sinon";
+import bcrypt from "bcryptjs";
 
 // Define your JWT secret for testing purposes
 const jwtSecret = "test_jwt_secret";
@@ -542,4 +543,161 @@ describe("Login Rate Limiting", () => {
 
       clock.restore();
   }));
+});
+
+describe("Authentication Tests", () => {
+  describe("Forgot Password Functionality", () => {
+    it("should send reset token for valid email", async () => {
+      // Create a test user first
+      const hashedPassword = await bcrypt.hash("password123", 10);
+      await prisma.user.create({
+        data: {
+          firstName: "Test",
+          lastName: "User",
+          email: "test@example.com",
+          password: hashedPassword,
+          registrationNumber: "TEST001",
+          dateOfBirth: new Date("2000-01-01"),
+          role: "student"
+        }
+      });
+
+      const res = await request(app)
+        .post("/api/forgot-password")
+        .send({
+          email: "test@example.com"
+        });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property("message");
+      expect(res.body).to.have.property("token");
+      expect(typeof res.body.token).to.equal("string");
+    });
+
+    it("should handle non-existent email securely", async () => {
+      const res = await request(app)
+        .post("/api/forgot-password")
+        .send({
+          email: "nonexistent@example.com"
+        });
+
+      expect(res.status).to.equal(200);
+      expect(res.body.message).to.include("If an account exists");
+      expect(res.body).to.not.have.property("token");
+    });
+  });
+
+  describe("Reset Password Functionality", () => {
+    it("should reset password with valid token", async () => {
+      // Create a test user
+      const user = await prisma.user.create({
+        data: {
+          firstName: "Reset",
+          lastName: "Test",
+          email: "reset@example.com",
+          password: await bcrypt.hash("oldpassword", 10),
+          registrationNumber: "RESET001",
+          dateOfBirth: new Date("2000-01-01"),
+          role: "student"
+        }
+      });
+
+      // Generate reset token
+      const resetToken = jwt.sign(
+        { userId: user.id, purpose: "password_reset" },
+        jwtSecret,
+        { expiresIn: "1h" }
+      );
+
+      const res = await request(app)
+        .post(`/api/reset-password/${resetToken}`)
+        .send({
+          password: "newpassword123",
+          confirmPassword: "newpassword123"
+        });
+
+      expect(res.status).to.equal(200);
+      expect(res.body.message).to.equal("Password updated successfully");
+
+      // Verify new password works
+      const loginRes = await request(app)
+        .post("/api/login")
+        .send({
+          email: "reset@example.com",
+          password: "newpassword123"
+        });
+
+      expect(loginRes.status).to.equal(200);
+    });
+
+    it("should handle expired reset token", async () => {
+      const expiredToken = jwt.sign(
+        { userId: "test-id", purpose: "password_reset" },
+        jwtSecret,
+        { expiresIn: 0 }
+      );
+
+      const res = await request(app)
+        .post(`/api/reset-password/${expiredToken}`)
+        .send({
+          password: "newpassword123",
+          confirmPassword: "newpassword123"
+        });
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal("Reset token has expired");
+    });
+  });
+
+  describe("Keep Me Signed In Functionality", () => {
+    it("should issue long-lived token when keepSignedIn is true", async () => {
+      // Create test user
+      const hashedPassword = await bcrypt.hash("password123", 10);
+      await prisma.user.create({
+        data: {
+          firstName: "Keep",
+          lastName: "SignedIn",
+          email: "keep@example.com",
+          password: hashedPassword,
+          registrationNumber: "KEEP001",
+          dateOfBirth: new Date("2000-01-01"),
+          role: "student"
+        }
+      });
+
+      const res = await request(app)
+        .post("/api/login")
+        .send({
+          email: "keep@example.com",
+          password: "password123",
+          keepSignedIn: true
+        });
+
+      expect(res.status).to.equal(200);
+      const token = res.body.token;
+      const decoded = jwt.decode(token) as { exp: number };
+      const expiresIn = decoded.exp - Math.floor(Date.now() / 1000);
+      
+      // Should be close to 30 days (with some margin for test execution time)
+      expect(expiresIn).to.be.closeTo(30 * 24 * 60 * 60, 60);
+    });
+
+    it("should issue short-lived token when keepSignedIn is false", async () => {
+      const res = await request(app)
+        .post("/api/login")
+        .send({
+          email: "keep@example.com",
+          password: "password123",
+          keepSignedIn: false
+        });
+
+      expect(res.status).to.equal(200);
+      const token = res.body.token;
+      const decoded = jwt.decode(token) as { exp: number };
+      const expiresIn = decoded.exp - Math.floor(Date.now() / 1000);
+      
+      // Should be close to 1 hour (with some margin for test execution time)
+      expect(expiresIn).to.be.closeTo(60 * 60, 60);
+    });
+  });
 });

@@ -1,74 +1,100 @@
 'use client';
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext';
-import { useRouter } from 'next/navigation';
+import { useNotification } from '../../context/NotificationContext';
+import { useRouter, useParams } from 'next/navigation';
+import { useState } from 'react';
 import {
   Box,
   Typography,
   TextField,
   Button,
   InputAdornment,
+  Container,
   Link as MuiLink,
-  FormControlLabel,
-  Checkbox,
-  Container
 } from '@mui/material';
-import { FaUser, FaLock, FaUniversity } from 'react-icons/fa';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { FaLock, FaUniversity } from 'react-icons/fa';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import Logo from '../components/Logo';
+import Logo from '../../components/Logo';
+import api from '../../lib/api';
+import Link from 'next/link';
 
-const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
+const resetPasswordSchema = z.object({
+  password: z.string()
+    .min(1, 'Password is required')
+    .min(6, 'Password must be at least 6 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
+  confirmPassword: z.string().min(1, 'Confirm password is required')
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
-export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+export default function ResetPasswordPage() {
   const { notify } = useNotification();
   const router = useRouter();
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
+  const params = useParams();
+  const token = params?.token as string;
+  
+  if (!token) {
+    router.push('/login');
+    return null;
+  }
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordReqs, setShowPasswordReqs] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    watch,
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
   });
 
-  useEffect(() => {
-    reset({ email: '', password: '' });
-  }, [reset]);
-
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: ResetPasswordFormData) => {
     try {
-      await login(data.email, data.password, keepSignedIn);
-      notify('Login successful', 'success');
-      router.push('/');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
-      notify(errorMessage, 'error');
+      await api.post(`/reset-password/${token}`, {
+        password: data.password,
+        confirmPassword: data.confirmPassword
+      });
+      notify('Password has been reset successfully', 'success');
+      router.push('/login');
+    } catch (error: any) {
+      let errorMsg = 'Failed to reset password. Please try again.';
+      if (error?.response?.data) {
+        errorMsg = error.response.data.message || error.response.data.error;
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+      notify(errorMsg, 'error');
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/');
+  // Function to handle password validation errors
+  const getPasswordErrorMessage = (field: 'password' | 'confirmPassword') => {
+    if (!errors[field]) return ' ';
+    
+    const password = watch(field);
+    if (!password) return `${field === 'password' ? 'Password' : 'Confirm password'} is required`;
+
+    if (field === 'password') {
+      const messages = [];
+      if (password.length < 6) messages.push('Password must be at least 6 characters');
+      if (!/[A-Z]/.test(password)) messages.push('Password must contain at least one uppercase letter');
+      if (!/[0-9]/.test(password)) messages.push('Password must contain at least one number');
+      if (!/[^a-zA-Z0-9]/.test(password)) messages.push('Password must contain at least one special character');
+      return messages.join('\n') || ' ';
     }
-  }, [isAuthenticated, router]);
+
+    return errors[field]?.message || ' ';
+  };
 
   return (
     <Box 
@@ -114,7 +140,7 @@ export default function LoginPage() {
             textShadow: '0 2px 4px rgba(0,0,0,0.2)',
             fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
           }}>
-            Welcome Back!
+            Reset Password
           </Typography>
           <Typography variant="h6" sx={{ 
             color: '#fff', 
@@ -123,12 +149,12 @@ export default function LoginPage() {
             lineHeight: 1.6,
             fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
           }}>
-            Sign in to continue your journey with INES-Ruhengeri
+            Enter your new password below
           </Typography>
         </Box>
       </Box>
 
-      {/* Right side: Login form */}
+      {/* Right side: Reset password form */}
       <Box sx={{
         flex: { xs: '1 1 auto', md: '1 0 50%' },
         display: 'flex',
@@ -172,48 +198,21 @@ export default function LoginPage() {
                 color: '#2d3748',
                 textShadow: '0 2px 4px rgba(0,0,0,0.05)'
               }}>
-                Sign in to your account
+                Choose a new password
               </Typography>
             </Box>
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <TextField
                 fullWidth
-                label="Email"
-                {...register('email')}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                sx={{ mb: 3 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaUser style={{ color: '#4299e1' }} />
-                    </InputAdornment>
-                  ),
-                  sx: { 
-                    borderRadius: 2,
-                    background: 'rgba(255,255,255,0.9)',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e2e8f0'
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#4299e1'
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#3182ce'
-                    }
-                  }
-                }}
-              />
-
-              <TextField
-                fullWidth
                 type={showPassword ? 'text' : 'password'}
-                label="Password"
+                label="New Password"
                 {...register('password')}
                 error={!!errors.password}
-                helperText={errors.password?.message}
-                sx={{ mb: 2 }}
+                helperText={getPasswordErrorMessage('password')}
+                onFocus={() => setShowPasswordReqs(true)}
+                onBlur={() => setShowPasswordReqs(false)}
+                sx={{ mb: 3 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -222,7 +221,7 @@ export default function LoginPage() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <Button
+                      <Button 
                         onClick={() => setShowPassword(!showPassword)}
                         sx={{ 
                           minWidth: 'auto',
@@ -252,50 +251,61 @@ export default function LoginPage() {
                 }}
               />
 
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                mb: 3,
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 1, sm: 0 }
-              }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={keepSignedIn}
-                      onChange={(e) => setKeepSignedIn(e.target.checked)}
-                      sx={{ 
-                        color: '#4299e1',
-                        '&.Mui-checked': {
-                          color: '#4299e1'
-                        }
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ color: '#4a5568' }}>
-                      Keep me signed in
-                    </Typography>
-                  }
-                />
-                <MuiLink
-                  component={Link}
-                  href="/forgot-password"
-                  sx={{
-                    color: '#4299e1',
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      color: '#3182ce',
-                      textDecoration: 'underline'
+              {showPasswordReqs && (
+                <Box sx={{ 
+                  mt: 1, 
+                  p: 2, 
+                  borderRadius: 2, 
+                  bgcolor: 'rgba(66,153,225,0.1)',
+                  border: '1px solid rgba(66,153,225,0.2)'
+                }}>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    Password must contain:
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • At least 6 characters
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • One uppercase letter
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • One number
+                  </Typography>
+                  <Typography variant="caption" component="div" color="text.secondary">
+                    • One special character
+                  </Typography>
+                </Box>
+              )}
+
+              <TextField
+                fullWidth
+                type={showPassword ? 'text' : 'password'}
+                label="Confirm New Password"
+                {...register('confirmPassword')}
+                error={!!errors.confirmPassword}
+                helperText={getPasswordErrorMessage('confirmPassword')}
+                sx={{ mb: 3 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaLock style={{ color: '#4299e1' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { 
+                    borderRadius: 2,
+                    background: 'rgba(255,255,255,0.9)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e2e8f0'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#4299e1'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3182ce'
                     }
-                  }}
-                >
-                  Forgot password?
-                </MuiLink>
-              </Box>
+                  }
+                }}
+              />
 
               <Button
                 type="submit"
@@ -322,49 +332,30 @@ export default function LoginPage() {
               >
                 {isSubmitting ? (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span>Signing in...</span>
+                    <span>Resetting password...</span>
                   </Box>
                 ) : (
-                  'Sign In'
+                  'Reset Password'
                 )}
               </Button>
 
-              <Box sx={{ mt: 3, textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ color: '#4a5568' }}>
-                  Don't have an account?{' '}
-                  <MuiLink 
-                    component={Link} 
-                    href="/register"
-                    sx={{ 
-                      color: '#4299e1',
-                      textDecoration: 'none',
-                      fontWeight: 600,
-                      transition: 'all 0.2s',
-                      position: 'relative',
-                      '&:hover': { 
-                        color: '#3182ce'
-                      },
-                      '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: -2,
-                        left: 0,
-                        width: '100%',
-                        height: 1,
-                        background: '#3182ce',
-                        transform: 'scaleX(0)',
-                        transition: 'transform 0.2s ease',
-                        transformOrigin: 'right'
-                      },
-                      '&:hover::after': {
-                        transform: 'scaleX(1)',
-                        transformOrigin: 'left'
-                      }
-                    }}
-                  >
-                    Register here
-                  </MuiLink>
-                </Typography>
+              <Box sx={{ mt: 3 }}>
+                <MuiLink
+                  component={Link}
+                  href="/login"
+                  sx={{
+                    color: '#4299e1',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      color: '#3182ce',
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  Back to login
+                </MuiLink>
               </Box>
             </form>
           </Box>

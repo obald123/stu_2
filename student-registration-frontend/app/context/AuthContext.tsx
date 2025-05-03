@@ -18,7 +18,7 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, keepSignedIn?: boolean) => Promise<void>;
   register: (
     firstName: string,
     lastName: string,
@@ -68,12 +68,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, keepSignedIn?: boolean) => {
     try {
-      const response = await api.post('/login', { email, password });
+      const response = await api.post('/login', { email, password, keepSignedIn });
       localStorage.setItem('token', response.data.token);
+      if (keepSignedIn) {
+        localStorage.setItem('keepSignedIn', 'true');
+      }
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -104,6 +108,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('keepSignedIn');
+    localStorage.removeItem('user');
     setUser(null);
     queryClient.clear();
     router.push('/login');
