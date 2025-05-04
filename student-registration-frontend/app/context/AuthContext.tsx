@@ -5,13 +5,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import { useRouter } from 'next/navigation';
 
-type User = {
+export type UserRole = 'admin' | 'student';
+
+export type User = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
   registrationNumber: string;
-  role: 'admin' | 'student';
+  role: UserRole;
+  dateOfBirth?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 type AuthContextType = {

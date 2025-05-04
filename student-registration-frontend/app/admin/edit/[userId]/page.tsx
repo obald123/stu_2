@@ -37,6 +37,7 @@ export default function EditUserPage() {
   const [initialData, setInitialData] = useState<EditUserFormData | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [fullUser, setFullUser] = useState<any>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const {
     register,
@@ -122,7 +123,10 @@ export default function EditUserPage() {
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f8fafc' }}>
-      <Sidebar />
+      <Sidebar 
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
       <Box 
         component="main" 
         sx={{ 
@@ -131,7 +135,9 @@ export default function EditUserPage() {
           flexDirection: 'column',
           pt: { xs: '64px', sm: '72px', md: '80px' },
           px: { xs: 2, sm: 3, md: 4 },
-          pb: 4
+          pb: 4,
+          ml: { xs: 0, md: isSidebarCollapsed ? '80px' : '260px' },
+          transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
         <Box sx={{ 

@@ -85,7 +85,20 @@ export const getAllUsers = async (
         prisma.user.count(),
       ]);
 
-      const mappedUsers = users.map((user) => ({
+      interface DatabaseUser {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        registrationNumber: string;
+        dateOfBirth: Date;
+        role: string;
+        createdAt: Date;
+        password: string;
+        updatedAt: Date;
+      }
+
+      const mappedUsers: UserResponse[] = users.map((user: DatabaseUser) => ({
         ...user,
         role: user.role as Role,
       }));

@@ -20,6 +20,7 @@ model User {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   passwordResets     PasswordReset[]
+  settings           Setting[]
 }
 
 model TestResult {
@@ -41,6 +42,18 @@ model PasswordReset {
 
   @@index([token])
   @@index([userId])
+}
+
+model Setting {
+  id                      String   @id @default(uuid())
+  emailNotifications      Boolean  @default(true)
+  autoApproveRegistrations Boolean @default(false)
+  maxStudentsPerClass     Int      @default(30)
+  registrationPrefix      String   @default("STU")
+  maintenanceMode        Boolean  @default(false)
+  updatedAt              DateTime @updatedAt
+  updatedBy              String
+  user                   User     @relation(fields: [updatedBy], references: [id])
 }
 
 enum Role {

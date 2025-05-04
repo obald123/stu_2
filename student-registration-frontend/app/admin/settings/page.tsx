@@ -1,12 +1,82 @@
 'use client';
-import { Box, Typography, Paper, Button } from '@mui/material';
-import { FaCog } from 'react-icons/fa';
+import { Box, Typography, Paper, Switch, TextField, Button, FormControlLabel, Divider, Alert } from '@mui/material';
+import { FaCog, FaBell, FaShieldAlt, FaUserGraduate } from 'react-icons/fa';
 import Sidebar from '../../components/Sidebar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../lib/api';
+import LoadingSpinner from '../../components/LoadingSpinner';
+
+interface SettingsState {
+  emailNotifications: boolean;
+  autoApproveRegistrations: boolean;
+  maxStudentsPerClass: number;
+  registrationPrefix: string;
+  maintenanceMode: boolean;
+}
 
 export default function AdminSettingsPage() {
+  const { isAdmin, isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+  const { notify } = useNotification();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
- 
+  const queryClient = useQueryClient();
+  const [settings, setSettings] = useState<SettingsState>({
+    emailNotifications: true,
+    autoApproveRegistrations: false,
+    maxStudentsPerClass: 30,
+    registrationPrefix: 'STU',
+    maintenanceMode: false
+  });
+
+  // Fetch settings
+  const { data: settingsData, isLoading: isLoadingSettings } = useQuery({
+    queryKey: ['admin-settings'],
+    queryFn: async () => {
+      const response = await api.get('/admin/settings');
+      return response.data;
+    }
+  });
+
+  // Update local state when settings data is loaded
+  useEffect(() => {
+    if (settingsData) {
+      setSettings(settingsData);
+    }
+  }, [settingsData]);
+
+  // Update settings mutation
+  const { mutate: updateSettings, isPending: isUpdating } = useMutation({
+    mutationFn: async (newSettings: SettingsState) => {
+      const response = await api.put('/admin/settings', newSettings);
+      return response.data;
+    },
+    onSuccess: () => {
+      notify('Settings saved successfully', 'success');
+      queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+    },
+    onError: () => {
+      notify('Failed to save settings', 'error');
+    }
+  });
+
+  useEffect(() => {
+    if (!loading && (!isAuthenticated || !isAdmin)) {
+      router.push('/');
+    }
+  }, [loading, isAuthenticated, isAdmin, router]);
+
+  const handleSaveSettings = () => {
+    updateSettings(settings);
+  };
+
+  if (loading || isLoadingSettings) {
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
+  }
+
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f8fafc' }}>
       <Sidebar 
@@ -53,22 +123,97 @@ export default function AdminSettingsPage() {
             </Box>
 
             <Box sx={{ p: 4 }}>
-              <Typography color="text.secondary" align="center" sx={{ mb: 3 }}>
-                No settings available at this time. Settings panel will be implemented in future updates.
-              </Typography>
+              <Alert severity="info" sx={{ mb: 4 }}>
+                These settings affect how the system behaves. Changes will take effect immediately after saving.
+              </Alert>
 
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              {/* Notifications Section */}
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <FaBell /> Notifications
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={settings.emailNotifications}
+                      onChange={(e) => setSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
+                      color="primary"
+                    />
+                  }
+                  label="Enable email notifications for new registrations"
+                />
+              </Box>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* Registration Settings */}
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <FaUserGraduate /> Registration Settings
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={settings.autoApproveRegistrations}
+                        onChange={(e) => setSettings(prev => ({ ...prev, autoApproveRegistrations: e.target.checked }))}
+                        color="primary"
+                      />
+                    }
+                    label="Auto-approve new student registrations"
+                  />
+                  <TextField
+                    label="Maximum Students per Class"
+                    type="number"
+                    value={settings.maxStudentsPerClass}
+                    onChange={(e) => setSettings(prev => ({ ...prev, maxStudentsPerClass: parseInt(e.target.value) || 0 }))}
+                    sx={{ maxWidth: 200 }}
+                  />
+                  <TextField
+                    label="Registration Number Prefix"
+                    value={settings.registrationPrefix}
+                    onChange={(e) => setSettings(prev => ({ ...prev, registrationPrefix: e.target.value }))}
+                    sx={{ maxWidth: 200 }}
+                    helperText="Prefix used for student registration numbers"
+                  />
+                </Box>
+              </Box>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* System Settings */}
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <FaShieldAlt /> System Settings
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={settings.maintenanceMode}
+                      onChange={(e) => setSettings(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
+                      color="warning"
+                    />
+                  }
+                  label="Enable Maintenance Mode"
+                />
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
                 <Button
-                  variant="outlined"
-                  color="primary"
-                  disabled
+                  variant="contained"
+                  onClick={handleSaveSettings}
+                  disabled={isUpdating}
                   sx={{ 
                     fontWeight: 600,
                     borderRadius: 2,
-                    px: 4
+                    px: 4,
+                    bgcolor: '#6366f1',
+                    '&:hover': {
+                      bgcolor: '#4f46e5'
+                    }
                   }}
                 >
-                  Configure Settings
+                  {isUpdating ? 'Saving...' : 'Save Settings'}
                 </Button>
               </Box>
             </Box>

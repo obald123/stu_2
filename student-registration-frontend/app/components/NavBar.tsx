@@ -56,10 +56,10 @@ export default function NavBar({
       component="nav"
       aria-label="Main navigation"
       sx={{
-        bgcolor: 'rgba(255,255,255,0.98)',
+        bgcolor: 'rgba(255,255,255,0.95)',
         color: '#222',
         backdropFilter: 'blur(10px)',
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.03)',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02)',
         borderBottom: '1px solid rgba(231, 235, 240, 0.8)',
         zIndex: 1200,
         width: showSidebar ? {
@@ -76,62 +76,50 @@ export default function NavBar({
       <Toolbar sx={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         px: { 
           xs: 2, 
           sm: 3, 
-          md: showSidebar ? (isCollapsed ? 4 : 3) : 4, 
-          lg: 6 
+          md: 4
         },
         minHeight: { xs: '64px', sm: '72px', md: '80px' },
-        maxWidth: { 
-          xs: '100%',
-          sm: showSidebar ? 
-            (isCollapsed ? '900px' : '800px') : 
-            '600px',
-          md: showSidebar ? 
-            (isCollapsed ? '1200px' : '1100px') : 
-            '900px',
-          lg: showSidebar ? 
-            (isCollapsed ? '1400px' : '1300px') : 
-            '1200px'
-        },
+        maxWidth: '1400px',
         width: '100%',
-        mx: 'auto'
+        mx: 'auto',
+        gap: 4
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1,
-            transition: 'transform 0.2s ease',
-            '&:hover': {
-              transform: 'translateY(-1px)'
-            }
-          }}>
-            <Logo size={32} />
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                fontWeight: 700, 
-                background: 'linear-gradient(45deg, #6366f1, #4f46e5)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                letterSpacing: '0.5px',
-                fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                display: { xs: 'none', sm: 'block' }
-              }}
-            >
-              Student Registration
-            </Typography>
-          </Box>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 2,
+          '&:hover': {
+            transform: 'translateY(-1px)',
+            transition: 'transform 0.2s ease'
+          }
+        }}>
+          <Logo size={32} />
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 700, 
+              background: 'linear-gradient(45deg, #6366f1, #4338ca)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '0.5px',
+              fontSize: { xs: '1.1rem', sm: '1.25rem' },
+              display: { xs: 'none', sm: 'block' }
+            }}
+          >
+            Student Registration
+          </Typography>
         </Box>
 
         {/* Desktop Nav */}
         <Box sx={{ 
           display: { xs: 'none', md: 'flex' }, 
           gap: { sm: 1, md: 2 },
-          alignItems: 'center'
+          alignItems: 'center',
+          ml: 2
         }}>
           {navLinks.map((link) => (
             <Button
@@ -141,17 +129,18 @@ export default function NavBar({
               href={link.href}
               startIcon={link.icon}
               sx={{
-                color: pathname === link.href ? '#6366f1' : '#374151',
+                color: pathname === link.href ? '#4338ca' : '#374151',
                 fontWeight: 600,
-                borderRadius: '12px',
-                px: { sm: 2, md: 2.5 },
-                py: 1.25,
-                fontSize: { sm: '0.875rem', md: '0.9375rem' },
-                background: pathname === link.href ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                borderRadius: '10px',
+                px: 2,
+                py: 1,
+                fontSize: '0.9375rem',
+                minWidth: 'auto',
+                background: pathname === link.href ? 'rgba(67, 56, 202, 0.08)' : 'transparent',
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  background: 'rgba(99, 102, 241, 0.12)',
-                  color: '#6366f1',
+                  background: 'rgba(67, 56, 202, 0.12)',
+                  color: '#4338ca',
                   transform: 'translateY(-1px)'
                 },
               }}
@@ -159,22 +148,31 @@ export default function NavBar({
               {link.label}
             </Button>
           ))}
+        </Box>
+
+        <Box sx={{ 
+          display: { xs: 'none', md: 'flex' }, 
+          gap: 1,
+          alignItems: 'center',
+          ml: 'auto'
+        }}>
           {isAuthenticated && (
             <>
               <Button 
                 color="inherit" 
                 aria-label="user menu"
+                startIcon={<FaUserCircle />}
                 sx={{ 
                   color: '#374151',
                   fontWeight: 600,
-                  borderRadius: '12px',
-                  px: { sm: 2, md: 2.5 },
-                  py: 1.25,
-                  fontSize: { sm: '0.875rem', md: '0.9375rem' },
-                  ml: { sm: 0.5, md: 1 },
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  borderRadius: '10px',
+                  px: 2,
+                  py: 1,
+                  fontSize: '0.9375rem',
+                  background: 'rgba(55, 65, 81, 0.04)',
+                  transition: 'all 0.2s ease',
                   '&:hover': { 
-                    background: 'rgba(99, 102, 241, 0.08)',
+                    background: 'rgba(55, 65, 81, 0.08)',
                     transform: 'translateY(-1px)'
                   }
                 }}
@@ -188,12 +186,12 @@ export default function NavBar({
                 sx={{ 
                   color: '#dc2626',
                   fontWeight: 600,
-                  borderRadius: '12px',
-                  px: { sm: 2, md: 2.5 },
-                  py: 1.25,
-                  fontSize: { sm: '0.875rem', md: '0.9375rem' },
-                  ml: { sm: 0.5, md: 1 },
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  borderRadius: '10px',
+                  px: 2,
+                  py: 1,
+                  fontSize: '0.9375rem',
+                  background: 'rgba(220, 38, 38, 0.04)',
+                  transition: 'all 0.2s ease',
                   '&:hover': { 
                     background: 'rgba(220, 38, 38, 0.08)',
                     transform: 'translateY(-1px)'

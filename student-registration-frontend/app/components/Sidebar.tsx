@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Sidebar({ 
   isCollapsed = false, 
@@ -36,17 +37,26 @@ export default function Sidebar({
   const unreadCount = notifications.length;
 
   const sidebarLinks = [
-    { label: 'Dashboard', href: '/admin/dashboard', icon: <FaTachometerAlt data-testid="dashboard-icon" /> },
+    { 
+      label: 'Dashboard', 
+      href: '/admin/dashboard', 
+      icon: <FaTachometerAlt data-testid="dashboard-icon" /> 
+    },
     { 
       label: 'User Management', 
       href: '/admin/users', 
-      icon: (
-        <Badge badgeContent={unreadCount} color="error" data-testid="notifications-badge">
-          <FaUserEdit data-testid="users-icon" />
-        </Badge>
-      )
+      icon: <FaUserEdit data-testid="users-icon" />
     },
-    { label: 'Audit Log', href: '/admin/audit-log', icon: <FaClipboardList data-testid="audit-icon" /> },
+    { 
+      label: 'Audit Log', 
+      href: '/admin/audit-log', 
+      icon: <FaClipboardList data-testid="audit-icon" /> 
+    },
+    { 
+      label: 'Settings',
+      href: '/admin/settings',
+      icon: <FaCog data-testid="settings-icon" />
+    },
     { 
       label: 'Notifications', 
       href: '/admin/notifications', 
@@ -61,7 +71,6 @@ export default function Sidebar({
         </Badge>
       )
     },
-    { label: 'Settings', href: '/admin/settings', icon: <FaCog data-testid="settings-icon" /> },
   ];
 
   return (
@@ -80,7 +89,7 @@ export default function Sidebar({
           top: 0,
           height: '100vh',
           zIndex: 1200,
-          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           overflowX: 'hidden'
         }
       }}
@@ -150,7 +159,7 @@ export default function Sidebar({
           {sidebarLinks.map(link => (
             <ListItem key={link.label} disablePadding>
               <ListItemButton
-                component="a"
+                component={Link}
                 href={link.href}
                 selected={pathname === link.href}
                 sx={{

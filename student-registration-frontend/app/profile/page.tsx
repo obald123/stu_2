@@ -9,20 +9,26 @@ import { useEffect, useState } from 'react';
 import { Box, Paper, Typography, Button } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import api from '../lib/api';
+import type { User, UserRole } from '../context/AuthContext';
+
+function isAdmin(role: UserRole): role is 'admin' {
+  return role === 'admin';
+}
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [profile, setProfile] = useState<User | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Fetch user profile by ID or all users if admin
   useEffect(() => {
     async function fetchProfileOrUsers() {
       if (!user) return;
-      if (user.role === 'admin') {
+      if (isAdmin(user.role)) {
         try {
           const res = await api.get('/admin/users?page=1&limit=100');
           setAllUsers(res.data.users || []);
@@ -48,7 +54,7 @@ export default function ProfilePage() {
   // Fetch QR code by user ID (only for students)
   useEffect(() => {
     async function fetchQrCode() {
-      if (!user?.id || user.role === 'admin') return;
+      if (!user?.id || isAdmin(user.role)) return;
       try {
         const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
         const url = URL.createObjectURL(res.data);
@@ -72,26 +78,27 @@ export default function ProfilePage() {
     return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
   }
 
-  // Only show Sidebar for admin and on large screens
-  const showSidebar = user.role === 'admin' && typeof window !== 'undefined' && window.innerWidth >= 600;
-
   // Admin: show all users with QR codes
-  if (user.role === 'admin') {
+  if (isAdmin(user.role)) {
     return (
-      <Box sx={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        background: 'linear-gradient(145deg, #f6f8ff 0%, #f0f4ff 100%)'
-      }}>
-        {showSidebar && <Sidebar />}
-        <Box sx={{ 
-          flex: 1, 
-          display: 'flex', 
-          alignItems: 'flex-start', 
-          justifyContent: 'center', 
-          py: 6,
-          px: { xs: 2, sm: 4 }
-        }}>
+      <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f8fafc' }}>
+        <Sidebar 
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+        <Box 
+          component="main" 
+          sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            flexDirection: 'column',
+            pt: { xs: '64px', sm: '72px', md: '80px' },
+            px: { xs: 2, sm: 3, md: 4 },
+            pb: 4,
+            ml: { xs: 0, md: isSidebarCollapsed ? '80px' : '260px' },
+            transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
           <Paper sx={{ 
             width: '100%', 
             maxWidth: 1200, 
@@ -150,18 +157,31 @@ export default function ProfilePage() {
   return (
     <Box sx={{ 
       minHeight: '100vh', 
-      display: 'flex', 
-      background: 'linear-gradient(145deg, #f6f8ff 0%, #f0f4ff 100%)'
+      display: 'flex',
+      bgcolor: '#f8fafc'
     }}>
-      {showSidebar && <Sidebar />}
-      <Box sx={{ 
-        flex: 1, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        py: 6,
-        px: { xs: 2, sm: 4 }
-      }}>
+      {isAdmin(user.role) && (
+        <Sidebar 
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+      )}
+      <Box 
+        component="main" 
+        sx={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          pt: { xs: '64px', sm: '72px', md: '80px' },
+          px: { xs: 2, sm: 3, md: 4 },
+          pb: 4,
+          ml: isAdmin(user.role) ? { 
+            xs: 0, 
+            md: isSidebarCollapsed ? '80px' : '260px' 
+          } : 0,
+          transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
         <Paper sx={{ 
           maxWidth: { xs: 340, sm: 480 }, 
           width: '100%', 
@@ -199,7 +219,7 @@ export default function ProfilePage() {
               WebkitTextFillColor: 'transparent'
             }}
           >
-            {profile.firstName} {profile.lastName}
+            {profile?.firstName} {profile?.lastName}
           </Typography>
           <Typography 
             variant="body1" 
@@ -213,7 +233,7 @@ export default function ProfilePage() {
             }} 
             align="center"
           >
-            {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+            {profile?.role.charAt(0).toUpperCase() + profile.role.slice(1)}
           </Typography>
           <Box sx={{ width: '100%' }}>
             <Box sx={{ 
@@ -236,7 +256,7 @@ export default function ProfilePage() {
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <FaEnvelope style={{ color: '#6366f1' }} /> Email
                 </Typography>
-                <Typography fontWeight={500}>{profile.email}</Typography>
+                <Typography fontWeight={500}>{profile?.email}</Typography>
               </Paper>
               <Paper sx={{ 
                 p: 2, 
@@ -252,7 +272,7 @@ export default function ProfilePage() {
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <FaIdBadge style={{ color: '#6366f1' }} /> Registration #
                 </Typography>
-                <Typography fontWeight={500}>{profile.registrationNumber}</Typography>
+                <Typography fontWeight={500}>{profile?.registrationNumber}</Typography>
               </Paper>
               <Paper sx={{ 
                 p: 2, 
@@ -266,7 +286,7 @@ export default function ProfilePage() {
                 }
               }}>
                 <Typography variant="caption" color="text.secondary">Date of Birth</Typography>
-                <Typography fontWeight={500}>{profile.dateOfBirth ? format(new Date(profile.dateOfBirth), 'yyyy-MM-dd') : '-'}</Typography>
+                <Typography fontWeight={500}>{profile?.dateOfBirth ? format(new Date(profile.dateOfBirth), 'yyyy-MM-dd') : '-'}</Typography>
               </Paper>
               <Paper sx={{ 
                 p: 2, 
@@ -280,7 +300,7 @@ export default function ProfilePage() {
                 }
               }}>
                 <Typography variant="caption" color="text.secondary">Joined</Typography>
-                <Typography fontWeight={500}>{profile.createdAt ? format(new Date(profile.createdAt), 'yyyy-MM-dd') : '-'}</Typography>
+                <Typography fontWeight={500}>{profile?.createdAt ? format(new Date(profile.createdAt), 'yyyy-MM-dd') : '-'}</Typography>
               </Paper>
             </Box>
           </Box>
@@ -323,7 +343,7 @@ export default function ProfilePage() {
 }
 
 // UserCard component for admin view
-function UserCard({ user }: { user: any }) {
+function UserCard({ user }: { user: User }) {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   useEffect(() => {
     async function fetchQr() {
