@@ -28,7 +28,10 @@ export default function Footer({
         mt: 'auto',
         position: 'relative',
         zIndex: 1100,
-        transition: 'all 0.3s ease'
+        transition: theme => theme.transitions.create(['width', 'margin-left'], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        })
       }}
     >
       <Box
@@ -58,7 +61,10 @@ export default function Footer({
           justifyContent: 'space-between',
           flexDirection: { xs: 'column', sm: 'row' },
           gap: { xs: 2, sm: 0 },
-          transition: 'all 0.3s ease'
+          transition: theme => theme.transitions.create(['padding', 'max-width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          })
         }}
       >
         <Typography 
@@ -98,7 +104,7 @@ export default function Footer({
               <FaPhone />
             </MuiLink>
           </Tooltip>
-          <Tooltip title="Contact us">
+          <Tooltip title="Email us">
             <MuiLink 
               href="mailto:simugomwaobald250@gmail.com" 
               target="_blank" 
@@ -116,9 +122,9 @@ export default function Footer({
               <FaEnvelope />
             </MuiLink>
           </Tooltip>
-          <Tooltip title="Find us">
+          <Tooltip title="Location">
             <MuiLink 
-              href="https://www.google.com/maps/place/Institute+of+Applied+Sciences+%2F+Institut+d%E2%80%99Enseignement+Superieur+-+INES+Ruhengeri./@-1.5010983,29.6087225,17z/data=!4m14!1m7!3m6!1s0x19dc5a70e0183efd:0xfdd704e5bf52a900!2sInstitute+of+Applied+Sciences+%2F+Institut+d%E2%80%99Enseignement+Superieur+-+INES+Ruhengeri.!8m2!3d-1.5010983!4d29.6112974!16s%2Fg%2F1yg56hx9d!3m5!1s0x19dc5a70e0183efd:0xfdd704e5bf52a900!8m2!3d-1.5010983!4d29.6112974!16s%2Fg%2F1yg56hx9d?entry=ttu&g_ep=EgoyMDI1MDQzMC4xIKXMDSoASAFQAw%3D%3D" 
+              href="https://goo.gl/maps/123" 
               target="_blank" 
               rel="noopener" 
               sx={{ 

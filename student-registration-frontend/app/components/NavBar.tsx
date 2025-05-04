@@ -18,25 +18,21 @@ export default function NavBar({
   showSidebar?: boolean;
   isMobile?: boolean;
 }) {
-  const pathname = usePathname();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleClose = () => {
-    setMobileOpen(false);
-  };
-
-  const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest('[data-testid="mobile-menu"]') === null) {
+  const handleClose = () => setMobileOpen(false);
+  const handleClickOutside = (event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).tagName !== 'BUTTON') {
       handleClose();
     }
   };
 
   const navLinks = [
-    { label: 'Home', href: '/', icon: <FaUniversity /> },
     ...(!isAuthenticated ? [
       { label: 'Login', href: '/login', icon: <FaSignInAlt /> },
-      { label: 'Register', href: '/register', icon: <FaUserPlus /> },
+      { label: 'Register', href: '/register', icon: <FaUserPlus /> }
     ] : []),
     ...(isAuthenticated && isAdmin ? [
       { label: 'Profile', href: '/profile', icon: <FaUserCircle /> },
@@ -70,7 +66,10 @@ export default function NavBar({
           xs: 0,
           md: isCollapsed ? '80px' : '260px'
         } : 0,
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        transition: theme => theme.transitions.create(['width', 'left', 'margin'], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        })
       }}
     >
       <Toolbar sx={{
@@ -86,7 +85,7 @@ export default function NavBar({
         maxWidth: '1400px',
         width: '100%',
         mx: 'auto',
-        gap: 4
+        gap: { xs: 2, md: 4 }
       }}>
         <Box sx={{ 
           display: 'flex', 
@@ -119,16 +118,16 @@ export default function NavBar({
           display: { xs: 'none', md: 'flex' }, 
           gap: { sm: 1, md: 2 },
           alignItems: 'center',
-          ml: 2
+          ml: 'auto'
         }}>
-          {navLinks.map((link) => (
-            <Button
-              key={link.href}
-              color="inherit"
-              component={Link}
-              href={link.href}
+          {navLinks.map(link => (
+            <Button 
+              key={link.href} 
+              color="inherit" 
+              component={Link} 
+              href={link.href} 
               startIcon={link.icon}
-              sx={{
+              sx={{ 
                 color: pathname === link.href ? '#4338ca' : '#374151',
                 fontWeight: 600,
                 borderRadius: '10px',
@@ -205,7 +204,7 @@ export default function NavBar({
         </Box>
 
         {/* Mobile Nav */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+        <Box sx={{ display: { xs: 'flex', md: 'none' }, ml: 'auto' }}>
           <IconButton 
             color="inherit" 
             edge="end" 
