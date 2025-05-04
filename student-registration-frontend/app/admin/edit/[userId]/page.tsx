@@ -121,93 +121,163 @@ export default function EditUserPage() {
   if (error) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', color: 'error.main' }}>{error}</Box>;
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f4f6fb' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '#f8fafc' }}>
       <Sidebar />
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 6 }}>
-        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: '#111', boxShadow: 2, border: '1px solid #e0e7ef' }}>
-
-          <Typography variant="h5" fontWeight={700} color="primary" align="left" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-            <FaUserEdit style={{ color: '#6366f1', marginRight: 8 }} /> Edit User
-          </Typography>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-              <TextField
-                label="First Name"
-                type="text"
-                fullWidth
-                {...register('firstName')}
-                error={!!errors.firstName}
-                helperText={errors.firstName?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaUser style={{ color: '#888' }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                label="Last Name"
-                type="text"
-                fullWidth
-                {...register('lastName')}
-                error={!!errors.lastName}
-                helperText={errors.lastName?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaUser style={{ color: '#888' }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+      <Box 
+        component="main" 
+        sx={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          pt: { xs: '64px', sm: '72px', md: '80px' },
+          px: { xs: 2, sm: 3, md: 4 },
+          pb: 4
+        }}
+      >
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: 1400, 
+          mx: 'auto',
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: 4 
+        }}>
+          <Button
+            onClick={() => router.back()}
+            startIcon={<FaArrowLeft />}
+            sx={{ 
+              alignSelf: 'flex-start',
+              mb: 2,
+              color: '#64748b',
+              '&:hover': {
+                bgcolor: 'rgba(100, 116, 139, 0.08)'
+              }
+            }}
+          >
+            Back
+          </Button>
+          
+          <Box sx={{ 
+            bgcolor: '#fff', 
+            borderRadius: 3,
+            p: 4,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(231, 235, 240, 0.8)'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+              <FaUserEdit style={{ color: '#6366f1', fontSize: 24 }} />
+              <Typography variant="h5" fontWeight={700}>Edit User</Typography>
             </Box>
-            <TextField
-              label="Email address"
-              type="email"
-              fullWidth
-              margin="normal"
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FaEnvelope style={{ color: '#888' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              label="Date of Birth"
-              type="date"
-              fullWidth
-              margin="normal"
-              {...register('dateOfBirth')}
-              error={!!errors.dateOfBirth}
-              helperText={errors.dateOfBirth?.message}
-              InputLabelProps={{ shrink: true }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FaBirthdayCake style={{ color: '#888' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            {submitError && <Typography color="error" align="center" sx={{ mt: 1 }}>{submitError}</Typography>}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ mt: 2, mb: 1, fontWeight: 700, borderRadius: 2, boxShadow: 2, py: 1.5, fontSize: '1.1rem' }}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Updating...' : 'Update User'}
-            </Button>
-          </form>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
+                <TextField
+                  label="First Name"
+                  type="text"
+                  fullWidth
+                  {...register('firstName')}
+                  error={!!errors.firstName}
+                  helperText={errors.firstName?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaUser style={{ color: '#94a3b8' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  label="Last Name"
+                  type="text"
+                  fullWidth
+                  {...register('lastName')}
+                  error={!!errors.lastName}
+                  helperText={errors.lastName?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaUser style={{ color: '#94a3b8' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+              
+              <TextField
+                label="Email address"
+                type="email"
+                fullWidth
+                margin="normal"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaEnvelope style={{ color: '#94a3b8' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 3 }}
+              />
+
+              <TextField
+                label="Date of Birth"
+                type="date"
+                fullWidth
+                margin="normal"
+                {...register('dateOfBirth')}
+                error={!!errors.dateOfBirth}
+                helperText={errors.dateOfBirth?.message}
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaBirthdayCake style={{ color: '#94a3b8' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 3 }}
+              />
+
+              {submitError && (
+                <Typography color="error" align="center" sx={{ mb: 2 }}>
+                  {submitError}
+                </Typography>
+              )}
+
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                <Button
+                  onClick={() => router.back()}
+                  variant="outlined"
+                  sx={{ 
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 4
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={isSubmitting}
+                  sx={{ 
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    px: 4,
+                    bgcolor: '#6366f1',
+                    '&:hover': {
+                      bgcolor: '#4f46e5'
+                    }
+                  }}
+                >
+                  {isSubmitting ? 'Updating...' : 'Update User'}
+                </Button>
+              </Box>
+            </form>
+          </Box>
         </Box>
       </Box>
     </Box>

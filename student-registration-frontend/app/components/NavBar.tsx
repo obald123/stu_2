@@ -27,7 +27,6 @@ export default function NavBar({
   };
 
   const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
-    // Close if clicking outside the menu
     if ((event.target as HTMLElement).closest('[data-testid="mobile-menu"]') === null) {
       handleClose();
     }
@@ -57,11 +56,11 @@ export default function NavBar({
       component="nav"
       aria-label="Main navigation"
       sx={{
-        bgcolor: 'rgba(255,255,255,0.95)',
+        bgcolor: 'rgba(255,255,255,0.98)',
         color: '#222',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        borderBottom: '1px solid #e0e7ef',
-        backdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.03)',
+        borderBottom: '1px solid rgba(231, 235, 240, 0.8)',
         zIndex: 1200,
         width: showSidebar ? {
           xs: '100%',
@@ -71,7 +70,7 @@ export default function NavBar({
           xs: 0,
           md: isCollapsed ? '80px' : '260px'
         } : 0,
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
       <Toolbar sx={{
@@ -98,24 +97,34 @@ export default function NavBar({
             '1200px'
         },
         width: '100%',
-        mx: 'auto',
-        transition: 'all 0.3s ease'
+        mx: 'auto'
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
-          <Logo size={32} />
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 800, 
-              ml: { xs: 1, sm: 2 }, 
-              color: '#6366f1', 
-              letterSpacing: 1, 
-              fontSize: { xs: '1.1rem', sm: '1.25rem' },
-              display: { xs: 'none', sm: 'block' } 
-            }}
-          >
-            Student Registration
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            transition: 'transform 0.2s ease',
+            '&:hover': {
+              transform: 'translateY(-1px)'
+            }
+          }}>
+            <Logo size={32} />
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 700, 
+                background: 'linear-gradient(45deg, #6366f1, #4f46e5)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '0.5px',
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                display: { xs: 'none', sm: 'block' }
+              }}
+            >
+              Student Registration
+            </Typography>
+          </Box>
         </Box>
 
         {/* Desktop Nav */}
@@ -132,16 +141,16 @@ export default function NavBar({
               href={link.href}
               startIcon={link.icon}
               sx={{
-                color: pathname === link.href ? '#6366f1' : '#222',
+                color: pathname === link.href ? '#6366f1' : '#374151',
                 fontWeight: 600,
-                borderRadius: 2,
-                px: { sm: 1.5, md: 2 },
-                py: 1,
-                fontSize: { sm: '0.875rem', md: '1rem' },
-                background: pathname === link.href ? alpha('#6366f1', 0.08) : 'transparent',
-                transition: 'all 0.2s ease',
+                borderRadius: '12px',
+                px: { sm: 2, md: 2.5 },
+                py: 1.25,
+                fontSize: { sm: '0.875rem', md: '0.9375rem' },
+                background: pathname === link.href ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  background: alpha('#6366f1', 0.12),
+                  background: 'rgba(99, 102, 241, 0.12)',
                   color: '#6366f1',
                   transform: 'translateY(-1px)'
                 },
@@ -156,12 +165,18 @@ export default function NavBar({
                 color="inherit" 
                 aria-label="user menu"
                 sx={{ 
-                  color: '#222',
+                  color: '#374151',
                   fontWeight: 600,
-                  borderRadius: 2,
-                  px: { sm: 1.5, md: 2 },
-                  py: 1,
-                  fontSize: { sm: '0.875rem', md: '1rem' }
+                  borderRadius: '12px',
+                  px: { sm: 2, md: 2.5 },
+                  py: 1.25,
+                  fontSize: { sm: '0.875rem', md: '0.9375rem' },
+                  ml: { sm: 0.5, md: 1 },
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': { 
+                    background: 'rgba(99, 102, 241, 0.08)',
+                    transform: 'translateY(-1px)'
+                  }
                 }}
               >
                 {user?.firstName} {user?.lastName}
@@ -171,17 +186,18 @@ export default function NavBar({
                 onClick={logout} 
                 startIcon={<FaSignOutAlt />} 
                 sx={{ 
-                  color: '#e11d48', 
-                  fontWeight: 600, 
-                  borderRadius: 2, 
-                  px: { sm: 1.5, md: 2 }, 
-                  py: 1,
+                  color: '#dc2626',
+                  fontWeight: 600,
+                  borderRadius: '12px',
+                  px: { sm: 2, md: 2.5 },
+                  py: 1.25,
+                  fontSize: { sm: '0.875rem', md: '0.9375rem' },
                   ml: { sm: 0.5, md: 1 },
-                  fontSize: { sm: '0.875rem', md: '1rem' },
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': { 
-                    background: alpha('#e11d48', 0.08),
+                    background: 'rgba(220, 38, 38, 0.08)',
                     transform: 'translateY(-1px)'
-                  } 
+                  }
                 }}
               >
                 Logout
@@ -200,9 +216,11 @@ export default function NavBar({
             sx={{
               width: 40,
               height: 40,
-              borderRadius: 2,
+              borderRadius: '12px',
+              color: '#374151',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
               '&:hover': {
-                background: alpha('#6366f1', 0.08)
+                background: 'rgba(99, 102, 241, 0.08)'
               }
             }}
           >
@@ -215,17 +233,33 @@ export default function NavBar({
             PaperProps={{
               sx: {
                 width: { xs: '100%', sm: 320 },
-                borderTopLeftRadius: { xs: '1rem', sm: 0 },
-                borderBottomLeftRadius: { xs: '1rem', sm: 0 },
+                borderTopLeftRadius: { xs: '16px', sm: 0 },
+                borderBottomLeftRadius: { xs: '16px', sm: 0 },
                 mt: { xs: '64px', sm: '72px' },
-                height: { xs: 'calc(100% - 64px)', sm: 'calc(100% - 72px)' }
+                height: { xs: 'calc(100% - 64px)', sm: 'calc(100% - 72px)' },
+                background: 'rgba(255, 255, 255, 0.98)',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '-4px 0 30px rgba(0, 0, 0, 0.03)'
               }
             }}
+            onClick={handleClickOutside}
           >
-            <Box sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Box sx={{ p: 3 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 2, 
+                mb: 4,
+                pb: 2,
+                borderBottom: '1px solid rgba(231, 235, 240, 0.8)'
+              }}>
                 <Logo size={32} />
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#6366f1' }}>
+                <Typography variant="h6" sx={{ 
+                  fontWeight: 700,
+                  background: 'linear-gradient(45deg, #6366f1, #4f46e5)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
                   Student Registration
                 </Typography>
               </Box>
@@ -237,14 +271,14 @@ export default function NavBar({
                       href={link.href} 
                       selected={pathname === link.href}
                       sx={{ 
-                        borderRadius: 2,
+                        borderRadius: '12px',
                         mb: 1,
-                        color: pathname === link.href ? '#6366f1' : '#222',
-                        bgcolor: pathname === link.href ? alpha('#6366f1', 0.08) : 'transparent',
+                        color: pathname === link.href ? '#6366f1' : '#374151',
+                        bgcolor: pathname === link.href ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
                         fontWeight: 600,
-                        transition: 'all 0.2s ease',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         '&:hover': {
-                          bgcolor: alpha('#6366f1', 0.12),
+                          bgcolor: 'rgba(99, 102, 241, 0.12)',
                           transform: 'translateX(4px)'
                         }
                       }}
@@ -259,12 +293,12 @@ export default function NavBar({
                     <ListItemButton 
                       onClick={logout}
                       sx={{ 
-                        borderRadius: 2,
-                        color: '#e11d48',
+                        borderRadius: '12px',
+                        color: '#dc2626',
                         fontWeight: 600,
-                        transition: 'all 0.2s ease',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         '&:hover': {
-                          bgcolor: alpha('#e11d48', 0.08),
+                          bgcolor: 'rgba(220, 38, 38, 0.08)',
                           transform: 'translateX(4px)'
                         }
                       }}

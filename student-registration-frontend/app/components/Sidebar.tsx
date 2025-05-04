@@ -7,7 +7,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { FaUsers, FaTachometerAlt, FaSignOutAlt, FaClipboardList, FaUserEdit, FaCog, FaBell } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function Sidebar({ 
@@ -20,11 +20,18 @@ export default function Sidebar({
   const { isAdmin, logout } = useAuth();
   const { notifications } = useNotification();
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  
-  const NAVBAR_HEIGHT = typeof window !== 'undefined' && window.innerWidth < 600 ? 56 : 64;
+  const [isMobile, setIsMobile] = useState(false);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   if (!isAdmin) return null;
   const unreadCount = notifications.length;
 
@@ -58,216 +65,179 @@ export default function Sidebar({
   ];
 
   return (
-    <>
-      {/* Mobile Sidebar */}
-      <Box sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', top: NAVBAR_HEIGHT, left: 16, zIndex: 1300 }}>
-        <IconButton 
-          color="inherit" 
-          onClick={() => setMobileOpen(true)}
-          data-testid="mobile-menu-button"
-          aria-label="Open menu"
-        >
-          <MenuIcon sx={{ color: '#6366f1' }} />
-        </IconButton>
-        <Drawer 
-          anchor="left" 
-          open={mobileOpen} 
-          onClose={() => setMobileOpen(false)}
-          data-testid="mobile-sidebar"
-        >
-          <Box sx={{ width: 260 }} role="presentation" onClick={() => setMobileOpen(false)}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 3, py: 3, borderBottom: 1, borderColor: '#e0e7ef' }}>
-              <FaTachometerAlt style={{ color: '#6366f1', fontSize: 24 }} />
-              <span style={{ fontWeight: 'bold', fontSize: 20, color: '#111' }}>Admin Panel</span>
-            </Box>
-            <List sx={{ flex: 1, px: 1, py: 2 }}>
-              {sidebarLinks.map(link => (
-                <ListItem disablePadding key={link.label}>
-                  <ListItemButton 
-                    component="a" 
-                    href={link.href} 
-                    selected={pathname === link.href} 
-                    sx={{ color: '#111', fontWeight: 600 }}
-                    data-testid={`sidebar-link-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    <ListItemIcon sx={{ color: '#6366f1' }}>{link.icon}</ListItemIcon>
-                    <ListItemText primary={link.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-            <Divider />
-            <Box sx={{ px: 3, py: 2 }}>
-              <Button onClick={logout} color="error" variant="outlined" startIcon={<FaSignOutAlt />} fullWidth sx={{ fontWeight: 600 }} data-testid="sidebar-logout-button">
-                Logout
-              </Button>
-            </Box>
-          </Box>
-        </Drawer>
-      </Box>
-
-      {/* Desktop Sidebar */}
-      <Drawer
-        variant="permanent"
-        anchor="left"
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': {
-            width: isCollapsed && !isHovered ? 80 : 260,
-            bgcolor: '#fff',
-            color: '#111',
-            borderRight: '1px solid #e0e7ef',
-            boxShadow: '4px 0 8px rgba(0,0,0,0.03)',
-            position: 'fixed',
-            top: 0,
-            height: '100vh',
-            zIndex: 1300,
-            transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            overflowX: 'hidden'
-          }
-        }}
-        open
-        data-testid="desktop-sidebar"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+    <Drawer
+      variant="permanent"
+      anchor="left"
+      sx={{
+        display: { xs: 'none', md: 'block' },
+        '& .MuiDrawer-paper': {
+          width: isCollapsed && !isHovered ? 80 : 260,
+          bgcolor: '#fff',
+          color: '#1a202c',
+          borderRight: '1px solid rgba(231, 235, 240, 0.8)',
+          boxShadow: '1px 0 8px rgba(0,0,0,0.05)',
+          position: 'fixed',
+          top: 0,
+          height: '100vh',
+          zIndex: 1200,
+          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflowX: 'hidden'
+        }
+      }}
+      open
+      data-testid="desktop-sidebar"
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
+    >
+      <Box sx={{ 
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {/* Header */}
         <Box sx={{ 
           display: 'flex', 
-          flexDirection: 'column',
-          height: '100%',
-          transition: 'all 0.2s ease'
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          px: 3,
+          py: 2,
+          borderBottom: '1px solid rgba(231, 235, 240, 0.8)',
+          minHeight: { xs: '64px', sm: '72px', md: '80px' }
         }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: 2, 
-            px: 3, 
-            py: { xs: 2, sm: 3 }, 
-            borderBottom: 1, 
-            borderColor: '#e0e7ef', 
-            bgcolor: '#6366f1', 
-            justifyContent: 'space-between',
-            minHeight: { xs: '64px', sm: '72px', md: '80px' },
-            transition: 'all 0.3s ease'
+            gap: 2,
+            opacity: isCollapsed && !isHovered ? 0 : 1,
+            transition: 'opacity 0.3s ease'
           }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 2,
-              transition: 'all 0.3s ease',
-              overflow: 'hidden'
-            }}>
-              <Avatar sx={{ 
-                bgcolor: '#fff', 
-                color: '#6366f1', 
-                fontWeight: 700,
-                flexShrink: 0
-              }}>A</Avatar>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 'bold', 
-                  color: '#fff',
-                  opacity: isCollapsed && !isHovered ? 0 : 1,
-                  transform: isCollapsed && !isHovered ? 'translateX(-20px)' : 'translateX(0)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Admin Panel
-              </Typography>
-            </Box>
-            <IconButton 
-              onClick={onToggleCollapse}
-              sx={{ 
-                color: '#fff',
-                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isCollapsed ? 'rotate(180deg)' : 'none',
-                opacity: isHovered || !isCollapsed ? 1 : 0
+            <FaTachometerAlt style={{ color: '#6366f1', fontSize: 24 }} />
+            <Typography 
+              variant="h6" 
+              fontWeight={700}
+              sx={{
+                color: '#1a202c',
+                whiteSpace: 'nowrap',
+                opacity: isCollapsed && !isHovered ? 0 : 1,
+                transition: 'opacity 0.3s ease'
               }}
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <ChevronLeftIcon />
-            </IconButton>
+              Admin Panel
+            </Typography>
           </Box>
-
-          <Box sx={{ flex: 1, overflow: 'auto', py: { xs: 2, sm: 3 } }}>
-            <List sx={{ px: 2 }}>
-              {sidebarLinks.map(link => (
-                <ListItem disablePadding key={link.label}>
-                  <Tooltip title={isCollapsed && !isHovered ? link.label : ''} placement="right">
-                    <ListItemButton 
-                      component="a" 
-                      href={link.href} 
-                      selected={pathname === link.href} 
-                      sx={{ 
-                        color: pathname === link.href ? '#6366f1' : '#111', 
-                        fontWeight: 600, 
-                        borderRadius: 2, 
-                        mb: 1,
-                        px: 2,
-                        py: 1.5,
-                        transition: 'all 0.2s ease',
-                        '&.Mui-selected': { 
-                          bgcolor: alpha('#6366f1', 0.08)
-                        },
-                        '&:hover': {
-                          bgcolor: alpha('#6366f1', 0.08),
-                          transform: 'translateX(4px)'
-                        }
-                      }}
-                      data-testid={`sidebar-link-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                    >
-                      <ListItemIcon 
-                        sx={{ 
-                          color: pathname === link.href ? '#6366f1' : '#6366f1',
-                          minWidth: isCollapsed && !isHovered ? 'auto' : 40,
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        {link.icon}
-                      </ListItemIcon>
-                      <ListItemText 
-                        primary={link.label}
-                        sx={{
-                          opacity: isCollapsed && !isHovered ? 0 : 1,
-                          transform: isCollapsed && !isHovered ? 'translateX(-20px)' : 'translateX(0)',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          '.MuiListItemText-primary': {
-                            fontWeight: 600
-                          }
-                        }}
-                      />
-                    </ListItemButton>
-                  </Tooltip>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-          <Divider />
-          <Box sx={{ p: { xs: 2, sm: 3 } }}>
-            <Tooltip title={isCollapsed && !isHovered ? 'Logout' : ''} placement="right">
-              <Button 
-                onClick={logout} 
-                color="error" 
-                variant="outlined" 
-                startIcon={!isCollapsed && <FaSignOutAlt />} 
-                fullWidth 
-                sx={{ 
-                  fontWeight: 600,
-                  minWidth: 'auto',
-                  ...(isCollapsed && !isHovered && {
-                    '& .MuiButton-startIcon': { margin: 0 }
-                  })
-                }}
-                data-testid="sidebar-logout-button"
-              >
-                {isCollapsed && !isHovered ? <FaSignOutAlt /> : 'Logout'}
-              </Button>
-            </Tooltip>
-          </Box>
+          <IconButton 
+            onClick={onToggleCollapse}
+            sx={{ 
+              color: '#64748b',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isCollapsed ? 'rotate(180deg)' : 'none'
+            }}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
         </Box>
-      </Drawer>
-    </>
+
+        {/* Navigation Links */}
+        <List sx={{ 
+          flex: 1, 
+          px: 2, 
+          py: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5
+        }}>
+          {sidebarLinks.map(link => (
+            <ListItem key={link.label} disablePadding>
+              <ListItemButton
+                component="a"
+                href={link.href}
+                selected={pathname === link.href}
+                sx={{
+                  borderRadius: 2,
+                  color: pathname === link.href ? '#6366f1' : '#64748b',
+                  bgcolor: pathname === link.href ? 'rgba(99,102,241,0.08)' : 'transparent',
+                  transition: 'all 0.2s ease',
+                  minHeight: 44,
+                  '&:hover': {
+                    bgcolor: 'rgba(99,102,241,0.08)',
+                    color: '#6366f1',
+                    transform: 'translateX(4px)'
+                  },
+                  '&.Mui-selected': {
+                    bgcolor: 'rgba(99,102,241,0.12)',
+                    '&:hover': {
+                      bgcolor: 'rgba(99,102,241,0.16)'
+                    }
+                  }
+                }}
+                data-testid={`sidebar-link-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                <ListItemIcon 
+                  sx={{ 
+                    minWidth: isCollapsed && !isHovered ? 'auto' : 40,
+                    color: 'inherit',
+                    transition: 'min-width 0.3s ease',
+                    justifyContent: isCollapsed && !isHovered ? 'center' : 'flex-start',
+                    mr: isCollapsed && !isHovered ? 0 : 2
+                  }}
+                >
+                  {link.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={link.label}
+                  sx={{
+                    opacity: isCollapsed && !isHovered ? 0 : 1,
+                    visibility: isCollapsed && !isHovered ? 'hidden' : 'visible',
+                    transition: 'all 0.3s ease',
+                    m: 0,
+                    '& .MuiTypography-root': {
+                      fontWeight: 600,
+                      fontSize: '0.9375rem'
+                    }
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+
+        {/* Logout Section */}
+        <Box sx={{ 
+          p: 2, 
+          borderTop: '1px solid rgba(231, 235, 240, 0.8)'
+        }}>
+          <Button
+            onClick={logout}
+            color="error"
+            variant="outlined"
+            startIcon={isCollapsed && !isHovered ? null : <FaSignOutAlt />}
+            fullWidth
+            sx={{ 
+              fontWeight: 600,
+              borderRadius: 2,
+              py: 1,
+              minHeight: 42,
+              justifyContent: isCollapsed && !isHovered ? 'center' : 'flex-start',
+              '& .MuiButton-startIcon': {
+                opacity: isCollapsed && !isHovered ? 0 : 1,
+                visibility: isCollapsed && !isHovered ? 'hidden' : 'visible',
+                transition: 'all 0.3s ease',
+              },
+              '& .MuiButton-endIcon': {
+                ml: isCollapsed && !isHovered ? 0 : 'auto'
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(239,68,68,0.08)',
+                borderColor: '#dc2626'
+              }
+            }}
+            data-testid="sidebar-logout-button"
+          >
+            {isCollapsed && !isHovered ? <FaSignOutAlt /> : 'Logout'}
+          </Button>
+        </Box>
+      </Box>
+    </Drawer>
   );
 }

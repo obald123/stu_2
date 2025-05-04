@@ -55,8 +55,8 @@ export default function ForgotPasswordPage() {
   return (
     <Box 
       sx={{ 
-        minHeight: '100vh', 
-        width: '100%',
+        height: '100vh',
+        width: '100vw',
         display: 'flex', 
         flexDirection: { xs: 'column', md: 'row' },
         position: 'relative',
@@ -65,45 +65,44 @@ export default function ForgotPasswordPage() {
     >
       {/* Left side: Brand section */}
       <Box sx={{
-        flex: { xs: '0 0 auto', md: '1 0 50%' },
+        flex: { xs: '0 0 35%', md: '0 0 40%' },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: { xs: '30vh', md: '100vh' },
-        background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/login.jpg')`,
+        height: { xs: '30vh', md: '100vh' },
+        background: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/login.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         position: 'relative',
-        color: '#fff',
-        p: { xs: 3, sm: 4, md: 6 }
+        color: '#fff'
       }}>
         <Box sx={{ 
           position: 'relative', 
           zIndex: 1, 
           textAlign: 'center',
-          p: { xs: 2, sm: 3, md: 4 },
+          px: { xs: 2, sm: 3 },
+          py: { xs: 3, sm: 4 },
           borderRadius: 4,
           background: 'rgba(0, 0, 0, 0.4)',
           backdropFilter: 'blur(10px)',
-          '&:hover': {
-            transform: 'translateY(-5px)'
-          }
+          maxWidth: '90%',
+          mx: 'auto'
         }}>
-          <FaUniversity style={{ fontSize: 80, marginBottom: 24, color: '#fff' }} />
-          <Typography variant="h3" fontWeight={800} mb={3} sx={{ 
+          <FaUniversity style={{ fontSize: 60, marginBottom: 16, color: '#fff' }} />
+          <Typography variant="h4" fontWeight={800} mb={2} sx={{ 
             color: '#fff',
             textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
+            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
           }}>
             Reset Password
           </Typography>
-          <Typography variant="h6" sx={{ 
+          <Typography variant="body1" sx={{ 
             color: '#fff', 
-            maxWidth: 400, 
+            maxWidth: 320, 
             mx: 'auto',
-            lineHeight: 1.6,
-            fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }
+            lineHeight: 1.5,
+            fontSize: { xs: '0.875rem', sm: '1rem' }
           }}>
             We'll help you get back to your account
           </Typography>
@@ -112,53 +111,50 @@ export default function ForgotPasswordPage() {
 
       {/* Right side: Forgot Password form */}
       <Box sx={{
-        flex: { xs: '1 1 auto', md: '1 0 50%' },
+        flex: { xs: '1 1 auto', md: '1 1 60%' },
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        p: { xs: 2, sm: 4, md: 6 },
+        justifyContent: 'flex-start',
+        paddingLeft: { xs: 2, sm: 4, md: 8, lg: 12 },
+        height: { xs: '70vh', md: '100vh' },
         background: 'rgba(255,255,255,0.9)',
         backdropFilter: 'blur(10px)',
         position: 'relative',
-        minHeight: { xs: '70vh', md: '100vh' },
-        overflowY: 'auto'
+        overflow: 'auto'
       }}>
-        <Container maxWidth="sm">
+        <Container maxWidth="xs" sx={{ 
+          ml: { xs: 'auto', md: 0 }, 
+          mr: { xs: 'auto', md: 4 }
+        }}>
           <Box sx={{ 
-            maxWidth: { xs: '100%', sm: 480 }, 
-            mx: 'auto',
-            textAlign: 'center',
-            p: { xs: 3, sm: 4 },
+            width: '100%',
+            px: { xs: 2, sm: 3 },
+            py: { xs: 3, sm: 4 },
             borderRadius: 3,
-            position: 'relative',
             background: 'rgba(255,255,255,0.8)',
             backdropFilter: 'blur(10px)',
-            transform: 'translateZ(0)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            my: { xs: 4, md: 0 },
             '&:hover': {
-              transform: 'translateZ(0) translateY(-8px)',
-              boxShadow: '0 20px 40px rgba(66,153,225,0.15)'
+              transform: 'translateY(-4px)',
+              boxShadow: '0 12px 24px rgba(66,153,225,0.15)'
             }
           }}>
             <Box sx={{ 
-              mb: 4, 
+              mb: 3, 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
-              gap: 2,
-              position: 'relative'
+              gap: 1.5
             }}>
-              <Logo size={48} />
-              <Typography variant="h5" fontWeight={700} sx={{ 
-                color: '#2d3748',
-                textShadow: '0 2px 4px rgba(0,0,0,0.05)'
+              <Logo size={36} />
+              <Typography variant="h6" fontWeight={700} sx={{ 
+                color: '#2d3748'
               }}>
                 Forgot Password
               </Typography>
             </Box>
 
-            <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+            <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
               Enter your email address and we'll send you instructions to reset your password.
             </Typography>
 
@@ -169,7 +165,7 @@ export default function ForgotPasswordPage() {
                 {...register('email')}
                 error={!!errors.email}
                 helperText={errors.email?.message}
-                sx={{ mb: 3 }}
+                sx={{ mb: 2.5 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -180,13 +176,20 @@ export default function ForgotPasswordPage() {
                     borderRadius: 2,
                     background: 'rgba(255,255,255,0.9)',
                     '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e2e8f0'
+                      border: 'none'
                     },
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#4299e1'
+                      border: 'none'
                     },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#3182ce'
+                      border: 'none'
+                    },
+                    boxShadow: '0 2px 4px rgba(148, 163, 184, 0.1)',
+                    '&:hover': {
+                      boxShadow: '0 4px 8px rgba(148, 163, 184, 0.2)'
+                    },
+                    '&.Mui-focused': {
+                      boxShadow: '0 4px 12px rgba(66, 153, 225, 0.2)'
                     }
                   }
                 }}
@@ -198,19 +201,22 @@ export default function ForgotPasswordPage() {
                 fullWidth
                 disabled={isSubmitting}
                 sx={{ 
-                  py: 1.5,
-                  fontSize: '1.1rem',
+                  py: 1.25,
+                  fontSize: '1rem',
                   fontWeight: 600,
                   bgcolor: '#4299e1',
                   color: 'white',
                   borderRadius: 2,
+                  border: 'none',
+                  boxShadow: '0 2px 4px rgba(66, 153, 225, 0.2)',
                   '&:hover': { 
                     bgcolor: '#3182ce',
                     transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 16px rgba(66,153,225,0.2)'
+                    boxShadow: '0 8px 16px rgba(66, 153, 225, 0.2)'
                   },
                   '&:active': {
                     transform: 'translateY(0)',
+                    boxShadow: '0 4px 8px rgba(66, 153, 225, 0.2)'
                   },
                   transition: 'all 0.2s ease'
                 }}
@@ -218,7 +224,7 @@ export default function ForgotPasswordPage() {
                 {isSubmitting ? 'Sending...' : 'Send Reset Instructions'}
               </Button>
 
-              <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Box sx={{ mt: 2.5, textAlign: 'center' }}>
                 <Typography variant="body2" sx={{ color: '#4a5568' }}>
                   Remember your password?{' '}
                   <MuiLink 
@@ -236,7 +242,7 @@ export default function ForgotPasswordPage() {
                       '&::after': {
                         content: '""',
                         position: 'absolute',
-                        bottom: -2,
+                        bottom: -1,
                         left: 0,
                         width: '100%',
                         height: 1,

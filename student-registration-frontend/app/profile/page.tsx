@@ -78,17 +78,49 @@ export default function ProfilePage() {
   // Admin: show all users with QR codes
   if (user.role === 'admin') {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '' }}>
+      <Box sx={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        background: 'linear-gradient(145deg, #f6f8ff 0%, #f0f4ff 100%)'
+      }}>
         {showSidebar && <Sidebar />}
-        <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', py: 6 }}>
-          <Box sx={{ width: '100%', maxWidth: 1000, mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef' }}>
-            <Typography variant="h4" fontWeight={700} align="center" sx={{ mb: 3 }}>All Users</Typography>
+        <Box sx={{ 
+          flex: 1, 
+          display: 'flex', 
+          alignItems: 'flex-start', 
+          justifyContent: 'center', 
+          py: 6,
+          px: { xs: 2, sm: 4 }
+        }}>
+          <Paper sx={{ 
+            width: '100%', 
+            maxWidth: 1200, 
+            p: { xs: 2, sm: 4 }, 
+            borderRadius: 4, 
+            bgcolor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <Typography 
+              variant="h4" 
+              fontWeight={700} 
+              align="center" 
+              sx={{ 
+                mb: 4,
+                background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              User Management Dashboard
+            </Typography>
             <Box sx={{ 
               display: 'grid', 
               gridTemplateColumns: {
                 xs: '1fr',
                 sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)'
+                lg: 'repeat(3, 1fr)'
               },
               gap: 3
             }}>
@@ -96,7 +128,7 @@ export default function ProfilePage() {
                 <UserCard key={u.id} user={u} />
               ))}
             </Box>
-          </Box>
+          </Paper>
         </Box>
       </Box>
     );
@@ -104,53 +136,187 @@ export default function ProfilePage() {
 
   // Student: show own profile
   if (!profile) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
+    return <Box sx={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      background: 'linear-gradient(145deg, #f6f8ff 0%, #f0f4ff 100%)'
+    }}>
+      <LoadingSpinner size={56} />
+    </Box>;
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: '' }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      background: 'linear-gradient(145deg, #f6f8ff 0%, #f0f4ff 100%)'
+    }}>
       {showSidebar && <Sidebar />}
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 6 }}>
-        <Box sx={{ maxWidth: { xs: 340, sm: 480 }, width: '100%', mx: 'auto', p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: '#fff', color: 'grey.900', boxShadow: 2, border: '1px solid #e0e7ef', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-          <Box sx={{ width: 96, height: 96, borderRadius: '50%', bgcolor: 'indigo.50', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-            <FaUserCircle style={{ color: '#6366f1', fontSize: 64 }} />
+      <Box sx={{ 
+        flex: 1, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        py: 6,
+        px: { xs: 2, sm: 4 }
+      }}>
+        <Paper sx={{ 
+          maxWidth: { xs: 340, sm: 480 }, 
+          width: '100%', 
+          p: { xs: 3, sm: 4 }, 
+          borderRadius: 4, 
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          gap: 3 
+        }}>
+          <Box sx={{ 
+            width: 120, 
+            height: 120, 
+            borderRadius: '50%', 
+            background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            mb: 1,
+            boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)'
+          }}>
+            <FaUserCircle style={{ color: '#fff', fontSize: 72 }} />
           </Box>
-          <Typography variant="h5" fontWeight={700} align="center">{profile.firstName} {profile.lastName}</Typography>
-          <Typography variant="body2" color="text.secondary" align="center">{profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}</Typography>
+          <Typography 
+            variant="h5" 
+            fontWeight={700} 
+            align="center"
+            sx={{ 
+              background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            {profile.firstName} {profile.lastName}
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: 'text.secondary',
+              bgcolor: 'rgba(99, 102, 241, 0.1)',
+              px: 2,
+              py: 0.5,
+              borderRadius: 2,
+              fontWeight: 500
+            }} 
+            align="center"
+          >
+            {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+          </Typography>
           <Box sx={{ width: '100%' }}>
             <Box sx={{ 
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
               gap: 2,
               mt: 1
             }}>
-              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaEnvelope /> Email</Typography>
+              <Paper sx={{ 
+                p: 2, 
+                borderRadius: 2, 
+                bgcolor: 'rgba(99, 102, 241, 0.05)',
+                border: '1px solid rgba(99, 102, 241, 0.1)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                }
+              }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FaEnvelope style={{ color: '#6366f1' }} /> Email
+                </Typography>
                 <Typography fontWeight={500}>{profile.email}</Typography>
-              </Box>
-              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><FaIdBadge /> Registration #</Typography>
+              </Paper>
+              <Paper sx={{ 
+                p: 2, 
+                borderRadius: 2, 
+                bgcolor: 'rgba(99, 102, 241, 0.05)',
+                border: '1px solid rgba(99, 102, 241, 0.1)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                }
+              }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FaIdBadge style={{ color: '#6366f1' }} /> Registration #
+                </Typography>
                 <Typography fontWeight={500}>{profile.registrationNumber}</Typography>
-              </Box>
-              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
+              </Paper>
+              <Paper sx={{ 
+                p: 2, 
+                borderRadius: 2, 
+                bgcolor: 'rgba(99, 102, 241, 0.05)',
+                border: '1px solid rgba(99, 102, 241, 0.1)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                }
+              }}>
                 <Typography variant="caption" color="text.secondary">Date of Birth</Typography>
                 <Typography fontWeight={500}>{profile.dateOfBirth ? format(new Date(profile.dateOfBirth), 'yyyy-MM-dd') : '-'}</Typography>
-              </Box>
-              <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'indigo.50', mb: 1 }}>
+              </Paper>
+              <Paper sx={{ 
+                p: 2, 
+                borderRadius: 2, 
+                bgcolor: 'rgba(99, 102, 241, 0.05)',
+                border: '1px solid rgba(99, 102, 241, 0.1)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                }
+              }}>
                 <Typography variant="caption" color="text.secondary">Joined</Typography>
                 <Typography fontWeight={500}>{profile.createdAt ? format(new Date(profile.createdAt), 'yyyy-MM-dd') : '-'}</Typography>
-              </Box>
+              </Paper>
             </Box>
           </Box>
           {qrCodeUrl && (
             <Box sx={{ mt: 3, mb: 1, textAlign: 'center' }}>
-              <Typography variant="subtitle1" fontWeight={600} color="primary" sx={{ mb: 1 }}>
+              <Typography 
+                variant="subtitle1" 
+                fontWeight={600} 
+                sx={{ 
+                  mb: 2,
+                  color: '#6366f1'
+                }}
+              >
                 My Registration QR Code
               </Typography>
-              <img src={qrCodeUrl} alt="QR Code" style={{ width: 180, height: 180, borderRadius: 8, border: '1px solid #e0e7ef', background: '#f4f6fb' }} />
+              <Paper sx={{
+                p: 2,
+                borderRadius: 3,
+                bgcolor: '#fff',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                display: 'inline-block'
+              }}>
+                <img 
+                  src={qrCodeUrl} 
+                  alt="QR Code" 
+                  style={{ 
+                    width: 180, 
+                    height: 180, 
+                    borderRadius: 8,
+                    display: 'block'
+                  }} 
+                />
+              </Paper>
             </Box>
           )}
-        </Box>
+        </Paper>
       </Box>
     </Box>
   );
@@ -187,18 +353,100 @@ function UserCard({ user }: { user: any }) {
   };
 
   return (
-    <Box sx={{ p: 3, border: '1px solid #e0e7ef', borderRadius: 3, bgcolor: 'indigo.50', boxShadow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-      <FaUserCircle style={{ color: '#6366f1', fontSize: 48, marginBottom: 8 }} />
-      <Typography fontWeight={700} fontSize={18}>{user.firstName} {user.lastName}</Typography>
+    <Paper sx={{ 
+      p: 3, 
+      borderRadius: 3, 
+      bgcolor: 'rgba(255, 255, 255, 0.9)',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+      border: '1px solid rgba(99, 102, 241, 0.1)',
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      gap: 2,
+      transition: 'all 0.2s ease-in-out',
+      '&:hover': {
+        transform: 'translateY(-4px)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
+      }
+    }}>
+      <Box sx={{
+        width: 80,
+        height: 80,
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        mb: 1,
+        boxShadow: '0 4px 20px rgba(99, 102, 241, 0.2)'
+      }}>
+        <FaUserCircle style={{ color: '#fff', fontSize: 48 }} />
+      </Box>
+      <Typography 
+        fontWeight={700} 
+        fontSize={18}
+        sx={{ 
+          background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}
+      >
+        {user.firstName} {user.lastName}
+      </Typography>
       <Typography variant="body2" color="text.secondary">{user.email}</Typography>
       <Typography variant="body2" color="text.secondary">Reg #: {user.registrationNumber}</Typography>
-      <Typography variant="body2" color="text.secondary">Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Typography>
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          color: 'text.secondary',
+          bgcolor: 'rgba(99, 102, 241, 0.1)',
+          px: 2,
+          py: 0.5,
+          borderRadius: 2,
+          fontWeight: 500
+        }}
+      >
+        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+      </Typography>
       {qrUrl && (
         <Box sx={{ mt: 2, mb: 1, textAlign: 'center' }}>
-          <img src={qrUrl} alt="QR Code" style={{ width: 120, height: 120, borderRadius: 8, border: '1px solid #e0e7ef', background: '#fff' }} />
-          <Button variant="outlined" size="small" sx={{ mt: 1 }} onClick={handleDownload}>Download QR</Button>
+          <Paper sx={{
+            p: 2,
+            borderRadius: 3,
+            bgcolor: '#fff',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+            mb: 2
+          }}>
+            <img 
+              src={qrUrl} 
+              alt="QR Code" 
+              style={{ 
+                width: 120, 
+                height: 120, 
+                borderRadius: 8,
+                display: 'block'
+              }} 
+            />
+          </Paper>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            onClick={handleDownload}
+            sx={{
+              borderColor: '#6366f1',
+              color: '#6366f1',
+              '&:hover': {
+                borderColor: '#4338ca',
+                bgcolor: 'rgba(99, 102, 241, 0.05)'
+              }
+            }}
+          >
+            Download QR
+          </Button>
         </Box>
       )}
-    </Box>
+    </Paper>
   );
 }

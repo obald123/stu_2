@@ -1,5 +1,5 @@
 import { Box, Typography, Link as MuiLink, Tooltip } from '@mui/material';
-import { FaGithub, FaTwitter, FaLinkedin, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaGithub, FaTwitter, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 
 export default function Footer({ 
   isCollapsed = false,
@@ -80,9 +80,27 @@ export default function Footer({
             justifyContent: 'center'
           }}
         >
+          <Tooltip title="Call us">
+            <MuiLink 
+              href="tel:+250789934421" 
+              target="_blank" 
+              rel="noopener" 
+              sx={{ 
+                color: '#6366f1', 
+                fontSize: { xs: 20, sm: 18 },
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  color: '#4f46e5',
+                  transform: 'translateY(-2px)'
+                }
+              }}
+            >
+              <FaPhone />
+            </MuiLink>
+          </Tooltip>
           <Tooltip title="Contact us">
             <MuiLink 
-              href="mailto:contact@studentreg.com" 
+              href="mailto:simugomwaobald250@gmail.com" 
               target="_blank" 
               rel="noopener" 
               sx={{ 
@@ -100,7 +118,7 @@ export default function Footer({
           </Tooltip>
           <Tooltip title="Find us">
             <MuiLink 
-              href="https://maps.google.com/?q=your+university+location" 
+              href="https://www.google.com/maps/place/Institute+of+Applied+Sciences+%2F+Institut+d%E2%80%99Enseignement+Superieur+-+INES+Ruhengeri./@-1.5010983,29.6087225,17z/data=!4m14!1m7!3m6!1s0x19dc5a70e0183efd:0xfdd704e5bf52a900!2sInstitute+of+Applied+Sciences+%2F+Institut+d%E2%80%99Enseignement+Superieur+-+INES+Ruhengeri.!8m2!3d-1.5010983!4d29.6112974!16s%2Fg%2F1yg56hx9d!3m5!1s0x19dc5a70e0183efd:0xfdd704e5bf52a900!8m2!3d-1.5010983!4d29.6112974!16s%2Fg%2F1yg56hx9d?entry=ttu&g_ep=EgoyMDI1MDQzMC4xIKXMDSoASAFQAw%3D%3D" 
               target="_blank" 
               rel="noopener" 
               sx={{ 
@@ -118,9 +136,9 @@ export default function Footer({
           </Tooltip>
           {[
             { icon: <FaGithub />, href: "https://github.com/obald123/stu_2", label: "GitHub" },
-            { icon: <FaTwitter />, href: "https://twitter.com/", label: "Twitter" },
-            { icon: <FaLinkedin />, href: "https://linkedin.com/", label: "LinkedIn" }
-          ].map((social) => (
+            { icon: <FaTwitter />, href: "https://x.com/Simugomwa_obald", label: "Twitter" },
+            { icon: <FaLinkedin />, href: "https://linkedin.com/simugomwa-obald-4a4402216/", label: "LinkedIn" }
+          ].map((social) => (  
             <Tooltip key={social.label} title={social.label}>
               <MuiLink 
                 href={social.href} 

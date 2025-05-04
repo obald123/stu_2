@@ -15,6 +15,7 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
   const [isMobile, setIsMobile] = useState(false);
   const [hideNavAndFooter, setHideNavAndFooter] = useState(false);
   const pathname = usePathname();
+  const isLandingPage = pathname === '/';
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,7 +27,7 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
   }, []);
 
   useEffect(() => {
-    setHideNavAndFooter(['/login', '/register'].includes(pathname || ''));
+    setHideNavAndFooter(['/login', '/register', '/forgot-password'].includes(pathname || ''));
   }, [pathname]);
 
   return (
@@ -36,10 +37,9 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
           <NotificationDisplay />
           <Box
             sx={{
-              minHeight: '100vh',
-              width: '100%',
               display: 'flex',
-              bgcolor: '#f8fafc'
+              minHeight: '100vh',
+              background: '#f8fafc'
             }}
           >
             {isAdminRoute && !hideNavAndFooter && (
@@ -51,23 +51,20 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
             <Box
               component="main"
               sx={{
+                flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                flex: 1,
-                minHeight: '100vh',
-                width: '100%',
+                minWidth: 0,
                 position: 'relative',
                 ml: isAdminRoute && !hideNavAndFooter ? 
                   { 
                     xs: 0, 
                     md: isSidebarCollapsed ? '80px' : '260px' 
                   } : 0,
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                overflowX: 'hidden',
-                overflowY: 'auto'
+                transition: 'margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {!hideNavAndFooter && (
+              {!hideNavAndFooter && !isLandingPage && (
                 <NavBar 
                   isCollapsed={isSidebarCollapsed} 
                   showSidebar={isAdminRoute}
@@ -78,39 +75,36 @@ export default function ClientLayout({ children, isAdminRoute }: { children: Rea
                 sx={{
                   flex: 1,
                   width: '100%',
-                  px: hideNavAndFooter ? 0 : { 
+                  px: isLandingPage ? 0 : (hideNavAndFooter ? 0 : { 
                     xs: 2, 
                     sm: 3, 
-                    md: isAdminRoute ? (isSidebarCollapsed ? 4 : 3) : 4,
+                    md: 4,
                     lg: 6 
-                  },
-                  pt: !hideNavAndFooter ? { 
+                  }),
+                  pt: !hideNavAndFooter && !isLandingPage ? { 
                     xs: '64px', 
                     sm: '72px', 
                     md: '80px' 
                   } : 0,
                   pb: !hideNavAndFooter ? { xs: 2, sm: 3 } : 0,
-                  maxWidth: hideNavAndFooter ? '100%' : {
-                    xs: '100%',
-                    sm: isAdminRoute ? 
-                      (isSidebarCollapsed ? '900px' : '800px') : 
-                      '600px',
-                    md: isAdminRoute ? 
-                      (isSidebarCollapsed ? '1200px' : '1100px') : 
-                      '900px',
-                    lg: isAdminRoute ? 
-                      (isSidebarCollapsed ? '1400px' : '1300px') : 
-                      '1200px'
-                  },
-                  mx: 'auto',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  position: 'relative',
-                  zIndex: 1
                 }}
               >
-                {children}
+                <Box
+                  sx={{
+                    maxWidth: isLandingPage ? 'none' : (hideNavAndFooter ? '100%' : {
+                      xs: '100%',
+                      sm: '900px',
+                      md: '1200px',
+                      lg: '1400px'
+                    }),
+                    mx: isLandingPage ? 0 : 'auto',
+                    width: '100%'
+                  }}
+                >
+                  {children}
+                </Box>
               </Box>
-              {!hideNavAndFooter && (
+              {!hideNavAndFooter && !isLandingPage && (
                 <Footer 
                   isCollapsed={isSidebarCollapsed}
                   showSidebar={isAdminRoute}
