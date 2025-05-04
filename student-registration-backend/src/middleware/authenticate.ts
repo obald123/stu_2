@@ -8,12 +8,12 @@ interface AuthenticatedRequest extends Request {
   role?: string;
 }
 
-const authenticate: RequestHandler = async (req, res, next) => {
+const authenticate: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
     res.status(401).json({ message: "No token provided" });
-    return next();
+    return;
   }
 
   try {
@@ -27,10 +27,10 @@ const authenticate: RequestHandler = async (req, res, next) => {
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       res.status(401).json({ message: "Token has expired" });
-      return next();
+      return;
     }
     res.status(401).json({ message: "Invalid token" });
-    return next();
+    return;
   }
 };
 
