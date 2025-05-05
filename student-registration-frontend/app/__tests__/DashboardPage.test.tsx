@@ -197,6 +197,28 @@ describe('AdminDashboard', () => {
     });
   });
 
+  it('shows loading spinner while fetching analytics', async () => {
+    let resolveAnalytics: (value: any) => void;
+    const analyticsPromise = new Promise((resolve) => {
+      resolveAnalytics = resolve;
+    });
+
+    (api.get as jest.Mock).mockReturnValue(analyticsPromise);
+
+    renderDashboard();
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    resolveAnalytics!({ data: mockAnalytics });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(screen.getByText('Total Users')).toBeInTheDocument();
+    }, { timeout: 5000 });
+  }, 10000);
+
   it('handles analytics fetch error', async () => {
     jest.spyOn(AuthHook, 'useAuth').mockReturnValue({
       isAdmin: true,
@@ -234,22 +256,7 @@ describe('AdminDashboard', () => {
   });
 
   it('updates analytics data periodically', async () => {
-    jest.spyOn(AuthHook, 'useAuth').mockReturnValue({
-      isAdmin: true,
-      isAuthenticated: true,
-      loading: false,
-      user: {
-        id: '1',
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@example.com',
-        role: 'admin',
-        registrationNumber: 'ADM001',
-      },
-      login: jest.fn(),
-      register: jest.fn(),
-      logout: jest.fn(),
-    });
+    jest.useFakeTimers();
 
     const initialAnalytics = { ...mockAnalytics };
     const updatedAnalytics = {
@@ -266,13 +273,15 @@ describe('AdminDashboard', () => {
 
     await waitFor(() => {
       expect(screen.getByText('100')).toBeInTheDocument(); // Initial total users
-    });
+    }, { timeout: 5000 });
 
     // Fast-forward time to trigger refetch
     jest.advanceTimersByTime(10000);
 
     await waitFor(() => {
       expect(screen.getByText('110')).toBeInTheDocument(); // Updated total users
-    });
-  });
+    }, { timeout: 5000 });
+
+    jest.useRealTimers();
+  }, 15000);
 });

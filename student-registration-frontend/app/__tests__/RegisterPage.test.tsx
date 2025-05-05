@@ -115,32 +115,21 @@ describe('RegisterPage', () => {
   it('validates required fields', async () => {
     renderRegisterPage();
     
-    // Accept terms without filling in fields
+    // Accept terms and submit empty form
     const termsCheckbox = screen.getByRole('checkbox');
     await userEvent.click(termsCheckbox);
-
-    // Submit empty form
     const registerButton = screen.getByRole('button', { name: /create account/i });
     await userEvent.click(registerButton);
     
-    // Wait for and validate each field error
-    await waitFor(async () => {
-      const firstNameError = await screen.findByTestId('firstName-error', {}, { timeout: 10000 });
-      expect(firstNameError).toHaveTextContent('First name is required');
-
-      const lastNameError = await screen.findByTestId('lastName-error', {}, { timeout: 10000 });
-      expect(lastNameError).toHaveTextContent('Last name is required');
-
-      const emailError = await screen.findByTestId('email-error', {}, { timeout: 10000 });
-      expect(emailError).toHaveTextContent('Email is required');
-
-      const passwordError = await screen.findByTestId('password-error', {}, { timeout: 10000 });
-      expect(passwordError).toHaveTextContent('Password is required');
-
-      const dateOfBirthError = await screen.findByTestId('dateOfBirth-error', {}, { timeout: 10000 });
-      expect(dateOfBirthError).toHaveTextContent('Date of birth is required');
-    }, { timeout: 15000 });
-  }, 20000);
+    // Wait for all validation errors together with a single timeout
+    await waitFor(() => {
+      expect(screen.getByTestId('firstName-error')).toHaveTextContent(/first name is required/i);
+      expect(screen.getByTestId('lastName-error')).toHaveTextContent(/last name is required/i);
+      expect(screen.getByTestId('email-error')).toHaveTextContent(/email is required/i);
+      expect(screen.getByTestId('password-error')).toHaveTextContent(/password is required/i);
+      expect(screen.getByTestId('dateOfBirth-error')).toHaveTextContent(/date of birth is required/i);
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('validates email format', async () => {
     renderRegisterPage();

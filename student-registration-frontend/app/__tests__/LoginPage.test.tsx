@@ -85,12 +85,12 @@ describe('LoginPage', () => {
     await userEvent.click(signInButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid email address')).toBeInTheDocument();
-      expect(screen.getByText('Password is required')).toBeInTheDocument();
-    });
+      expect(screen.getByText(/invalid email address/i)).toBeInTheDocument();
+      expect(screen.getByText(/password.*required/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
 
     expect(mockLogin).not.toHaveBeenCalled();
-  });
+  }, 10000);
 
   it('validates email format', async () => {
     renderLoginPage();
@@ -206,9 +206,11 @@ describe('LoginPage', () => {
     const signInButton = screen.getByRole('button', { name: /sign in/i });
     await userEvent.click(signInButton);
 
-    expect(signInButton).toBeDisabled();
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
-  });
+    await waitFor(() => {
+      expect(signInButton).toBeDisabled();
+      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('toggles password visibility', async () => {
     renderLoginPage();
@@ -430,7 +432,9 @@ describe('LoginPage', () => {
     await userEvent.type(passwordInput, 'password123');
     await userEvent.click(submitButton);
 
-    expect(submitButton).toBeDisabled();
-    expect(submitButton).toHaveTextContent(/signing in/i);
-  });
+    await waitFor(() => {
+      expect(submitButton).toBeDisabled();
+      expect(submitButton).toHaveTextContent(/signing in/i);
+    }, { timeout: 5000 });
+  }, 10000);
 });

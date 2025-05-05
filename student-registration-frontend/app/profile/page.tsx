@@ -53,17 +53,28 @@ export default function ProfilePage() {
 
   // Fetch QR code by user ID (only for students)
   useEffect(() => {
+    let qrUrl: string | null = null;
+
     async function fetchQrCode() {
       if (!user?.id || isAdmin(user.role)) return;
       try {
         const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
-        const url = URL.createObjectURL(res.data);
-        setQrCodeUrl(url);
+        qrUrl = URL.createObjectURL(res.data);
+        setQrCodeUrl(qrUrl);
       } catch (e) {
         setQrCodeUrl(null);
+        setError('Failed to load QR code');
       }
     }
+
     fetchQrCode();
+
+    // Cleanup URL object when component unmounts
+    return () => {
+      if (qrUrl) {
+        URL.revokeObjectURL(qrUrl);
+      }
+    };
   }, [user]);
 
   if (loading) {
@@ -345,16 +356,28 @@ export default function ProfilePage() {
 // UserCard component for admin view
 function UserCard({ user }: { user: User }) {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
+  
   useEffect(() => {
+    let url: string | null = null;
+    
     async function fetchQr() {
       try {
         const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
-        setQrUrl(URL.createObjectURL(res.data));
+        url = URL.createObjectURL(res.data);
+        setQrUrl(url);
       } catch {
         setQrUrl(null);
       }
     }
+    
     fetchQr();
+    
+    // Cleanup URL object when component unmounts or user changes
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
   }, [user.id]);
 
   const handleDownload = () => {

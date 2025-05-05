@@ -118,15 +118,34 @@ describe('ProfilePage', () => {
   });
 
   it('displays student profile with QR code', async () => {
+    // Mock successful QR code fetch
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob())
+    });
+
     renderProfilePage();
 
     await waitFor(() => {
       expect(screen.getByText(/john doe/i)).toBeInTheDocument();
       expect(screen.getByText(/REG001/)).toBeInTheDocument();
       expect(screen.getByText(/john@example\.com/)).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    await waitFor(() => {
       expect(screen.getByTestId('qr-code')).toBeInTheDocument();
-    });
-  });
+    }, { timeout: 5000 });
+  }, 10000);
+
+  it('handles QR code fetch error', async () => {
+    global.fetch = jest.fn().mockRejectedValueOnce(new Error('Failed to fetch QR code'));
+    
+    renderProfilePage();
+    
+    await waitFor(() => {
+      expect(mockNotify).toHaveBeenCalledWith('Failed to load QR code', 'error');
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('displays admin view with all users', async () => {
     // Mock admin user

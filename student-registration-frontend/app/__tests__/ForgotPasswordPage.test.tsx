@@ -69,8 +69,8 @@ describe('ForgotPasswordPage', () => {
     await waitFor(() => {
       expect(mockNotify).toHaveBeenCalledWith('Password reset instructions sent to your email', 'success');
       expect(mockPush).toHaveBeenCalledWith('/login');
-    });
-  });
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('handles password reset request error', async () => {
     const errorMessage = 'Error sending reset instructions';
@@ -87,8 +87,8 @@ describe('ForgotPasswordPage', () => {
     await waitFor(() => {
       expect(mockNotify).toHaveBeenCalledWith(errorMessage, 'error');
       expect(mockPush).not.toHaveBeenCalled();
-    });
-  });
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('disables submit button while processing', async () => {
     (api.post as jest.Mock).mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 100)));

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerStudent, loginUser, verifyToken, forgotPassword, resetPassword } from "../controllers/authController";
+import { registerStudent, loginUser, verifyToken, forgotPassword, resetPassword, loginLimiter } from "../controllers/authController";
 import validate from "../middleware/validate";
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "../validations/authValidation";
 
@@ -12,7 +12,7 @@ const asyncHandler = (fn: Function) => (req: any, res: any, next: any) => {
 
 // Public routes
 router.post("/register", validate(registerSchema), asyncHandler(registerStudent));
-router.post("/login", validate(loginSchema), asyncHandler(loginUser));
+router.post("/login", loginLimiter, validate(loginSchema), asyncHandler(loginUser));
 router.post("/forgot-password", validate(forgotPasswordSchema), asyncHandler(forgotPassword));
 router.post("/reset-password/:token", validate(resetPasswordSchema as any), asyncHandler(resetPassword));
 

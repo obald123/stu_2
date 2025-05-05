@@ -473,76 +473,84 @@ describe('Auth Controller Edge Cases', () => {
 });
 
 describe("Login Rate Limiting", () => {
+  let clock: sinon.SinonFakeTimers;
+  
   beforeEach(async () => {
-      const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash("password123", 10);
-      await prisma.user.create({
-          data: {
-              firstName: "Rate",
-              lastName: "Limited",
-              email: "rate.test@example.com",
-              password: hashedPassword,
-              registrationNumber: "REG777777",
-              dateOfBirth: new Date("2000-01-01"),
-              role: "student",
-          },
-      });
+    const hashedPassword = await bcrypt.hash("password123", 10);
+    await prisma.user.create({
+      data: {
+        firstName: "Rate",
+        lastName: "Limited",
+        email: "rate.test@example.com",
+        password: hashedPassword,
+        registrationNumber: "REG777777",
+        dateOfBirth: new Date("2000-01-01"),
+        role: "student",
+      },
+    });
+    clock = sinon.useFakeTimers();
   });
 
   afterEach(async () => {
-      await prisma.user.deleteMany();
+    await prisma.user.deleteMany();
+    clock.restore();
   });
 
-  it("should block after multiple failed attempts", logResultWrapper("should block after multiple failed attempts", async () => {
-      const loginAttempt = () => request(app)
-          .post("/api/login")
-          .send({
-              email: "rate.test@example.com",
-              password: "wrongpassword"
-          });
+  it("should block after multiple failed attempts", async () => {
+    const loginAttempts = Array(5).fill(null).map(() => 
+      request(app)
+        .post("/api/login")
+        .send({
+          email: "rate.test@example.com",
+          password: "wrongpassword"
+        })
+    );
 
-      // Make multiple failed attempts
-      for (let i = 0; i < 5; i++) {
-          const res = await loginAttempt();
-          expect(res.status).to.equal(401);
-      }
+    // Make multiple failed attempts in parallel
+    const results = await Promise.all(loginAttempts);
+    results.forEach(res => {
+      expect(res.status).to.equal(401);
+    });
 
-      // Next attempt should be rate limited
-      const blockedRes = await loginAttempt();
-      expect(blockedRes.status).to.equal(429);
-      expect(blockedRes.body).to.have.property("message").that.includes("Too many login attempts");
-  }));
+    // Next attempt should be rate limited
+    const blockedRes = await request(app)
+      .post("/api/login")
+      .send({
+        email: "rate.test@example.com",
+        password: "wrongpassword"
+      });
 
-  it("should allow login after rate limit window expires", logResultWrapper("should allow login after rate limit window expires", async () => {
-      // Simulate rate limit window expiration
-      const clock = sinon.useFakeTimers();
-      
-      // Make failed attempts
-      for (let i = 0; i < 5; i++) {
-          await request(app)
-              .post("/api/login")
-              .send({
-                  email: "rate.test@example.com",
-                  password: "wrongpassword"
-              });
-      }
+    expect(blockedRes.status).to.equal(429);
+    expect(blockedRes.body.message).to.include("Too many login attempts");
+  }).timeout(10000);
 
-      // Advance time by 15 minutes
-      clock.tick(15 * 60 * 1000);
+  it("should allow login after rate limit window expires", async () => {
+    // Make failed attempts
+    const loginAttempts = Array(5).fill(null).map(() => 
+      request(app)
+        .post("/api/login")
+        .send({
+          email: "rate.test@example.com",
+          password: "wrongpassword"
+        })
+    );
 
-      // Should now be able to attempt login again
-      const res = await request(app)
-          .post("/api/login")
-          .send({
-              email: "rate.test@example.com",
-              password: "password123"
-          });
+    await Promise.all(loginAttempts);
 
-      expect(res.status).to.equal(200);
-      expect(res.body).to.have.property("message", "Login successful");
+    // Advance time by 15 minutes
+    clock.tick(15 * 60 * 1000);
 
-      clock.restore();
-  }));
+    // Should now be able to attempt login again
+    const res = await request(app)
+      .post("/api/login")
+      .send({
+        email: "rate.test@example.com",
+        password: "password123"
+      });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.message).to.equal("Login successful");
+  }).timeout(10000);
 });
 
 describe("Authentication Tests", () => {

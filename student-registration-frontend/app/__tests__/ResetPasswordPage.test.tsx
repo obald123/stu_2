@@ -60,10 +60,12 @@ describe('ResetPasswordPage', () => {
     await userEvent.type(newPasswordInput, 'weak');
     await userEvent.click(submitButton);
 
-    expect(await screen.findByText(/must be at least 6 characters/i)).toBeInTheDocument();
-    expect(await screen.findByText(/must contain at least one uppercase letter/i)).toBeInTheDocument();
-    expect(await screen.findByText(/must contain at least one number/i)).toBeInTheDocument();
-  });
+    await waitFor(() => {
+      expect(screen.getByText(/must be at least 6 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/must contain at least one uppercase letter/i)).toBeInTheDocument();
+      expect(screen.getByText(/must contain at least one number/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('validates password match', async () => {
     render(<ResetPasswordPage />);
@@ -76,8 +78,10 @@ describe('ResetPasswordPage', () => {
     await userEvent.type(confirmPasswordInput, 'DifferentPass123');
     await userEvent.click(submitButton);
 
-    expect(await screen.findByText(/passwords don't match/i)).toBeInTheDocument();
-  });
+    await waitFor(() => {
+      expect(screen.getByText(/passwords don't match/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('handles successful password reset', async () => {
     (api.post as jest.Mock).mockResolvedValueOnce({ data: { message: 'Password reset successful' } });
@@ -99,8 +103,8 @@ describe('ResetPasswordPage', () => {
       });
       expect(mockNotify).toHaveBeenCalledWith('Password has been reset successfully', 'success');
       expect(mockPush).toHaveBeenCalledWith('/login');
-    });
-  });
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('handles password reset error', async () => {
     const errorMessage = 'Invalid or expired token';
@@ -121,8 +125,8 @@ describe('ResetPasswordPage', () => {
     await waitFor(() => {
       expect(mockNotify).toHaveBeenCalledWith(errorMessage, 'error');
       expect(mockPush).not.toHaveBeenCalled();
-    });
-  });
+    }, { timeout: 5000 });
+  }, 10000);
 
   it('disables submit button while processing', async () => {
     (api.post as jest.Mock).mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 100)));

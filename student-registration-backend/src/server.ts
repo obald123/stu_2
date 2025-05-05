@@ -45,6 +45,15 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   console.error("Message:", err.message);
   console.error("Stack:", err.stack);
 
+  // Handle rate limit errors
+  if (err.statusCode === 429) {
+    res.status(429).json({
+      error: "Rate Limit Exceeded",
+      message: err.message || "Too many requests, please try again later"
+    });
+    return;
+  }
+
   // Handle validation errors (Zod, Express-validator, etc)
   if (err.name === 'ValidationError' || err.name === 'ZodError' || err.name === 'BadRequestError') {
     res.status(400).json({
@@ -52,7 +61,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       message: err.message,
       errors: err.errors || []
     });
-    return next();
+    return;
   }
 
   // Handle Prisma database errors
@@ -61,7 +70,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       error: "Database Error",
       message: "An error occurred while accessing the database"
     });
-    return next();
+    return;
   }
 
   // Handle JWT errors
@@ -70,7 +79,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       error: "Authentication Error",
       message: err.message
     });
-    return next();
+    return;
   }
 
   // Default internal server error
@@ -78,7 +87,6 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     error: "Internal Server Error",
     message: "An unexpected error occurred"
   });
-  return next();
 };
 
 app.use(errorHandler);
