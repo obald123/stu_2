@@ -158,7 +158,7 @@ export default function ProfilePage() {
     <Box sx={{ 
       minHeight: '100vh', 
       display: 'flex',
-      bgcolor: '#f8fafc'
+      bgcolor: '#f8fafc',
     }}>
       {isAdmin(user.role) && (
         <Sidebar 
@@ -314,7 +314,7 @@ export default function ProfilePage() {
                   color: '#6366f1'
                 }}
               >
-                My Registration QR Code
+                My Profile QR Code
               </Typography>
               <Paper sx={{
                 p: 2,
