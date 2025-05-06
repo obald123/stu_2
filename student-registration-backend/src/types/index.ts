@@ -19,9 +19,10 @@ export interface UserResponse {
     email: string;
     password: string;
     registrationNumber: string;
-    dateOfBirth: Date
+    dateOfBirth: Date;
     role: Role;
     qrCode?: string;
+    googleId?: string;
     createdAt: Date;
     updatedAt: Date;
 }

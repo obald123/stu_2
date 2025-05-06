@@ -1,6 +1,8 @@
 import express, { ErrorRequestHandler } from "express";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
+import { passport } from "./config/passport";
+import session from "express-session";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import adminRoutes from "./routes/adminRoutes";
@@ -16,12 +18,26 @@ const port = process.env.PORT || 8000;
 
 app.use(
   cors({
-    origin: '*',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
   })
 );
+
 app.use(express.json());
+
+// Session middleware for passport
+app.use(session({
+  secret: process.env.JWT_SECRET || 'your_jwt_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Public routes (no auth required)
 app.use("/api", authRoutes);

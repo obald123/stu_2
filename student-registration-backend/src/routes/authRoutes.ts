@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { registerStudent, loginUser, verifyToken, forgotPassword, resetPassword, loginLimiter } from "../controllers/authController";
+import jwt from "jsonwebtoken";
+import { passport } from "../config/passport";
+import { registerStudent, loginUser, verifyToken, forgotPassword, resetPassword, loginLimiter, googleCallback } from "../controllers/authController";
 import validate from "../middleware/validate";
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "../validations/authValidation";
 
@@ -15,6 +17,15 @@ router.post("/register", validate(registerSchema), asyncHandler(registerStudent)
 router.post("/login", loginLimiter, validate(loginSchema), asyncHandler(loginUser));
 router.post("/forgot-password", validate(forgotPasswordSchema), asyncHandler(forgotPassword));
 router.post("/reset-password/:token", validate(resetPasswordSchema as any), asyncHandler(resetPassword));
+
+// Google OAuth routes
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get('/auth/google/callback',
+  asyncHandler(googleCallback)
+);
 
 // Token verification route
 router.get("/verify", asyncHandler(verifyToken));

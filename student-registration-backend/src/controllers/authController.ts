@@ -6,6 +6,7 @@ import { generateRegistrationNumber } from "../utils/registrationNumber";
 import { Role, UserDto, UserResponse, AuthSuccessResponse, MessageResponse } from "../types";
 import { sendPasswordResetEmail } from "../utils/emailService";
 import { rateLimit } from 'express-rate-limit';
+import passport from 'passport';
 
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
@@ -150,26 +151,30 @@ export const verifyToken = async (
   next: Function
 ): Promise<Response | void> => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    // User data is already verified and attached by authenticate middleware
+    const userId = (req as any).userId;
     
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+    // Fetch current user data
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        registrationNumber: true,
+        dateOfBirth: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
     }
 
-    try {
-      const decoded = jwt.verify(token, jwtSecret);
-      if (typeof decoded === "object" && decoded !== null) {
-        req.user = decoded as any;
-        return res.status(200).json({ valid: true, user: decoded });
-      } else {
-        return res.status(401).json({ message: "Token has expired" });
-      }
-    } catch (err) {
-      if (err instanceof jwt.TokenExpiredError) {
-        return res.status(401).json({ message: "Token has expired" });
-      }
-      return res.status(401).json({ message: "Token has expired" });
-    }
+    return res.status(200).json({ valid: true, user });
   } catch (error) {
     next(error);
     return Promise.reject(error);
@@ -323,4 +328,28 @@ export const resetPassword = async (
     next(error);
     return;
   }
+};
+
+export const googleCallback = (req: Request, res: Response, next: Function) => {
+  passport.authenticate('google', { session: false }, (err: any, user: any, info: any) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
+    }
+
+    try {
+      const token = jwt.sign(
+        { userId: user.id, role: user.role },
+        jwtSecret,
+        { expiresIn: "1h" }
+      );
+
+      // Redirect to frontend with token
+      res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+    } catch (error) {
+      next(error);
+    }
+  })(req, res, next);
 };

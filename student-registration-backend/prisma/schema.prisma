@@ -17,6 +17,7 @@ model User {
   registrationNumber String         @unique
   dateOfBirth        DateTime
   role               Role           @default(student)
+  googleId           String?        @unique
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   passwordResets     PasswordReset[]

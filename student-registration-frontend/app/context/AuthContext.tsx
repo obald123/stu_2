@@ -15,6 +15,7 @@ export type User = {
   registrationNumber: string;
   role: UserRole;
   dateOfBirth?: string;
+  googleId?: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -47,24 +48,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function loadUser() {
       try {
         const token = localStorage.getItem('token');
-        const storedUser = localStorage.getItem('user');
-        let userId = null;
-        if (storedUser) {
-          try {
-            userId = JSON.parse(storedUser)?.id;
-          } catch {}
+        if (!token) {
+          setUser(null);
+          setLoading(false);
+          return;
         }
-        if (!userId && token) {
-          // Optionally decode JWT to get userId if needed
-        }
-        if (token && userId) {
-          const response = await api.get(`/users/${userId}`);
-          setUser(response.data);
+
+        // Verify token and get current user data
+        const response = await api.get('/verify');
+        if (response.data.valid && response.data.user) {
+          setUser(response.data.user);
         } else {
+          localStorage.removeItem('token');
           setUser(null);
         }
       } catch (error) {
+        // Handle token verification errors
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
       } finally {
         setLoading(false);
@@ -80,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (keepSignedIn) {
         localStorage.setItem('keepSignedIn', 'true');
       }
-      localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
       return response.data;
     } catch (error) {

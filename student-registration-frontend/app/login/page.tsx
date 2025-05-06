@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Logo from '../components/Logo';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email format'),
@@ -35,6 +36,30 @@ export default function LoginPage() {
   const router = useRouter();
   const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const userStr = params.get('user');
+    const error = params.get('error');
+
+    if (error) {
+      notify('Authentication failed. Please try again.', 'error');
+      return;
+    }
+
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userStr));
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        window.location.href = '/'; // Full page refresh to update auth state
+      } catch (error) {
+        notify('Failed to process authentication. Please try again.', 'error');
+      }
+    }
+  }, [notify]);
 
   const {
     register,
@@ -327,6 +352,16 @@ export default function LoginPage() {
                 ) : (
                   'Sign In'
                 )}
+              </Button>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GoogleIcon />}
+                onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`}
+                sx={{ mb: 2 }}
+              >
+                Sign in with Google
               </Button>
 
               <Box sx={{ mt: 3, textAlign: 'center' }}>
