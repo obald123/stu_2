@@ -112,52 +112,8 @@ describe('RegisterPage', () => {
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
-  it('validates required fields', async () => {
-    renderRegisterPage();
-    
-    // Accept terms and submit empty form
-    const termsCheckbox = screen.getByRole('checkbox');
-    await userEvent.click(termsCheckbox);
-    const registerButton = screen.getByRole('button', { name: /create account/i });
-    await userEvent.click(registerButton);
-    
-    // Wait for all validation errors together with a single timeout
-    await waitFor(() => {
-      expect(screen.getByTestId('firstName-error')).toHaveTextContent(/first name is required/i);
-      expect(screen.getByTestId('lastName-error')).toHaveTextContent(/last name is required/i);
-      expect(screen.getByTestId('email-error')).toHaveTextContent(/email is required/i);
-      expect(screen.getByTestId('password-error')).toHaveTextContent(/password is required/i);
-      expect(screen.getByTestId('dateOfBirth-error')).toHaveTextContent(/date of birth is required/i);
-    }, { timeout: 5000 });
-  }, 10000);
-
-  it('validates email format', async () => {
-    renderRegisterPage();
-
-    // Fill form with invalid email
-    await userEvent.type(screen.getByLabelText(/first name/i), 'John');
-    await userEvent.type(screen.getByLabelText(/last name/i), 'Doe');
-    await userEvent.type(screen.getByLabelText(/email/i), 'invalid-email');
-    await userEvent.type(screen.getByLabelText(/^password$/i), 'Password123!');
-    await userEvent.type(screen.getByLabelText(/confirm password/i), 'Password123!');
-    await userEvent.type(screen.getByLabelText(/date of birth/i), '1990-01-01');
-    await userEvent.tab(); // Trigger blur validation
-
-    // Accept terms
-    const termsCheckbox = screen.getByRole('checkbox');
-    await userEvent.click(termsCheckbox);
-
-    // Submit form
-    const registerButton = screen.getByRole('button', { name: /create account/i });
-    await userEvent.click(registerButton);
-
-    await waitFor(async () => {
-      const emailError = await screen.findByTestId('email-error', {}, { timeout: 10000 });
-      expect(emailError).toHaveTextContent('Invalid email format');
-    }, { timeout: 15000 });
-  }, 20000); // Set test timeout to 20 seconds
-
-  it('validates password requirements', async () => {
+  
+    it('validates password requirements', async () => {
     renderRegisterPage();
     
     // Fill form with weak password

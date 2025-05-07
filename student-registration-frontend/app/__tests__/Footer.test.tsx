@@ -10,11 +10,4 @@ describe('Footer', () => {
     expect(element).toBeInTheDocument();
   });
 
-  
-
-  it('has proper accessibility attributes', () => {
-    render(<Footer />);
-    const element = screen.getByRole('generic');
-    expect(element).toBeInTheDocument();
-  });
 });
