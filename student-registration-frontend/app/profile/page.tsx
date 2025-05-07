@@ -36,7 +36,7 @@ export default function ProfilePage() {
       async function fetchProfileOrUsers() {
         try {
           if (user?.role && isAdmin(user.role)) {
-            const res = await api.get('/admin/users?page=1&limit=100');
+            const res = await api.get('/api/admin/users?page=1&limit=100');
             setAllUsers(res.data.users || []);
             setError(null);
           } else if (user?.id) {
