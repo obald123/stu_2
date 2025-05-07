@@ -24,41 +24,48 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  // Fetch user profile by ID or all users if admin
   useEffect(() => {
-    async function fetchProfileOrUsers() {
-      if (!user) return;
-      if (isAdmin(user.role)) {
+    // Redirect if not authenticated after loading is complete
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    // Only fetch data if we're authenticated and have a user
+    if (isAuthenticated && user) {
+      async function fetchProfileOrUsers() {
         try {
-          const res = await api.get('/admin/users?page=1&limit=100');
-          setAllUsers(res.data.users || []);
-          setError(null);
+          if (user?.role && isAdmin(user.role)) {
+            const res = await api.get('/admin/users?page=1&limit=100');
+            setAllUsers(res.data.users || []);
+            setError(null);
+          } else if (user?.id) {
+            const res = await api.get(`/api/users/${user.id}`);
+            setProfile(res.data);
+            setError(null);
+          }
         } catch (e: any) {
-          setAllUsers([]);
-          setError('Failed to load users.');
-        }
-      } else {
-        try {
-          const res = await api.get(`/users/${user.id}`);
-          setProfile(res.data);
-          setError(null);
-        } catch (e: any) {
-          setProfile(null);
-          setError('Failed to load profile. Please try again later.');
+          if (user?.role && isAdmin(user.role)) {
+            setAllUsers([]);
+            setError('Failed to load users.');
+          } else {
+            setProfile(null);
+            setError('Failed to load profile. Please try again later.');
+          }
         }
       }
+      fetchProfileOrUsers();
     }
-    fetchProfileOrUsers();
-  }, [user]);
+  }, [user, isAuthenticated, loading, router]);
 
   // Fetch QR code by user ID (only for students)
   useEffect(() => {
     let qrUrl: string | null = null;
 
     async function fetchQrCode() {
-      if (!user?.id || isAdmin(user.role)) return;
+      if (!isAuthenticated || !user?.id || isAdmin(user.role)) return;
       try {
-        const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
+        const res = await api.get(`/api/users/${user.id}/qrcode`, { responseType: 'blob' });
         qrUrl = URL.createObjectURL(res.data);
         setQrCodeUrl(qrUrl);
       } catch (e) {
@@ -67,7 +74,9 @@ export default function ProfilePage() {
       }
     }
 
-    fetchQrCode();
+    if (user) {
+      fetchQrCode();
+    }
 
     // Cleanup URL object when component unmounts
     return () => {
@@ -75,7 +84,7 @@ export default function ProfilePage() {
         URL.revokeObjectURL(qrUrl);
       }
     };
-  }, [user]);
+  }, [user, isAuthenticated]);
 
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><LoadingSpinner size={56} /></Box>;
@@ -362,7 +371,7 @@ function UserCard({ user }: { user: User }) {
     
     async function fetchQr() {
       try {
-        const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
+        const res = await api.get(`/api/users/${user.id}/qrcode`, { responseType: 'blob' });
         url = URL.createObjectURL(res.data);
         setQrUrl(url);
       } catch {

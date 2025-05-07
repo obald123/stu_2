@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Optionally decode JWT to get userId if needed
         }
         if (token && userId) {
-          const response = await api.get(`/users/${userId}`);
+          const response = await api.get(`/api/users/${userId}`);
           setUser(response.data);
         } else {
           setUser(null);
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string, keepSignedIn?: boolean) => {
     try {
-      const response = await api.post('/login', { email, password, keepSignedIn });
+      const response = await api.post('/api/login', { email, password, keepSignedIn });
       localStorage.setItem('token', response.data.token);
       if (keepSignedIn) {
         localStorage.setItem('keepSignedIn', 'true');
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dateOfBirth: string
   ) => {
     try {
-      const response = await api.post('/register', {
+      const response = await api.post('/api/register', {
         firstName,
         lastName,
         email,
