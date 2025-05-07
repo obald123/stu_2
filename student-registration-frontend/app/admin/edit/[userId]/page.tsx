@@ -58,7 +58,7 @@ export default function EditUserPage() {
     async function fetchUser() {
       try {
         setLoading(true);
-        const res = await api.get(`/users/${userId}`);
+        const res = await api.get(`/api/users/${userId}`);
         const user = res.data;
         setFullUser(user); // Save the full user object
         if (!user || !user.dateOfBirth) {
@@ -111,7 +111,7 @@ export default function EditUserPage() {
       if (updateData.dateOfBirth instanceof Date) {
         updateData.dateOfBirth = updateData.dateOfBirth.toISOString().slice(0, 10);
       }
-      await api.put(`/admin/users/${userId}`, updateData);
+      await api.put(`/api/admin/users/${userId}`, updateData);
       router.push('/admin/dashboard');
     } catch (e: any) {
       setSubmitError('Failed to update user');
