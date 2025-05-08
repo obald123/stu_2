@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import { useRouter } from 'next/navigation';
+import { GoogleUserData, GoogleAuthResponse } from '../types/google';
+import { GoogleRegistrationData } from '../lib/googleAuth';
 
 export type UserRole = 'admin' | 'student';
 
@@ -24,14 +26,16 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string, keepSignedIn?: boolean) => Promise<void>;
+  login: (email: string, password: string, keepSignedIn?: boolean) => Promise<any>;
   register: (
     firstName: string,
     lastName: string,
     email: string,
     password: string,
     dateOfBirth: string
-  ) => Promise<void>;
+  ) => Promise<any>;
+  handleGoogleAuth: (token: string, userData: GoogleUserData) => Promise<GoogleAuthResponse>;
+  registerWithGoogle: (registrationData: GoogleRegistrationData) => Promise<{ token: string; user: User; message: string }>;
   logout: () => void;
   loading: boolean;
 };
@@ -55,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Verify token and get current user data
-        const response = await api.get('/verify');
+        const response = await api.get('/api/verify');
         if (response.data.valid && response.data.user) {
           setUser(response.data.user);
         } else {
@@ -76,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string, keepSignedIn?: boolean) => {
     try {
-      const response = await api.post('/login', { email, password, keepSignedIn });
+      const response = await api.post('/api/login', { email, password, keepSignedIn });
       localStorage.setItem('token', response.data.token);
       if (keepSignedIn) {
         localStorage.setItem('keepSignedIn', 'true');
@@ -96,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dateOfBirth: string
   ) => {
     try {
-      const response = await api.post('/register', {
+      const response = await api.post('/api/register', {
         firstName,
         lastName,
         email,
@@ -107,6 +111,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
     } catch (error) {
+      throw error;
+    }
+  };  const handleGoogleAuth = async (token: string, userData: GoogleUserData): Promise<GoogleAuthResponse> => {
+    try {
+      // We don't need to verify the token on the frontend anymore as we're using the OAuth flow
+      return {
+        exists: false,
+        email: userData.email,
+        firstName: userData.given_name,
+        lastName: userData.family_name
+      };
+    } catch (error) {
+      throw error;
+    }
+  };  const registerWithGoogle = async (registrationData: GoogleRegistrationData): Promise<{ token: string; user: User; message: string }> => {
+    try {
+      const response = await api.post<{ token: string; user: User; message: string }>('/api/auth/google/register', registrationData);
+      if (!response.data.token || !response.data.user) {
+        throw new Error('Invalid response from server');
+      }
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user);
+      return {
+        token: response.data.token,
+        user: response.data.user,
+        message: response.data.message || 'Registration successful',
+      };
+    } catch (error) {
+      console.error('Google registration error:', error);
       throw error;
     }
   };
@@ -126,6 +159,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAdmin: user?.role === 'admin',
     login,
     register,
+    handleGoogleAuth,
+    registerWithGoogle,
     logout,
     loading,
   };

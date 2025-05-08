@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import {
   Box,
@@ -49,10 +49,12 @@ export default function NotificationsPage() {
     }
   }, [loading, isAuthenticated, isAdmin]);
 
+  const queryClient = useQueryClient();
+
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryKey: ['system-notifications'],
     queryFn: async () => {
-      const response = await api.get('/admin/notifications');
+      const response = await api.get('/api/admin/notifications');
       return response.data as SystemNotification[];
     },
     staleTime: 30000,
@@ -67,10 +69,9 @@ export default function NotificationsPage() {
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      await api.patch(`/admin/notifications/${id}/read`);
+      await api.patch(`/api/admin/notifications/${id}/read`);
       // Invalidate and refetch notifications
-      // Note: You'll need to set up a queryClient to use this
-      // queryClient.invalidateQueries(['system-notifications']);
+      queryClient.invalidateQueries({ queryKey: ['system-notifications'] });
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -78,9 +79,9 @@ export default function NotificationsPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      await api.delete(`/admin/notifications/${id}`);
+      await api.delete(`/api/admin/notifications/${id}`);
       // Invalidate and refetch notifications
-      // queryClient.invalidateQueries(['system-notifications']);
+      queryClient.invalidateQueries({ queryKey: ['system-notifications'] });
     } catch (error) {
       console.error('Error deleting notification:', error);
     }

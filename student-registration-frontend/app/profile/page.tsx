@@ -30,7 +30,7 @@ export default function ProfilePage() {
       if (!user) return;
       if (isAdmin(user.role)) {
         try {
-          const res = await api.get('/admin/users?page=1&limit=100');
+          const res = await api.get('/api/admin/users?page=1&limit=100');
           setAllUsers(res.data.users || []);
           setError(null);
         } catch (e: any) {
@@ -39,7 +39,7 @@ export default function ProfilePage() {
         }
       } else {
         try {
-          const res = await api.get(`/users/${user.id}`);
+          const res = await api.get(`/api/users/${user.id}`);
           setProfile(res.data);
           setError(null);
         } catch (e: any) {
@@ -58,7 +58,7 @@ export default function ProfilePage() {
     async function fetchQrCode() {
       if (!user?.id || isAdmin(user.role)) return;
       try {
-        const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
+        const res = await api.get(`/api/users/${user.id}/qrcode`, { responseType: 'blob' });
         qrUrl = URL.createObjectURL(res.data);
         setQrCodeUrl(qrUrl);
       } catch (e) {
@@ -362,7 +362,7 @@ function UserCard({ user }: { user: User }) {
     
     async function fetchQr() {
       try {
-        const res = await api.get(`/users/${user.id}/qrcode`, { responseType: 'blob' });
+        const res = await api.get(`/api/users/${user.id}/qrcode`, { responseType: 'blob' });
         url = URL.createObjectURL(res.data);
         setQrUrl(url);
       } catch {

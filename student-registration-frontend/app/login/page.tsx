@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useRouter } from 'next/navigation';
+import GoogleRegistrationModal from '../components/GoogleRegistrationModal';
 import {
   Box,
   Typography,
@@ -30,36 +31,44 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+type GoogleUserData = {
+  email: string;
+  given_name: string;
+  family_name: string;
+  sub: string;
+  picture?: string;
+};
+
+type GoogleRegData = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  googleId: string;
+  dateOfBirth: string;
+};
+
+type GoogleRegResponse = {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    registrationNumber: string;
+  };
+  message: string;
+};
+
 export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, registerWithGoogle } = useAuth();
   const { notify } = useNotification();
   const router = useRouter();
   const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // Handle Google OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const userStr = params.get('user');
-    const error = params.get('error');
-
-    if (error) {
-      notify('Authentication failed. Please try again.', 'error');
-      return;
-    }
-
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userStr));
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        window.location.href = '/'; // Full page refresh to update auth state
-      } catch (error) {
-        notify('Failed to process authentication. Please try again.', 'error');
-      }
-    }
-  }, [notify]);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [googleUserData, setGoogleUserData] = useState<GoogleRegData | null>(null);
+  const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
 
   const {
     register,
@@ -78,22 +87,116 @@ export default function LoginPage() {
     reset({ email: '', password: '' });
   }, [reset]);
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      await login(data.email, data.password, keepSignedIn);
-      notify('Login successful', 'success');
-      router.push('/');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
-      notify(errorMessage, 'error');
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const userStr = params.get('user');
+    const registrationToken = params.get('registrationToken');
+    const registrationDataStr = params.get('registrationData');
+    const error = params.get('error');
+
+    if (error) {
+      notify('Authentication failed: ' + decodeURIComponent(error), 'error');
+      return;
     }
-  };
+
+    // Handle existing user login
+    if (token && userStr) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userStr));
+        
+        // Store auth data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        notify('Login successful', 'success');
+        router.push(userData.role === 'admin' ? '/admin/dashboard' : '/profile');
+      } catch (error) {
+        console.error('Failed to process authentication:', error);
+        notify('Failed to process authentication. Please try again.', 'error');
+      }
+      return;
+    }
+
+    // Handle new user registration
+    if (registrationToken && registrationDataStr) {
+      try {
+        const registrationData = JSON.parse(decodeURIComponent(registrationDataStr));
+        setGoogleUserData({
+          email: registrationData.email,
+          firstName: registrationData.firstName,
+          lastName: registrationData.lastName,
+          googleId: registrationData.googleId,
+          dateOfBirth: '' // Will be set in the modal
+        });
+        setShowRegistrationModal(true);
+      } catch (error) {
+        console.error('Failed to process registration data:', error);
+        notify('Failed to process registration data. Please try again.', 'error');
+      }
+    }
+  }, [notify, router]);
 
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/');
     }
   }, [isAuthenticated, router]);
+
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      await login(data.email, data.password, keepSignedIn);
+      notify('Login successful', 'success');
+      router.push('/');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('uses Google Sign-In')) {
+        notify('Please sign in with Google for this account', 'error');
+        return;
+      }
+      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
+      notify(errorMessage, 'error');
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    try {
+      setIsLoadingGoogle(true);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const googleAuthUrl = `${baseUrl}/api/auth/google`;
+      window.location.href = googleAuthUrl;
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      notify('Failed to initialize Google sign-in. Please try again.', 'error');
+    } finally {
+      setIsLoadingGoogle(false);
+    }
+  };
+  const handleRegistrationSubmit = async (dateOfBirth: string) => {
+    if (!googleUserData?.googleId) {
+      notify('Missing registration data', 'error');
+      return;
+    }
+
+    try {
+      const response = await registerWithGoogle({
+        ...googleUserData,
+        dateOfBirth
+      });
+
+      // Store the token and user data
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+
+      notify('Registration successful', 'success');
+      setShowRegistrationModal(false);
+      router.push('/profile');
+    } catch (error) {
+      console.error('Registration error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
+      notify(errorMessage, 'error');
+    }
+  };
 
   return (
     <Box 
@@ -352,14 +455,48 @@ export default function LoginPage() {
                 ) : (
                   'Sign In'
                 )}
-              </Button>
-
+              </Button>              
               <Button
                 fullWidth
                 variant="outlined"
-                startIcon={<GoogleIcon />}
-                onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`}
-                sx={{ mb: 2 }}
+                startIcon={
+                  <Box
+                    component="img"
+                    src="/google-logo.svg"
+                    sx={{ width: 18, height: 18 }}
+                    alt="Google logo"
+                  />
+                }
+                onClick={handleGoogleSignIn}
+                sx={{ 
+                  mb: 2,
+                  height: '40px',
+                  backgroundColor: '#fff',
+                  border: '1px solid #dadce0',
+                  borderRadius: '4px',
+                  color: '#3c4043',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  fontFamily: 'Roboto, "Google Sans", arial, sans-serif',
+                  textTransform: 'none',
+                  boxShadow: '0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15)',
+                  '&:hover': {
+                    backgroundColor: '#f8f9fa',
+                    borderColor: '#dadce0',
+                    boxShadow: '0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15)'
+                  },
+                  '&:active': {
+                    backgroundColor: '#f8f9fa',
+                    borderColor: '#dadce0',
+                    boxShadow: '0 1px 2px 0 rgba(60,64,67,0.3)'
+                  },
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  paddingLeft: '12px',
+                  paddingRight: '12px'
+                }}
               >
                 Sign in with Google
               </Button>
@@ -399,12 +536,20 @@ export default function LoginPage() {
                   >
                     Register here
                   </MuiLink>
-                </Typography>
+                </Typography>              
               </Box>
             </form>
           </Box>
         </Container>
       </Box>
+
+      {/* Google Registration Modal */}
+      <GoogleRegistrationModal
+        open={showRegistrationModal}
+        onClose={() => setShowRegistrationModal(false)}
+        onSubmit={handleRegistrationSubmit}
+        userData={googleUserData}
+      />
     </Box>
   );
 }

@@ -1,12 +1,22 @@
-import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { PrismaClient } from ".prisma/client";
-import { generateRegistrationNumber } from "../utils/registrationNumber";
-import { Role, UserDto, UserResponse, AuthSuccessResponse, MessageResponse } from "../types";
-import { sendPasswordResetEmail } from "../utils/emailService";
+import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { PrismaClient } from '.prisma/client';
+import { generateRegistrationNumber } from '../utils/registrationNumber';
+import { 
+  Role, 
+  UserDto, 
+  UserResponse, 
+  AuthSuccessResponse, 
+  MessageResponse,
+  GoogleTokenVerifyRequest,
+  GoogleRegistrationRequest
+} from '../types';
+import { sendPasswordResetEmail } from '../utils/emailService';
 import { rateLimit } from 'express-rate-limit';
 import passport from 'passport';
+import { OAuth2Client } from 'google-auth-library';
 
 const prisma = new PrismaClient();
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
@@ -106,9 +116,32 @@ export const loginUser = async (
     const { email, password, keepSignedIn } = req.body;
 
     // Find user by email
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        password: true,
+        registrationNumber: true,
+        dateOfBirth: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        googleId: true
+      }
+    });
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // If user has googleId, they should use Google Sign-In
+    if (user.googleId) {
+      return res.status(400).json({ 
+        message: "This account uses Google Sign-In. Please sign in with Google." 
+      });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -123,20 +156,12 @@ export const loginUser = async (
       { expiresIn: keepSignedIn ? "30d" : "1h" }
     );
 
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+
     return res.status(200).json({
       message: "Login successful",
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        password: user.password,
-        registrationNumber: user.registrationNumber,
-        dateOfBirth: user.dateOfBirth,
-        role: user.role as Role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      },
+      user: userWithoutPassword,
       token,
     });
   } catch (error) {
@@ -151,11 +176,10 @@ export const verifyToken = async (
   next: Function
 ): Promise<Response | void> => {
   try {
-    // User data is already verified and attached by authenticate middleware
     const userId = (req as any).userId;
     
-    // Fetch current user data
-    const user = await prisma.user.findUnique({
+    // Find user by ID and include googleId in select
+    const user = await prisma.user.findFirst({
       where: { id: userId },
       select: {
         id: true,
@@ -166,7 +190,8 @@ export const verifyToken = async (
         dateOfBirth: true,
         role: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        googleId: true
       }
     });
 
@@ -333,23 +358,236 @@ export const resetPassword = async (
 export const googleCallback = (req: Request, res: Response, next: Function) => {
   passport.authenticate('google', { session: false }, (err: any, user: any, info: any) => {
     if (err) {
-      return next(err);
+      console.error('Google Auth Error:', err);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=${encodeURIComponent(err.message)}`);
     }
+    
     if (!user) {
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
     }
 
     try {
+      // Generate JWT token for the user
       const token = jwt.sign(
         { userId: user.id, role: user.role },
         jwtSecret,
-        { expiresIn: "1h" }
+        { expiresIn: '30d' } // Long-lived token for OAuth users
       );
 
-      // Redirect to frontend with token
-      res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+      // Encode user data to pass in URL
+      const userStr = encodeURIComponent(JSON.stringify({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        registrationNumber: user.registrationNumber
+      }));
+
+      // Redirect to frontend with token and user data
+      return res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}&user=${userStr}`);
     } catch (error) {
-      next(error);
+      console.error('Token Generation Error:', error);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=token_generation_failed`);
     }
   })(req, res, next);
+};
+
+export const verifyGoogleAuth = async (
+  req: Request<{}, {}, GoogleTokenVerifyRequest>,
+  res: Response
+): Promise<void> => {
+  try {
+    const { token, userData } = req.body;
+
+    if (!token || !userData) {
+      res.status(400).json({ message: 'Missing token or user data' });
+      return;
+    }
+
+    // Always verify with Google OAuth client
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      
+      const payload = ticket.getPayload();
+      if (!payload) {
+        res.status(401).json({ message: 'Invalid token payload' });
+        return;
+      }
+
+      // Verify token matches user data
+      if (payload.sub !== userData.sub) {
+        console.error('Token sub mismatch:', { payloadSub: payload.sub, userDataSub: userData.sub });
+        res.status(401).json({ message: 'Token mismatch' });
+        return;
+      }
+
+      // Verify email matches
+      if (payload.email !== userData.email) {
+        console.error('Email mismatch:', { payloadEmail: payload.email, userDataEmail: userData.email });
+        res.status(401).json({ message: 'Email mismatch' });
+        return;
+      }
+    } catch (googleError) {
+      console.error('Token verification error:', googleError);
+      res.status(401).json({ 
+        message: 'Token verification failed',
+        error: googleError instanceof Error ? googleError.message : 'Unknown error'
+      });
+      return;
+    }// Validate required data
+    if (!userData?.email || !userData?.sub || !userData?.given_name || !userData?.family_name) {
+      res.status(400).json({ message: 'Invalid user data' });
+      return;
+    }
+
+    // Check if user exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: userData.email },
+          { googleId: userData.sub }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      // Generate JWT token
+      const authToken = jwt.sign(
+        { userId: existingUser.id, role: existingUser.role },
+        jwtSecret,
+        { expiresIn: '30d' }
+      );
+
+      res.status(200).json({
+        exists: true,
+        user: {
+          id: existingUser.id,
+          firstName: existingUser.firstName,
+          lastName: existingUser.lastName,
+          email: existingUser.email,
+          role: existingUser.role,
+          registrationNumber: existingUser.registrationNumber,
+          dateOfBirth: existingUser.dateOfBirth,
+          createdAt: existingUser.createdAt,
+          updatedAt: existingUser.updatedAt
+        },
+        token: authToken
+      });
+    } else {
+      res.status(200).json({ exists: false });
+    }
+  } catch (error) {
+    console.error('Google Auth Verification Error:', error);
+    res.status(500).json({ message: 'Error verifying Google credentials' });
+  }
+};
+
+export const registerWithGoogle = async (
+  req: Request<{}, {}, GoogleRegistrationRequest>,
+  res: Response
+): Promise<void> => {
+  try {
+    const { token, userData, dateOfBirth } = req.body;    // Verify token with Google OAuth2 client
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      console.error('Google client ID not configured');
+      res.status(500).json({ message: 'Server configuration error' });
+      return;
+    }
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      
+      const payload = ticket.getPayload();
+      if (!payload) {
+        res.status(401).json({ message: 'Invalid token payload' });
+        return;
+      }
+
+      // Verify token matches user data
+      if (payload.sub !== userData.sub) {
+        res.status(401).json({ message: 'Token mismatch' });
+        return;
+      }
+
+      // Verify email matches
+      if (payload.email !== userData.email) {
+        res.status(401).json({ message: 'Email mismatch' });
+        return;
+      }
+    } catch (verifyError) {
+      console.error('Token verification error:', verifyError);
+      const errorMessage = verifyError instanceof Error ? verifyError.message : 'Unknown error';
+      res.status(401).json({ message: `Token verification failed: ${errorMessage}` });
+      return;
+    }
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: userData.email },
+          { googleId: userData.sub }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      res.status(400).json({ message: 'User already exists' });
+      return;
+    }
+
+    // Generate registration number
+    const registrationNumber = await generateRegistrationNumber();    // Generate a secure random password for Google users
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 12);
+
+    // Create new user
+    const newUser = await prisma.user.create({
+      data: {
+        firstName: userData.given_name,
+        lastName: userData.family_name,
+        email: userData.email,
+        googleId: userData.sub,
+        registrationNumber,
+        dateOfBirth: new Date(dateOfBirth),
+        role: 'student',
+        password: hashedPassword, // Required field but not used for Google auth
+      }
+    });
+
+    // Generate JWT token
+    const authToken = jwt.sign(
+      { userId: newUser.id, role: newUser.role },
+      jwtSecret,
+      { expiresIn: '30d' }
+    );
+
+    res.status(201).json({
+      message: 'Registration successful',
+      user: {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role,
+        registrationNumber: newUser.registrationNumber,
+        dateOfBirth: newUser.dateOfBirth,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt
+      },
+      token: authToken
+    });
+  } catch (error) {
+    console.error('Google Registration Error:', error);
+    res.status(500).json({ message: 'Error during registration' });
+  }
 };

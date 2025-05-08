@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
     queryKey: ['admin-analytics'],
     queryFn: async () => {
-      const response = await api.get('/admin/analytics');
+      const response = await api.get('/api/admin/analytics');
       return response.data;
     },
     staleTime: 10000,

@@ -36,7 +36,7 @@ export default function AdminSettingsPage() {
   const { data: settingsData, isLoading: isLoadingSettings } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: async () => {
-      const response = await api.get('/admin/settings');
+      const response = await api.get('/api/admin/settings');
       return response.data;
     }
   });
@@ -51,7 +51,7 @@ export default function AdminSettingsPage() {
   // Update settings mutation
   const { mutate: updateSettings, isPending: isUpdating } = useMutation({
     mutationFn: async (newSettings: SettingsState) => {
-      const response = await api.put('/admin/settings', newSettings);
+      const response = await api.put('/api/admin/settings', newSettings);
       return response.data;
     },
     onSuccess: () => {

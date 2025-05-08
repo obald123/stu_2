@@ -43,7 +43,7 @@ export default function UserManagementPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['users', page],
     queryFn: async () => {
-      const response = await api.get(`/admin/users?page=${page}&limit=10`);
+      const response = await api.get(`/api/admin/users?page=${page}&limit=10`);
       return response.data;
     },
     staleTime: 5000,
@@ -52,7 +52,7 @@ export default function UserManagementPage() {
   const handleDelete = async (userId: string) => {
     if (confirm('Are you sure you want to delete this user?')) {
       try {
-        await api.delete(`/admin/users/${userId}`);
+        await api.delete(`/api/admin/users/${userId}`);
         notify('User deleted successfully', 'success');
         refetch();
       } catch (error) {

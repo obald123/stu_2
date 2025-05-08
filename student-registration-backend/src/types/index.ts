@@ -1,7 +1,4 @@
-export enum Role {
-    ADMIN = "admin",
-    STUDENT = "student"
-}
+export type Role = 'admin' | 'student';
 
 export interface UserDto {
     firstName: string;
@@ -17,12 +14,12 @@ export interface UserResponse {
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
+    password?: string; // Make password optional
     registrationNumber: string;
     dateOfBirth: Date;
     role: Role;
+    googleId?: string | null;
     qrCode?: string;
-    googleId?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -46,4 +43,23 @@ export interface AuthSuccessResponse {
   message: string;
   user: UserResponse;
   token: string;
+}
+
+export interface GoogleUserData {
+  email: string;
+  given_name: string;
+  family_name: string;
+  sub: string;
+  picture?: string;
+}
+
+export interface GoogleTokenVerifyRequest {
+  token: string;
+  userData: GoogleUserData;
+}
+
+export interface GoogleRegistrationRequest {
+  token: string;
+  userData: GoogleUserData;
+  dateOfBirth: string;
 }

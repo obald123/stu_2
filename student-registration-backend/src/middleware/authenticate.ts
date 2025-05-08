@@ -21,6 +21,8 @@ const authenticate: RequestHandler = (req: Request, res: Response, next: NextFun
       userId: string;
       role: string;
     };
+    
+    // Attach user info to request
     (req as AuthenticatedRequest).userId = decoded.userId;
     (req as AuthenticatedRequest).role = decoded.role;
     next();

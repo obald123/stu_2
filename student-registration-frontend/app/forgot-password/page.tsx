@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       setIsSubmitting(true);
-      const response = await api.post('/forgot-password', data);
+      const response = await api.post('/api/forgot-password', data);
       notify('Password reset instructions sent to your email', 'success');
       router.push('/login');
     } catch (error: any) {

@@ -16,7 +16,7 @@ export default function AuditLogPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['audit-log'],
     queryFn: async () => {
-      const res = await api.get('/admin/audit-log');
+      const res = await api.get('/api/admin/audit-log');
       return res.data.log;
     },
     staleTime: 10000,

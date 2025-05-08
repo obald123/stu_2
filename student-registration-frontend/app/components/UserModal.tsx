@@ -60,7 +60,7 @@ export default function UserModal({ isOpen, onClose, user, onSuccess }: UserModa
 
   const onSubmit = async (data: UpdateUserFormData) => {
     try {
-      await api.put(`/admin/users/${user?.id}`, data);
+      await api.put(`/api/admin/users/${user?.id}`, data);
       toast.success('User updated successfully');
       onSuccess();
     } catch (error) {
