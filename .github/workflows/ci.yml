@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: obald123
+          POSTGRES_DB: student_registration
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:obald123@localhost:5432/student_registration
+      JWT_SECRET: test_secret
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: stu_2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+        working-directory: stu_2/student-registration-backend
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: stu_2/student-registration-backend
+      - name: Run Prisma migrations
+        run: npx prisma migrate deploy
+        working-directory: stu_2/student-registration-backend
+      - name: Run all backend tests
+        run: npx mocha --timeout 20000 -r ts-node/register 'src/test/**/*.test.ts'
+        working-directory: stu_2/student-registration-backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: stu_2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+        working-directory: stu_2/student-registration-frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: stu_2/student-registration-frontend
+      - name: Run frontend tests
+        run: npm test
+        working-directory: stu_2/student-registration-frontend

@@ -38,6 +38,7 @@ export interface UsersListResponse {
 
 export interface MessageResponse {
   message: string;
+  token?: string;
 }
 
 export interface AuthSuccessResponse {

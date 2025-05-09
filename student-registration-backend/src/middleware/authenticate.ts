@@ -1,4 +1,4 @@
-import { Request, RequestHandler } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 
 const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
@@ -8,11 +8,17 @@ interface AuthenticatedRequest extends Request {
   role?: string;
 }
 
-const authenticate: RequestHandler = (req, res, next) => {
+const authenticate: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+  // First check if user is authenticated via Passport session
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  // If not authenticated via session, try JWT
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    res.status(401).json({ message: "No token provided" });
+    res.status(401).json({ message: "Authentication required" });
     return;
   }
 
@@ -25,8 +31,12 @@ const authenticate: RequestHandler = (req, res, next) => {
     (req as AuthenticatedRequest).role = decoded.role;
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ message: "Token has expired" });
+      return;
+    }
     res.status(401).json({ message: "Invalid token" });
+    return;
   }
 };
 

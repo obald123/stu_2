@@ -5,20 +5,25 @@ import { useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import { useRouter } from 'next/navigation';
 
-type User = {
+export type UserRole = 'admin' | 'student';
+
+export type User = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
   registrationNumber: string;
-  role: 'admin' | 'student';
+  role: UserRole;
+  dateOfBirth?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, keepSignedIn?: boolean) => Promise<void>;
   register: (
     firstName: string,
     lastName: string,
@@ -42,34 +47,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function loadUser() {
       try {
         const token = localStorage.getItem('token');
-        if (token) {
-          console.log('[AuthContext] Token found, verifying and loading user...');
-          const response = await api.get('/profile');
-          console.log('[AuthContext] User loaded:', response.data);
+        const storedUser = localStorage.getItem('user');
+        let userId = null;
+        if (storedUser) {
+          try {
+            userId = JSON.parse(storedUser)?.id;
+          } catch {}
+        }
+        if (!userId && token) {
+          // Optionally decode JWT to get userId if needed
+        }
+        if (token && userId) {
+          const response = await api.get(`/api/users/${userId}`);
           setUser(response.data);
         } else {
-          console.log('[AuthContext] No token found.');
+          setUser(null);
         }
       } catch (error) {
-        console.error('[AuthContext] Error loading user:', error);
         localStorage.removeItem('token');
+        setUser(null);
       } finally {
         setLoading(false);
       }
     }
-
     loadUser();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, keepSignedIn?: boolean) => {
     try {
-      console.log('[AuthContext] Attempting login for', email);
-      const response = await api.post('/login', { email, password });
-      console.log('[AuthContext] Login response:', response.data);
+      const response = await api.post('/api/login', { email, password, keepSignedIn });
       localStorage.setItem('token', response.data.token);
+      if (keepSignedIn) {
+        localStorage.setItem('keepSignedIn', 'true');
+      }
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
+      return response.data;
     } catch (error) {
-      console.error('[AuthContext] Login error:', error);
       throw error;
     }
   };
@@ -82,25 +96,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dateOfBirth: string
   ) => {
     try {
-      console.log('[AuthContext] Attempting register for', email);
-      const response = await api.post('/register', {
+      const response = await api.post('/api/register', {
         firstName,
         lastName,
         email,
         password,
         dateOfBirth,
       });
-      console.log('[AuthContext] Register response:', response.data);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
     } catch (error) {
-      console.error('[AuthContext] Register error:', error);
       throw error;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('keepSignedIn');
+    localStorage.removeItem('user');
     setUser(null);
     queryClient.clear();
     router.push('/login');

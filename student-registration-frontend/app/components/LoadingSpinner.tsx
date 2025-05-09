@@ -1,30 +1,55 @@
-export default function LoadingSpinner({ size = 48 }: { size?: number }) {
+interface LoadingSpinnerProps {
+  size?: number;
+  color?: string;
+  center?: boolean;
+  fullHeight?: boolean;
+}
+
+export default function LoadingSpinner({ 
+  size = 40,
+  color = '#4299e1',
+  center = true,
+  fullHeight = false 
+}: LoadingSpinnerProps) {
   return (
-    <div className="flex items-center justify-center">
-      <svg
-        className="animate-spin text-indigo-500"
-        width={size}
-        height={size}
-        viewBox="0 0 50 50"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+    <div 
+      style={{
+        display: 'flex',
+        justifyContent: center ? 'center' : 'flex-start',
+        alignItems: center ? 'center' : 'flex-start',
+        height: fullHeight ? '100vh' : 'auto',
+        width: '100%',
+        padding: '20px'
+      }}
+      data-testid="loadingspinner-container"
+      data-size={size}
+      data-color={color}
+      data-center={center}
+      data-fullheight={fullHeight}
+    >
+      <div
+        data-testid="loading-spinner"
+        style={{
+          width: size,
+          height: size,
+          animation: 'spin 1s linear infinite',
+          position: 'relative'
+        }}
+        role="status"
+        aria-label="Loading..."
+        aria-busy="true"
       >
-        <circle
-          className="opacity-20"
-          cx="25"
-          cy="25"
-          r="20"
-          stroke="currentColor"
-          strokeWidth="6"
+        <div 
+          style={{
+            border: `4px solid ${color}`,
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            width: '100%',
+            height: '100%',
+            animation: 'spin 1s linear infinite'
+          }} 
         />
-        <path
-          d="M45 25c0-11.046-8.954-20-20-20"
-          stroke="currentColor"
-          strokeWidth="6"
-          strokeLinecap="round"
-          className="opacity-80"
-        />
-      </svg>
+      </div>
     </div>
   );
 }

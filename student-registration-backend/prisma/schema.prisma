@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -8,16 +9,82 @@ datasource db {
 }
 
 model User {
-  id                 String   @id @default(uuid())
+  id                 String         @id @default(uuid())
   firstName          String
   lastName           String
-  email              String   @unique
+  email              String         @unique
   password           String
-  registrationNumber String   @unique
+  registrationNumber String         @unique
   dateOfBirth        DateTime
-  role               Role     @default(student)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  role               Role           @default(student)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  passwordResets     PasswordReset[]
+  settings           Setting[]
+  accounts            Account[]
+  sessions            Session[]
+  name                String?
+  image               String?
+}
+
+model TestResult {
+  id        String   @id @default(uuid())
+  testName  String
+  status    String
+  error     String?
+  createdAt DateTime @default(now())
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  token     String   
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Setting {
+  id                      String   @id @default(uuid())
+  emailNotifications      Boolean  @default(true)
+  autoApproveRegistrations Boolean @default(false)
+  maxStudentsPerClass     Int      @default(30)
+  registrationPrefix      String   @default("STU")
+  maintenanceMode        Boolean  @default(false)
+  updatedAt              DateTime @updatedAt
+  updatedBy              String
+  user                   User     @relation(fields: [updatedBy], references: [id])
+}
+
+model Account {
+  id                 String    @id @default(cuid())
+  userId             String
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  user               User      @relation(fields: [userId], references: [id])
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([providerId, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  expires      DateTime
+  sessionToken String   @unique
+  accessToken  String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 enum Role {

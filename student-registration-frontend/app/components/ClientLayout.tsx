@@ -7,33 +7,113 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
 import { usePathname } from 'next/navigation';
+import { Box } from '@mui/material';
+import { useState, useEffect } from 'react';
 
 export default function ClientLayout({ children, isAdminRoute }: { children: React.ReactNode; isAdminRoute: boolean }) {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [hideNavAndFooter, setHideNavAndFooter] = useState(false);
   const pathname = usePathname();
-  const isLoginPage = pathname === '/login';
-  const isRegisterPage = pathname === '/register';
-  const hideNavAndFooter = isLoginPage || isRegisterPage;
+  const isLandingPage = pathname === '/';
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setHideNavAndFooter(['/login', '/register', '/forgot-password'].includes(pathname || ''));
+  }, [pathname]);
+
   return (
     <ReactQueryProvider>
       <AuthProvider>
         <NotificationProvider>
           <NotificationDisplay />
-          {isAdminRoute ? (
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <main className="flex-1 flex flex-col justify-center items-center w-full">
-                {children}
-              </main>
-            </div>
-          ) : (
-            <>
-              {!hideNavAndFooter && <NavBar />}
-              <main className="flex-1 flex flex-col justify-center items-center w-full">
-                {children}
-              </main>
-            </>
-          )}
-          {!hideNavAndFooter && <Footer />}
+          <Box
+            sx={{
+              display: 'flex',
+              minHeight: '100vh',
+              background: '#f8fafc',
+              position: 'relative'
+            }}
+          >
+            {isAdminRoute && !hideNavAndFooter && (
+              <Sidebar 
+                isCollapsed={isSidebarCollapsed} 
+                onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+              />
+            )}
+            <Box
+              component="main"
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: 0,
+                position: 'relative',
+                ml: isAdminRoute && !hideNavAndFooter ? 
+                  { xs: 0, md: isSidebarCollapsed ? '80px' : '260px' } : 0,
+                transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                minHeight: '100vh'
+              }}
+            >
+              {!hideNavAndFooter && !isLandingPage && (
+                <NavBar 
+                  isCollapsed={isSidebarCollapsed} 
+                  showSidebar={isAdminRoute}
+                  isMobile={isMobile}
+                />
+              )}
+              <Box
+                sx={{
+                  flex: 1,
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  px: isLandingPage ? 0 : (hideNavAndFooter ? 0 : { 
+                    xs: 2, 
+                    sm: 3, 
+                    md: 4,
+                    lg: 6 
+                  }),
+                  pt: !hideNavAndFooter && !isLandingPage ? { 
+                    xs: '64px', 
+                    sm: '72px', 
+                    md: '80px' 
+                  } : 0,
+                  pb: !hideNavAndFooter ? { xs: 2, sm: 3 } : 0,
+                }}
+              >
+                <Box
+                  sx={{
+                    maxWidth: isLandingPage ? 'none' : (hideNavAndFooter ? '100%' : {
+                      xs: '100%',
+                      sm: '900px',
+                      md: '1200px',
+                      lg: '1400px'
+                    }),
+                    mx: isLandingPage ? 0 : 'auto',
+                    width: '100%',
+                    flex: 1
+                  }}
+                >
+                  {children}
+                </Box>
+                {!hideNavAndFooter && !isLandingPage && (
+                  <Footer 
+                    isCollapsed={isSidebarCollapsed}
+                    showSidebar={isAdminRoute}
+                  />
+                )}
+              </Box>
+            </Box>
+          </Box>
         </NotificationProvider>
       </AuthProvider>
     </ReactQueryProvider>

@@ -1,14 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject } from "zod";
+import { AnyZodObject, ZodError } from "zod";
 
 const validate =
   (schema: AnyZodObject) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
-    if (!result.success) {
-      res.status(400).json({ error: result.error.errors[0].message });
-    } else {
+  (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      schema.parse(req.body);
       next();
+    } catch (error) {
+      if (error instanceof ZodError) {
+        // Format validation errors to match test expectations
+        const errors = error.errors.map(err => ({
+          path: err.path,
+          message: err.message
+        }));
+        res.status(400).json({ errors });
+        return;
+      }
+      next(error);
     }
   };
 
