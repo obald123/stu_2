@@ -307,11 +307,11 @@ export default function LoginPage() {
                   py: 1.5,
                   fontSize: '1.1rem',
                   fontWeight: 600,
-                  bgcolor: '#4299e1',
+                  bgcolor: 'blue.500',
                   color: 'white',
                   borderRadius: 2,
                   '&:hover': { 
-                    bgcolor: '#3182ce',
+                    bgcolor: 'black',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 8px 16px rgba(66,153,225,0.2)'
                   },

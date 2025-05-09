@@ -9,15 +9,21 @@ const GoogleSignInButton: React.FC = () => {
   };
 
   return (
-    <button className={styles.googleButton} onClick={handleSignIn}>
+    <button 
+      className={styles.googleButton} 
+      onClick={handleSignIn}
+      type="button"
+      aria-label="Sign in with Google"
+    >
       <Image
-        src="/logo.svg"
+        src="/google.svg"
         alt="Google Logo"
-        width={20}
-        height={20}
+        width={18}
+        height={18}
         className={styles.googleLogo}
+        priority
       />
-      Sign in with Google
+      <span>Continue with Google</span>
     </button>
   );
 };
