@@ -9,10 +9,16 @@ interface AuthenticatedRequest extends Request {
 }
 
 const authenticate: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+  // First check if user is authenticated via Passport session
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  // If not authenticated via session, try JWT
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    res.status(401).json({ message: "No token provided" });
+    res.status(401).json({ message: "Authentication required" });
     return;
   }
 

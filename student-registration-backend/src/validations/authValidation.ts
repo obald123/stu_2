@@ -1,26 +1,26 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const registerSchema = z.object({
   firstName: z
-    .string({ required_error: "First name is required" })
-    .min(2, { message: "First name must be at least 2 characters long" }),
+    .string({ required_error: 'First name is required' })
+    .min(2, { message: 'First name must be at least 2 characters long' }),
   lastName: z
-    .string({ required_error: "Last name is required" })
-    .min(2, { message: "Last name must be at least 2 characters long" }),
+    .string({ required_error: 'Last name is required' })
+    .min(2, { message: 'Last name must be at least 2 characters long' }),
   email: z
-    .string({ required_error: "Email is required" })
-    .email({ message: "Invalid email format" }),
+    .string({ required_error: 'Email is required' })
+    .email({ message: 'Invalid email format' }),
   password: z
-    .string({ required_error: "Password is required" })
-    .min(6, { message: "Password must be at least 6 characters" }),
+    .string({ required_error: 'Password is required' })
+    .min(6, { message: 'Password must be at least 6 characters' }),
   dateOfBirth: z
-    .string({ required_error: "Date of birth is required" })
-    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Invalid date format (YYYY-MM-DD)" }),
+    .string({ required_error: 'Date of birth is required' })
+    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid date format (YYYY-MM-DD)' }),
 });
 
 export const loginSchema = z.object({
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ required_error: 'Email is required' })
     .email({ message: "Invalid email format" }),
   password: z
     .string({ required_error: "Password is required" })

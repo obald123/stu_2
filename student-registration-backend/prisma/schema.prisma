@@ -21,6 +21,10 @@ model User {
   updatedAt          DateTime       @updatedAt
   passwordResets     PasswordReset[]
   settings           Setting[]
+  accounts            Account[]
+  sessions            Session[]
+  name                String?
+  image               String?
 }
 
 model TestResult {
@@ -54,6 +58,33 @@ model Setting {
   updatedAt              DateTime @updatedAt
   updatedBy              String
   user                   User     @relation(fields: [updatedBy], references: [id])
+}
+
+model Account {
+  id                 String    @id @default(cuid())
+  userId             String
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  user               User      @relation(fields: [userId], references: [id])
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([providerId, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  expires      DateTime
+  sessionToken String   @unique
+  accessToken  String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 enum Role {

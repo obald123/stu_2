@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Logo from '../components/Logo';
+import GoogleSignInButton from '../../components/GoogleSignInButton';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email format'),
@@ -328,6 +329,9 @@ export default function LoginPage() {
                   'Sign In'
                 )}
               </Button>
+
+              {/* Google Sign-In Button */}
+              <GoogleSignInButton />
 
               <Box sx={{ mt: 3, textAlign: 'center' }}>
                 <Typography variant="body2" sx={{ color: '#4a5568' }}>
